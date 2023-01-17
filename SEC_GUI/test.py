@@ -1,25 +1,27 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog, QMessageBox
 from PyQt5.QtCore import QFile, QTimer
+from PyQt5 import QtTest
 from mainwindow import Ui_MainWindow
 import PyQt5.QtSerialPort
 import math
 import time
 
 plunger_position = 0
-maxspeed = 6000;
-minspeed = 0;
-operating_speed = 400;
-dispense_volume = 2;
+maxspeed = 6000
+minspeed = 0
+operating_speed = 400
+dispense_volume = 2
+pumpstatus = 0b0
 
 #class definition of main window
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
+        self.timer  = QTimer(self) 
         self.ui.setupUi(self)
         self.show()
-
     #connect GUI signals to methods
         self.ui.connectButton.clicked.connect(self.serialConnect)                       #connect/disconnect from serial port
         self.ui.refreshButton.clicked.connect(self.serialRefresh)                       #refresh available ports in COM spinbox
@@ -28,17 +30,19 @@ class MainWindow(QMainWindow):
         self.ui.fillButton.clicked.connect(self.fillPump)                               #fill the syringe barrel with fluid
         self.ui.emptyButton.clicked.connect(self.emptyPumpLines)                                #empty the syringe barrel into storage reservoir
         self.ui.primeButton.clicked.connect(self.primeLines)                            #auto-prime fluid lines
-        self.ui.cleanButton.clicked.connect(self.flushLines)                            #cleans pump by flushing all lines [with water]
+        self.ui.cleanButton.clicked.connect(self.cleanLines)                            #cleans pump by flushing all lines [with water]
         self.ui.drawSpeedSpinBox.valueChanged.connect(self.updateDrawSlider)            #updates draw speed slider
-        self.ui.drawSpeedSlider.sliderMoved.connect(self.updateDrawSpeed)               #updates draw speed spinbox
+        self.ui.drawSpeedSlider.valueChanged.connect(self.updateDrawSpeed)               #updates draw speed spinbox
         self.ui.dispenseSpeedSpinBox.valueChanged.connect(self.updateDispenseSlider)    #updates dispense speed slider
-        self.ui.dispenseSpeedSlider.sliderMoved.connect(self.updateDispenseSpeed)       #updates dispense speed spin box
+        self.ui.dispenseSpeedSlider.valueChanged.connect(self.updateDispenseSpeed)       #updates dispense speed spin box
         self.ui.dispenseSpinBox.valueChanged.connect(self.updateDispenseVolSlider)      #updates dispense volume slider
-        self.ui.dispenseVolumeSlider.sliderMoved.connect(self.updateDispenseVolume)     #updates dispense volume spin box
+        self.ui.dispenseVolumeSlider.valueChanged.connect(self.updateDispenseVolume)     #updates dispense volume spin box
         self.ui.dispenseVolumeButton.clicked.connect(self.dispense)                           #dispenses specified volumes to specified columns                       
         self.ui.allCheckBox.stateChanged.connect(self.enableColumnSelect)               #toggles column checkbox states
         self.ui.stopButton.clicked.connect(self.stopPump)                               #sends halt command to pump
-    
+        
+      
+
     #default GUI state (everything greyed out except for comms until serial comms are connected):
 
         self.ui.setUpBox.setEnabled(False)
@@ -62,29 +66,29 @@ class MainWindow(QMainWindow):
     
     #precision with which dispense volume can be set
         self.ui.dispenseSpinBox.setSingleStep(0.1)
-        self.ui.dispenseVolumeSlider.setTickInterval(100)      
+        self.ui.dispenseVolumeSlider.setSingleStep(100)      
 
     #maximum and minimum values for pump speeds    
-        self.ui.drawSpeedSpinBox.setMaximum(maxspeed)
-        self.ui.drawSpeedSpinBox.setMinimum(minspeed)
-        self.ui.drawSpeedSlider.setMaximum(maxspeed)
-        self.ui.drawSpeedSlider.setMinimum(minspeed)
-        self.ui.dispenseSpeedSpinBox.setMaximum(maxspeed)
-        self.ui.dispenseSpeedSpinBox.setMinimum(minspeed)
-        self.ui.dispenseSpeedSlider.setMaximum(maxspeed)
-        self.ui.dispenseSpeedSlider.setMinimum(minspeed)
+        self.ui.drawSpeedSpinBox.setMaximum(6000)
+        self.ui.drawSpeedSpinBox.setMinimum(100)
+        self.ui.drawSpeedSlider.setMinimum(1)
+        self.ui.drawSpeedSlider.setMaximum(60)
+        self.ui.dispenseSpeedSpinBox.setMaximum(6000)
+        self.ui.dispenseSpeedSpinBox.setMinimum(100)
+        self.ui.dispenseSpeedSlider.setMinimum(1)
+        self.ui.dispenseSpeedSlider.setMaximum(60)
     
     #steps
         self.ui.drawSpeedSpinBox.setSingleStep(100)
-        self.ui.drawSpeedSlider.setTickInterval(100)
+        self.ui.drawSpeedSlider.setSingleStep(1)
         self.ui.dispenseSpeedSpinBox.setSingleStep(100)
-        self.ui.dispenseSpeedSlider.setTickInterval(100)
+        self.ui.dispenseSpeedSlider.setSingleStep(1)
     
     #initial, default speed
-        self.ui.drawSpeedSpinBox.setValue(operating_speed)
-        self.ui.drawSpeedSlider.setValue(operating_speed)
-        self.ui.dispenseSpeedSpinBox.setValue(operating_speed)
-        self.ui.dispenseSpeedSlider.setValue(operating_speed)
+        self.ui.drawSpeedSpinBox.setValue(600)
+        #self.ui.drawSpeedSlider.setValue(30)
+        self.ui.dispenseSpeedSpinBox.setValue(1000)
+        #self.ui.dispenseSpeedSlider.setValue(30)
 
     #serial port
         self.serial = PyQt5.QtSerialPort.QSerialPort(self)
@@ -151,6 +155,7 @@ class MainWindow(QMainWindow):
         self.ui.comPortComboBox.setEnabled(True)
         self.ui.connectButton.setText("Connect")
         self.ui.refreshButton.setEnabled(True)
+        self.ui.adjustmentBox.setEnabled(False)
         self.ui.dispenseBox.setEnabled(False)
         self.ui.setUpBox.setEnabled(False)
         self.ui.emergencyStopBox.setEnabled(False)
@@ -195,19 +200,19 @@ class MainWindow(QMainWindow):
     #retreive volume from combobox
         size_numerical = self.getNumerical()
     #check if milliliters or microliters?
-        if(size_numerical < 1):
-            self.ui.dispenseSpinBox.setMaximum((size_numerical*1000)/2)
-            self.ui.dispenseSpinBox.setSingleStep(1)
-            self.ui.dispenseSpinBox.setValue(0)
+        if(size_numerical < 1): #microliters
+            self.ui.dispenseSpinBox.setMaximum(size_numerical*1000)
+            self.ui.dispenseSpinBox.setSingleStep(0.100)
+            self.ui.dispenseSpinBox.setValue(size_numerical*1000)
             self.ui.dispenseUnits.setText("\u03bcL")
-            self.ui.dispenseVolumeSlider.setMaximum(1000*(size_numerical*1000)/2)
-            self.ui.dispenseVolumeSlider.setTickInterval(1000)
-        else:
-            self.ui.dispenseSpinBox.setMaximum((size_numerical)/2)
-            self.ui.dispenseSpinBox.setSingleStep(0.1)
-            self.ui.dispenseSpinBox.setValue(0)
-            self.ui.dispenseVolumeSlider.setMaximum(1000*(size_numerical)/2)
-            self.ui.dispenseVolumeSlider.setTickInterval(0.1*1000)
+            self.ui.dispenseVolumeSlider.setMaximum(int(size_numerical*1000/0.1))
+            self.ui.dispenseVolumeSlider.setSingleStep(1)
+        else: #milliliters
+            self.ui.dispenseSpinBox.setMaximum((size_numerical))
+            self.ui.dispenseSpinBox.setSingleStep(0.100)
+            self.ui.dispenseSpinBox.setValue(2)
+            self.ui.dispenseVolumeSlider.setMaximum(int((size_numerical)/0.1))
+            self.ui.dispenseVolumeSlider.setSingleStep(1)
             self.ui.dispenseUnits.setText("mL")
     #display pop-up confirmation that the syringe size has been set        
         print("Syringe size set to " + self.ui.syringeComboBox.currentText())
@@ -250,7 +255,9 @@ class MainWindow(QMainWindow):
             if button == QMessageBox.Ok:
                 print("OK!")
                 return
-        self.write("/1Z15,9,1v400V400A6000v800V800A0")
+        #self.write("/1Z15,9,1v400V400A6000v800V800A0")
+        #self.write("/1Z")
+        self.write("/1w1,0I1W0")
         plunger_position = 0
     #after initialization, enable the rest of the GUI
         self.ui.fillButton.setEnabled(True)
@@ -271,10 +278,12 @@ class MainWindow(QMainWindow):
             status_bit = bin(response[3] >> 5 &0b1)
         except:
             status_bit = 0b0
+        pumpstatus = status_bit
         return status_bit
 
 #fills pump by changing to first valve, moving to position 6000 (400 steps per second)
     def fillPump(self):
+        #display pop up if pump is busy.. 
         busy = self.queryPump()
         if(busy == bin(0)):
             print("Pump is busy!!!!!")
@@ -286,47 +295,75 @@ class MainWindow(QMainWindow):
             if button == QMessageBox.Ok:
                 print("OK!")
                 return
-        self.write("/1I1v400V400A6000")
+        #build command string
+        speed = int(self.ui.drawSpeedSpinBox.value())    #get speed from GUI
+        command_string = "/1I1V" + str(speed) + "A6000"
+        self.write(command_string)
         plunger_position = 6000
 
 #empties pump by changing to first valve, moving to position 0 (1000 steps per second)
     def emptyPump(self):
-        self.write("/1I1v1000V1000A0v400V400")
+        #display pop up if pump is busy.. 
+        # busy = self.queryPump()
+        # if(busy == bin(0)):
+        #     print("Pump is busy!!!!!")
+        #     dlg = QMessageBox(self)
+        #     dlg.setWindowTitle("Warning")
+        #     dlg.setText("Pump is busy")
+        #     dlg.setIcon(QMessageBox.Information)
+        #     button = dlg.exec()
+        #     if button == QMessageBox.Ok:
+        #         print("OK!")
+        #         return
+        #build command string
+        speed = int(self.ui.dispenseSpeedSpinBox.value())    #get speed from GUI
+        command_string = "/1I1V" + str(speed) + "A0"
+        self.write(command_string)
         plunger_position = 0
 
 #primes lines by dispensing a fixed volume through each channel
-    def primeLines(self):
-        fillPump()
-    #do not build and send command until pump is no longer busy
+    def primeLines(self):   
+    #check if pump is busy    
+        #display pop up if pump is busy.. 
         busy = self.queryPump()
-        while(busy == bin(0)):
-            busy = self.queryPump()
+        if(busy == bin(0)):
+            print("Pump is busy!!!!!")
+            dlg = QMessageBox(self)
+            dlg.setWindowTitle("Warning")
+            dlg.setText("Pump is busy")
+            dlg.setIcon(QMessageBox.Information)
+            button = dlg.exec()
+            if button == QMessageBox.Ok:
+                print("OK!")
+                return        
+        drawspeed = int(self.ui.drawSpeedSpinBox.value())    #get speed from GUI
+        dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    #get speed from GUI
+        command_string = "/1I1V" + str(drawspeed) + "A800" + "V" + str(dispensespeed) + "A0V" + str(drawspeed) + "A6000"
     #build command string
-        command_string = "/1"
+        command_string = command_string + "V" + str(dispensespeed)
         for column in range(8):
-            command_string = command_string + "I" + str(column+2) + "M1"  + "D" + str(750)
+            command_string = command_string + "I" + str(column+2) + "D" + str(750)
+        command_string = command_string + "I1V" + str(drawspeed) + "A6000"
+        plunger_position = 6000
         print(command_string)
         self.write(command_string)
 
 #empties lines 
     def emptyLines(self):
     #empty pump 
-        emptyPump()
+        #self.emptyPump()
     #do not build and send command until pump is no longer busy
-        busy = self.queryPump()
-        while(busy == bin(0)):
-            busy = self.queryPump()
+        #self._waitReady(1,10,1)
     #build command to draw from each line
-        command_string = "/1"
+        speed = int(self.ui.drawSpeedSpinBox.value())    #get speed from GUI
+        command_string = "/1I1V" + str(speed)
         for column in range(8):
-            command_string = command_string + "I" + str(column+2) + "M1"  + "U" + str(857)
+            command_string = command_string + "I" + str(column+2) + "P" + str(750)
         print(command_string)
     #do not send another command until pump is no longer busy   
-        busy = self.queryPump()
-        while(busy == bin(0)):
-            busy = self.queryPump()
+        #self._waitReady()
     #empty pump
-        emptyPump()
+        #self.emptyPump()
         self.write(command_string)
 
 #empties pumps and lines
@@ -343,29 +380,47 @@ class MainWindow(QMainWindow):
             if button == QMessageBox.Ok:
                 print("OK!")
                 return  
-    #empty pump and lines   
-        emptyPump()
-        #do not build and send command until pump is no longer busy
-        busy = self.queryPump()
-        while(busy == bin(0)):
-            busy = self.queryPump() 
-        emptyLines()
+    #empty pump and lines
+        drawspeed = int(self.ui.drawSpeedSpinBox.value())    #get speed from GUI
+        dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    #get speed from GUI
+        command_string = "/1I1V"+ str(dispensespeed)+ "A0" +"V" + str(drawspeed)   
+        for column in range(8):
+            command_string = command_string + "I" + str(column+2) + "P" + str(750)
+        command_string = command_string + "I1V" + str(dispensespeed) + "A0"
+        plunger_position = 0
+        print(command_string)
+        self.write(command_string)
+        # self.emptyPump()
+        # #do not build and send command until pump is no longer busy
+        # self._waitReady(1, 10, 1)
+        # self.emptyLines()
+        # self._waitReady(1, 10, 1)
+        # self.emptyPump()
 
 #clean lines by dispensing a fixed volume through each channel
     def cleanLines(self):
     #check if pump is busy    
+        #display pop up if pump is busy.. 
         busy = self.queryPump()
-        while(busy == bin(0)):
-            busy = self.queryPump() 
-        emptyPump()
-    #do not build and send command until pump is no longer busy
-        busy = self.queryPump()
-        while(busy == bin(0)):
-            busy = self.queryPump() 
-    #build string   
-        command_string = "/1"
+        if(busy == bin(0)):
+            print("Pump is busy!!!!!")
+            dlg = QMessageBox(self)
+            dlg.setWindowTitle("Warning")
+            dlg.setText("Pump is busy")
+            dlg.setIcon(QMessageBox.Information)
+            button = dlg.exec()
+            if button == QMessageBox.Ok:
+                print("OK!")
+                return        
+        drawspeed = int(self.ui.drawSpeedSpinBox.value())    #get speed from GUI
+        dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    #get speed from GUI
+        command_string = "/1I1V" + str(drawspeed) + "A6000"
+    #build command string
+        command_string = command_string + "V" + str(dispensespeed)
         for column in range(8):
-            command_string = command_string + "I" + str(column+2) + "M1"  + "D" + str(750)
+            command_string = command_string + "I" + str(column+2) + "D" + str(750)
+        command_string = command_string + "I1V" + str(drawspeed) + "A6000"
+        plunger_position = 6000
         print(command_string)
         self.write(command_string)
 
@@ -383,42 +438,43 @@ class MainWindow(QMainWindow):
             if button == QMessageBox.Ok:
                 print("OK!")
                 return      
-        for i in range(4):
-            cleanLines()
+        self.cleanLines()
 
 #updates draw speed slider when spinbox is changed
     def updateDrawSlider(self):
-        tick = int(self.ui.drawSpeedSpinBox.value())
+        tick = int(int(self.ui.drawSpeedSpinBox.value())/100)
         self.ui.drawSpeedSlider.setValue(tick)
         operating_speed = tick
 
 #updates draw speed spinbox when slider is changed
     def updateDrawSpeed(self):
         val = self.ui.drawSpeedSlider.value()
+        val = val*100
         self.ui.drawSpeedSpinBox.setValue(val)
         operating_speed = val
 
 #updates dispense speed slider when spinbox is changed
     def updateDispenseSlider(self):
-        tick = int(self.ui.dispenseSpeedSpinBox.value())
+        tick = int(int(self.ui.dispenseSpeedSpinBox.value())/100)
         self.ui.dispenseSpeedSlider.setValue(tick)
         operating_speed = tick
 
 #updates dispense speed spinbox when slider is changed
     def updateDispenseSpeed(self):
         val = self.ui.dispenseSpeedSlider.value()
+        val = val*100
         self.ui.dispenseSpeedSpinBox.setValue(val)
         operating_speed = val
 
 #updates dispense volume slider when spinbox is changed
     def updateDispenseVolSlider(self):
-        tick = int(self.ui.dispenseSpinBox.value())*1000
+        tick = int(self.ui.dispenseSpinBox.value()/0.1)
         self.ui.dispenseVolumeSlider.setValue(tick)
         dispense_volume = tick
 
 #updates dispense volume spinbox when slider is changed
     def updateDispenseVolume(self):
-        val = self.ui.dispenseVolumeSlider.value()/1000
+        val = self.ui.dispenseVolumeSlider.value()*0.1
         self.ui.dispenseSpinBox.setValue(val)
         dispense_volume = val
 
@@ -438,6 +494,7 @@ class MainWindow(QMainWindow):
         steps = int(target_volume/mL_per_step)
         print("steps per dispense: " + str(steps))
         return steps
+
 #toggles column checkbox enable states based off of "all" checkbox
     def enableColumnSelect(self):
         if(self.ui.allCheckBox.checkState()):
@@ -473,21 +530,23 @@ class MainWindow(QMainWindow):
             if button == QMessageBox.Ok:
                 print("OK!")
                 return
+        drawspeed = int(self.ui.drawSpeedSpinBox.value())    #get speed from GUI
+        dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    #get speed from GUI                
         #get the number of steps needed based on value of dispense volume
         increment = self.dispenseVolumeSteps()
         #if the "all" check box is selected, dispense to all valves
         if(self.ui.allCheckBox.checkState()):
             print("all columns")
             #builds command string.. may update this..
-            command_string = "/1"
+            command_string = "/1V" + str(drawspeed) + "I1A6000V" + str(dispensespeed)
             for column in range(8):
                 if(plunger_position - increment < 0):
-                    command_string = command_string + "v300V300I1A6000M1v1000V1000"
+                    command_string = command_string + "V" + str(drawspeed) + "I1A6000V" + str(dispensespeed)
                     plunger_position = 6000
-                    command_string = command_string + "I" + str(column+2) + "M1"  + "D" + str(increment)
+                    command_string = command_string + "I" + str(column+2) + "D" + str(increment)
                     plunger_position = plunger_position - increment
                 else:
-                    command_string = command_string + "I" + str(column+2) + "M1"  + "D" + str(increment)
+                    command_string = command_string + "I" + str(column+2) + "D" + str(increment)
                     plunger_position = plunger_position - increment
                 print(plunger_position)
                 print(command_string)
@@ -503,24 +562,74 @@ class MainWindow(QMainWindow):
                 print(states)
                 if(states == True):
                     if(plunger_position - increment < 0):
-                        command_string = command_string + "I1A6000M1"
+                        command_string = command_string + "V" + str(drawspeed) + "I1A6000V" + str(dispensespeed)
                         plunger_position = 6000
-                        command_string = command_string + "I" + str(index) +"M1" + "D" + str(increment)
+                        command_string = command_string + "I" + str(index) + "D" + str(increment)
                         plunger_position = plunger_position - increment
                     else:
-                        command_string = command_string + "I" + str(index) +"M1" + "D" + str(increment)
+                        command_string = command_string + "I" + str(index) + "D" + str(increment)
                         plunger_position = plunger_position - increment
-                    
                     print(plunger_position)
                     print(command_string)
                     #self.serial.write(command.encode())               
             self.write(command_string)
-    #TODO: disable dispense and prime buttons while the pump is running
+
+#method to check which column boxes are selected; for use by the dispense/prime methods
+    def getColumnCheckBoxes(self):
+        #boolean array, true = box selected
+        result = [self.ui.column1CheckBox.isChecked(),
+            self.ui.column2CheckBox.isChecked(),
+            self.ui.column3CheckBox.isChecked(),
+            self.ui.column4CheckBox.isChecked(),
+            self.ui.column5CheckBox.isChecked(),
+            self.ui.column6CheckBox.isChecked(),
+            self.ui.column7CheckBox.isChecked(),
+            self.ui.column8CheckBox.isChecked()]
+        return result
 
 #interrupts the pump and stops operation
     def stopPump(self):
         print("STOP PUMP!!!!")
         self.serial.write("/1TR\r\n".encode())
+    
+    def getSteps(self, target_volume):
+        #assume no microstepping for now..
+        total_stepcount = 6000
+        syringeVolume = getNumerical() #gets the numerical value for syringe size based off of combobox
+        steps = int((target_volume/syringeVolume)*total_stepcount)
+        return steps
+
+    def dispenseVolumeToValve(self, volume, valve):
+        steps = getSteps(self, target_volume)           #function to translate volume into steps
+        speed = int(self.ui.dispenseSpeedSpinBox.value())    #get speed from GUI
+        target_column = valve + 1                              #9 channels, 1 is connected to resevoir, 2-9 route to columns      
+        
+        if(plunger_position == 0):
+            fillPump()  
+        #build the right command based off of volume, speed, and desired valve
+        self._waitReady(self, 0.3, 10, 20)
+
+        command_string = "/1" + "v10L4" + "V" + str(speed) + "c10" + "I" + str(target_column) + "D" + str(steps)
+
+    def _waitReady(self, polling_interval=1, timeout=10, delay=None):
+        print("waiting..\n")
+        if delay:
+            self.timer.setSingleShot(True)
+            self.timer.timeout.connect(self.queryPump)
+            self.timer.start(delay*1000)
+        else:
+            self.queryPump()
+
+        start = time.time()
+        while (start-time.time()) < (timeout):    
+            print(pumpstatus)
+            ready = self.queryPump()
+            if not ready:
+                self.timer.setSingleShot(True)
+                self.timer.timeout.connect(self.queryPump)
+                self.timer.start(1000)
+            else:
+                return
 
 #MAIN
 if __name__ == "__main__":
