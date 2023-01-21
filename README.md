@@ -11,7 +11,7 @@ To auto-run the GUI and disable the screensaver, edit the file `/etc/xdg/lxsessi
 And add these lines to the end: 
 
 ```sh
-@python3 /home/pi/Desktop/SEC_GUI/test4.py
+@python3 /home/pi/Desktop/SEC_GUI/Octasome_GUI.py
 @xscreensaver -no-splash
 ```
 
