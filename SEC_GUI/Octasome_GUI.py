@@ -102,6 +102,7 @@ class MainWindow(QMainWindow):
     #serial port settings
         self.serial.setPortName(portname)
         self.serial.setBaudRate(PyQt5.QtSerialPort.QSerialPort.Baud38400)
+#        self.serial.setBaudRate(PyQt5.QtSerialPort.QSerialPort.Baud9600)
         self.serial.setDataBits(PyQt5.QtSerialPort.QSerialPort.Data8)
         self.serial.setParity(PyQt5.QtSerialPort.QSerialPort.NoParity)
         self.serial.setStopBits(PyQt5.QtSerialPort.QSerialPort.OneStop)
