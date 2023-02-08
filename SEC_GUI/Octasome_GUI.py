@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog, QMessageBox
-from PyQt5.QtCore import QFile, QTimer
+from PyQt5.QtCore import QFile, QTimer, pyqtSignal
 from PyQt5 import QtTest
 from mainwindow import Ui_MainWindow
 import PyQt5.QtSerialPort
@@ -16,6 +16,8 @@ pumpstatus = 0b0
 
 #class definition of main window
 class MainWindow(QMainWindow):
+    stateChanged = pyqtSignal(str)
+    
     def __init__(self):
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
@@ -93,6 +95,15 @@ class MainWindow(QMainWindow):
     #serial port
         self.serial = PyQt5.QtSerialPort.QSerialPort(self)
 
+    def setBaud(self, baud=9600):
+        '''
+        Set the baud rate to the `baud` given.
+        '''
+        if baud == 9600:
+            self.serial.setBaudRate(PyQt5.QtSerialPort.QSerialPort.Baud9600)
+        if baud == 38400:
+            self.serial.setBaudRate(PyQt5.QtSerialPort.QSerialPort.Baud38400)
+        
 #attempts to connect to serial com port with assumed settings (i.e. 38400baud, 8N1)
 #NOTE: baud rate was manually changed to 38400
     def serialConnect(self):
@@ -101,16 +112,26 @@ class MainWindow(QMainWindow):
         portname = self.ui.comPortComboBox.currentText()
     #serial port settings
         self.serial.setPortName(portname)
-        self.serial.setBaudRate(PyQt5.QtSerialPort.QSerialPort.Baud38400)
-#        self.serial.setBaudRate(PyQt5.QtSerialPort.QSerialPort.Baud9600)
         self.serial.setDataBits(PyQt5.QtSerialPort.QSerialPort.Data8)
         self.serial.setParity(PyQt5.QtSerialPort.QSerialPort.NoParity)
         self.serial.setStopBits(PyQt5.QtSerialPort.QSerialPort.OneStop)
         self.serial.setFlowControl(PyQt5.QtSerialPort.QSerialPort.NoFlowControl)
     #check if connection was successful
-        if(self.serial.open(PyQt5.QtCore.QIODevice.ReadWrite)):
+        self.setBaud(38400)
+        opened = self.serial.open(PyQt5.QtCore.QIODevice.ReadWrite)
+        baud = 38400
+        if isinstance(self.queryPump(), int):
+            self.serialDisconnect()
+            self.setBaud(9600)
+            self.stateChanged.emit("Open")
+            opened = self.serial.open(PyQt5.QtCore.QIODevice.ReadWrite)
+            baud = 9600
+            
+        if opened:
         #if connection is successful:
+            self.serial.open(PyQt5.QtCore.QIODevice.ReadWrite)
             print("Connection Successful")
+            print("Baud: {}".format(baud))
             self.serialInfo = PyQt5.QtSerialPort.QSerialPortInfo(portname)
         #TODO: use this information to check that the GUI is connected to the correct device
             print(self.serialInfo.description())
