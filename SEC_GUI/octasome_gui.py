@@ -17,11 +17,11 @@ pumpstatus = 0b0
 #class definition of main window
 class MainWindow(QMainWindow):
     stateChanged = pyqtSignal(str)
-    
+
     def __init__(self):
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
-        self.timer  = QTimer(self) 
+        self.timer  = QTimer(self)
         self.ui.setupUi(self)
         self.show()
     #connect GUI signals to methods
@@ -39,11 +39,11 @@ class MainWindow(QMainWindow):
         self.ui.dispenseSpeedSlider.valueChanged.connect(self.updateDispenseSpeed)       #updates dispense speed spin box
         self.ui.dispenseSpinBox.valueChanged.connect(self.updateDispenseVolSlider)      #updates dispense volume slider
         self.ui.dispenseVolumeSlider.valueChanged.connect(self.updateDispenseVolume)     #updates dispense volume spin box
-        self.ui.dispenseVolumeButton.clicked.connect(self.dispense)                           #dispenses specified volumes to specified columns                       
+        self.ui.dispenseVolumeButton.clicked.connect(self.dispense)                           #dispenses specified volumes to specified columns
         self.ui.allCheckBox.stateChanged.connect(self.enableColumnSelect)               #toggles column checkbox states
         self.ui.stopButton.clicked.connect(self.stopPump)                               #sends halt command to pump
-        
-      
+
+
 
     #default GUI state (everything greyed out except for comms until serial comms are connected):
 
@@ -51,7 +51,7 @@ class MainWindow(QMainWindow):
         self.ui.dispenseBox.setEnabled(False)
         self.ui.adjustmentBox.setEnabled(False)
         self.ui.emergencyStopBox.setEnabled(False)
-    
+
     #column check boxes - if "all" is selected, then individual selection is greyed out
         self.ui.allCheckBox.setChecked(True)
         self.ui.column1CheckBox.setEnabled(False)
@@ -65,12 +65,12 @@ class MainWindow(QMainWindow):
         self.ui.column6CheckBox.setEnabled(False)
         self.ui.column7CheckBox.setEnabled(False)
         self.ui.column8CheckBox.setEnabled(False)
-    
+
     #precision with which dispense volume can be set
         self.ui.dispenseSpinBox.setSingleStep(0.1)
-        self.ui.dispenseVolumeSlider.setSingleStep(100)      
+        self.ui.dispenseVolumeSlider.setSingleStep(100)
 
-    #maximum and minimum values for pump speeds    
+    #maximum and minimum values for pump speeds
         self.ui.drawSpeedSpinBox.setMaximum(6000)
         self.ui.drawSpeedSpinBox.setMinimum(100)
         self.ui.drawSpeedSlider.setMinimum(1)
@@ -79,13 +79,13 @@ class MainWindow(QMainWindow):
         self.ui.dispenseSpeedSpinBox.setMinimum(100)
         self.ui.dispenseSpeedSlider.setMinimum(1)
         self.ui.dispenseSpeedSlider.setMaximum(60)
-    
+
     #steps
         self.ui.drawSpeedSpinBox.setSingleStep(100)
         self.ui.drawSpeedSlider.setSingleStep(1)
         self.ui.dispenseSpeedSpinBox.setSingleStep(100)
         self.ui.dispenseSpeedSlider.setSingleStep(1)
-    
+
     #initial, default speed
         self.ui.drawSpeedSpinBox.setValue(600)
         #self.ui.drawSpeedSlider.setValue(30)
@@ -103,7 +103,7 @@ class MainWindow(QMainWindow):
             self.serial.setBaudRate(PyQt5.QtSerialPort.QSerialPort.Baud9600)
         if baud == 38400:
             self.serial.setBaudRate(PyQt5.QtSerialPort.QSerialPort.Baud38400)
-        
+
 #attempts to connect to serial com port with assumed settings (i.e. 38400baud, 8N1)
 #NOTE: baud rate was manually changed to 38400
     def serialConnect(self):
@@ -126,7 +126,7 @@ class MainWindow(QMainWindow):
             self.stateChanged.emit("Open")
             opened = self.serial.open(PyQt5.QtCore.QIODevice.ReadWrite)
             baud = 9600
-            
+
         if opened:
         #if connection is successful:
             self.serial.open(PyQt5.QtCore.QIODevice.ReadWrite)
@@ -190,7 +190,7 @@ class MainWindow(QMainWindow):
         self.ui.comPortComboBox.clear()
     #adds available ports to combobox list
         for info in PyQt5.QtSerialPort.QSerialPortInfo.availablePorts():
-            self.ui.comPortComboBox.addItem(info.portName())            
+            self.ui.comPortComboBox.addItem(info.portName())
 
 #sends a command through the serial port (appends the R to indicate execution), returns pump response
     def write(self, command):
@@ -200,7 +200,7 @@ class MainWindow(QMainWindow):
         #may not need this portion of the code
         self.serial.waitForBytesWritten(100)
         if(self.serial.waitForReadyRead(100)):
-            response = self.receive()    
+            response = self.receive()
             return response
 
 #receives data from the serial port (while data is available in the input)
@@ -236,7 +236,7 @@ class MainWindow(QMainWindow):
             self.ui.dispenseVolumeSlider.setMaximum(int((size_numerical)/0.1))
             self.ui.dispenseVolumeSlider.setSingleStep(1)
             self.ui.dispenseUnits.setText("mL")
-    #display pop-up confirmation that the syringe size has been set        
+    #display pop-up confirmation that the syringe size has been set
         print("Syringe size set to " + self.ui.syringeComboBox.currentText())
         dlg = QMessageBox(self)
         dlg.setWindowTitle("Confirmation")
@@ -264,9 +264,9 @@ class MainWindow(QMainWindow):
 
 #initializes pump
     def initializePump(self):
-    #first, query pump    
+    #first, query pump
         busy = self.queryPump()
-    #if pump is busy, then display a pop up indicating that pump is busy    
+    #if pump is busy, then display a pop up indicating that pump is busy
         if(busy == bin(0)):
             print("Pump is busy!!!!!")
             dlg = QMessageBox(self)
@@ -305,7 +305,7 @@ class MainWindow(QMainWindow):
 
 #fills pump by changing to first valve, moving to position 6000 (400 steps per second)
     def fillPump(self):
-        #display pop up if pump is busy.. 
+        #display pop up if pump is busy..
         busy = self.queryPump()
         if(busy == bin(0)):
             print("Pump is busy!!!!!")
@@ -325,7 +325,7 @@ class MainWindow(QMainWindow):
 
 #empties pump by changing to first valve, moving to position 0 (1000 steps per second)
     def emptyPump(self):
-        #display pop up if pump is busy.. 
+        #display pop up if pump is busy..
         # busy = self.queryPump()
         # if(busy == bin(0)):
         #     print("Pump is busy!!!!!")
@@ -344,9 +344,9 @@ class MainWindow(QMainWindow):
         plunger_position = 0
 
 #primes lines by dispensing a fixed volume through each channel
-    def primeLines(self):   
-    #check if pump is busy    
-        #display pop up if pump is busy.. 
+    def primeLines(self):
+    #check if pump is busy
+        #display pop up if pump is busy..
         busy = self.queryPump()
         if(busy == bin(0)):
             print("Pump is busy!!!!!")
@@ -357,7 +357,7 @@ class MainWindow(QMainWindow):
             button = dlg.exec()
             if button == QMessageBox.Ok:
                 print("OK!")
-                return        
+                return
         drawspeed = int(self.ui.drawSpeedSpinBox.value())    #get speed from GUI
         dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    #get speed from GUI
         command_string = "/1I1V" + str(drawspeed) + "A800" + "V" + str(dispensespeed) + "A0V" + str(drawspeed) + "A6000"
@@ -370,9 +370,9 @@ class MainWindow(QMainWindow):
         print(command_string)
         self.write(command_string)
 
-#empties lines 
+#empties lines
     def emptyLines(self):
-    #empty pump 
+    #empty pump
         #self.emptyPump()
     #do not build and send command until pump is no longer busy
         #self._waitReady(1,10,1)
@@ -382,7 +382,7 @@ class MainWindow(QMainWindow):
         for column in range(8):
             command_string = command_string + "I" + str(column+2) + "P" + str(750)
         print(command_string)
-    #do not send another command until pump is no longer busy   
+    #do not send another command until pump is no longer busy
         #self._waitReady()
     #empty pump
         #self.emptyPump()
@@ -390,7 +390,7 @@ class MainWindow(QMainWindow):
 
 #empties pumps and lines
     def emptyPumpLines(self):
-    #check if pump is busy    
+    #check if pump is busy
         busy = self.queryPump()
         if(busy == bin(0)):
             print("Pump is busy!!!!!")
@@ -401,11 +401,11 @@ class MainWindow(QMainWindow):
             button = dlg.exec()
             if button == QMessageBox.Ok:
                 print("OK!")
-                return  
+                return
     #empty pump and lines
         drawspeed = int(self.ui.drawSpeedSpinBox.value())    #get speed from GUI
         dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    #get speed from GUI
-        command_string = "/1I1V"+ str(dispensespeed)+ "A0" +"V" + str(drawspeed)   
+        command_string = "/1I1V"+ str(dispensespeed)+ "A0" +"V" + str(drawspeed)
         for column in range(8):
             command_string = command_string + "I" + str(column+2) + "P" + str(750)
         command_string = command_string + "I1V" + str(dispensespeed) + "A0"
@@ -421,8 +421,8 @@ class MainWindow(QMainWindow):
 
 #clean lines by dispensing a fixed volume through each channel
     def cleanLines(self):
-    #check if pump is busy    
-        #display pop up if pump is busy.. 
+    #check if pump is busy
+        #display pop up if pump is busy..
         busy = self.queryPump()
         if(busy == bin(0)):
             print("Pump is busy!!!!!")
@@ -433,7 +433,7 @@ class MainWindow(QMainWindow):
             button = dlg.exec()
             if button == QMessageBox.Ok:
                 print("OK!")
-                return        
+                return
         drawspeed = int(self.ui.drawSpeedSpinBox.value())    #get speed from GUI
         dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    #get speed from GUI
         command_string = "/1I1V" + str(drawspeed) + "A6000"
@@ -446,9 +446,9 @@ class MainWindow(QMainWindow):
         print(command_string)
         self.write(command_string)
 
-#flushes lines a couple of times... 
+#flushes lines a couple of times...
     def flushLines(self):
-    #check if pump is busy    
+    #check if pump is busy
         busy = self.queryPump()
         if(busy == bin(0)):
             print("Pump is busy!!!!!")
@@ -459,7 +459,7 @@ class MainWindow(QMainWindow):
             button = dlg.exec()
             if button == QMessageBox.Ok:
                 print("OK!")
-                return      
+                return
         self.cleanLines()
 
 #updates draw speed slider when spinbox is changed
@@ -508,7 +508,7 @@ class MainWindow(QMainWindow):
         #if the chosen syringe volume is uL scale, treat dispense volume value as uL
         if self.getNumerical() < 1:
             target_volume = self.ui.dispenseSpinBox.value()/1000
-        else: 
+        else:
             target_volume = self.ui.dispenseSpinBox.value()
         #milli-liters per step = volume of syringe/total number of steps possible
         mL_per_step = full_volume/6000
@@ -537,7 +537,7 @@ class MainWindow(QMainWindow):
             self.ui.column6CheckBox.setEnabled(True)
             self.ui.column7CheckBox.setEnabled(True)
             self.ui.column8CheckBox.setEnabled(True)
-        
+
 #dispenses to the columns (all or individually selected)
 #TODO: make sure this deals with all reasonable cases.. may want to query pump status before commands are written
     def dispense(self, plunger_position):
@@ -553,7 +553,7 @@ class MainWindow(QMainWindow):
                 print("OK!")
                 return
         drawspeed = int(self.ui.drawSpeedSpinBox.value())    #get speed from GUI
-        dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    #get speed from GUI                
+        dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    #get speed from GUI
         #get the number of steps needed based on value of dispense volume
         increment = self.dispenseVolumeSteps()
         #if the "all" check box is selected, dispense to all valves
@@ -593,7 +593,7 @@ class MainWindow(QMainWindow):
                         plunger_position = plunger_position - increment
                     print(plunger_position)
                     print(command_string)
-                    #self.serial.write(command.encode())               
+                    #self.serial.write(command.encode())
             self.write(command_string)
 
 #method to check which column boxes are selected; for use by the dispense/prime methods
@@ -613,7 +613,7 @@ class MainWindow(QMainWindow):
     def stopPump(self):
         print("STOP PUMP!!!!")
         self.serial.write("/1TR\r\n".encode())
-    
+
     def getSteps(self, target_volume):
         #assume no microstepping for now..
         total_stepcount = 6000
@@ -624,10 +624,10 @@ class MainWindow(QMainWindow):
     def dispenseVolumeToValve(self, volume, valve):
         steps = getSteps(self, target_volume)           #function to translate volume into steps
         speed = int(self.ui.dispenseSpeedSpinBox.value())    #get speed from GUI
-        target_column = valve + 1                              #9 channels, 1 is connected to resevoir, 2-9 route to columns      
-        
+        target_column = valve + 1                              #9 channels, 1 is connected to resevoir, 2-9 route to columns
+
         if(plunger_position == 0):
-            fillPump()  
+            fillPump()
         #build the right command based off of volume, speed, and desired valve
         self._waitReady(self, 0.3, 10, 20)
 
@@ -643,7 +643,7 @@ class MainWindow(QMainWindow):
             self.queryPump()
 
         start = time.time()
-        while (start-time.time()) < (timeout):    
+        while (start-time.time()) < (timeout):
             print(pumpstatus)
             ready = self.queryPump()
             if not ready:
@@ -663,6 +663,6 @@ if __name__ == "__main__":
     #list all available com ports in comboBox on window
     for info in PyQt5.QtSerialPort.QSerialPortInfo.availablePorts():
             window.ui.comPortComboBox.addItem(info.portName())
-    
+
     #window.show()
     sys.exit(app.exec())
