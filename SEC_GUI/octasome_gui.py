@@ -7,12 +7,12 @@ import PyQt5.QtSerialPort
 import math
 import time
 
-plunger_position = 0
-maxspeed = 6000
-minspeed = 0
-operating_speed = 400
-dispense_volume = 2
-pumpstatus = 0b0
+# PLUNGER_POSITION = 0
+# MAXSPEED = 6000
+# MINSPEED = 0
+# OPERATING_SPEED = 400
+# DISPENSE_VOLUME = 2
+# PUMPSTATUS = 0b0
 
 #class definition of main window
 class MainWindow(QMainWindow):
@@ -87,9 +87,9 @@ class MainWindow(QMainWindow):
         self.ui.dispenseSpeedSlider.setSingleStep(1)
 
     #initial, default speed
-        self.ui.drawSpeedSpinBox.setValue(600)
+        self.ui.drawSpeedSpinBox.setValue(400)
         #self.ui.drawSpeedSlider.setValue(30)
-        self.ui.dispenseSpeedSpinBox.setValue(1000)
+        self.ui.dispenseSpeedSpinBox.setValue(400)
         #self.ui.dispenseSpeedSlider.setValue(30)
 
     #serial port
@@ -190,7 +190,9 @@ class MainWindow(QMainWindow):
         self.ui.comPortComboBox.clear()
     #adds available ports to combobox list
         for info in PyQt5.QtSerialPort.QSerialPortInfo.availablePorts():
-            self.ui.comPortComboBox.addItem(info.portName())
+            if "USB" in info.portName():
+                self.ui.comPortComboBox.addItem(info.portName())
+
 
 #sends a command through the serial port (appends the R to indicate execution), returns pump response
     def write(self, command):
@@ -362,10 +364,10 @@ class MainWindow(QMainWindow):
         dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    #get speed from GUI
         command_string = "/1I1V" + str(drawspeed) + "A800" + "V" + str(dispensespeed) + "A0V" + str(drawspeed) + "A6000"
     #build command string
-        command_string = command_string + "V" + str(dispensespeed)
+        command_string += "V" + str(dispensespeed)
         for column in range(8):
-            command_string = command_string + "I" + str(column+2) + "D" + str(750)
-        command_string = command_string + "I1V" + str(drawspeed) + "A6000"
+            command_string += "I" + str(column+2) + "D" + str(750)
+        command_string += "I1V" + str(drawspeed)# + "A6000"
         plunger_position = 6000
         print(command_string)
         self.write(command_string)
@@ -380,7 +382,7 @@ class MainWindow(QMainWindow):
         speed = int(self.ui.drawSpeedSpinBox.value())    #get speed from GUI
         command_string = "/1I1V" + str(speed)
         for column in range(8):
-            command_string = command_string + "I" + str(column+2) + "P" + str(750)
+            command_string += "I" + str(column+2) + "P" + str(750)
         print(command_string)
     #do not send another command until pump is no longer busy
         #self._waitReady()
@@ -407,8 +409,8 @@ class MainWindow(QMainWindow):
         dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    #get speed from GUI
         command_string = "/1I1V"+ str(dispensespeed)+ "A0" +"V" + str(drawspeed)
         for column in range(8):
-            command_string = command_string + "I" + str(column+2) + "P" + str(750)
-        command_string = command_string + "I1V" + str(dispensespeed) + "A0"
+            command_string += "I" + str(column+2) + "P" + str(750)
+        command_string += "I1V" + str(dispensespeed) + "A0"
         plunger_position = 0
         print(command_string)
         self.write(command_string)
@@ -438,10 +440,10 @@ class MainWindow(QMainWindow):
         dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    #get speed from GUI
         command_string = "/1I1V" + str(drawspeed) + "A6000"
     #build command string
-        command_string = command_string + "V" + str(dispensespeed)
+        command_string += "V" + str(dispensespeed)
         for column in range(8):
-            command_string = command_string + "I" + str(column+2) + "D" + str(750)
-        command_string = command_string + "I1V" + str(drawspeed) + "A6000"
+            command_string += "I" + str(column+2) + "D" + str(750)
+        command_string += "I1V" + str(drawspeed)# + "A6000"
         plunger_position = 6000
         print(command_string)
         self.write(command_string)
@@ -540,7 +542,8 @@ class MainWindow(QMainWindow):
 
 #dispenses to the columns (all or individually selected)
 #TODO: make sure this deals with all reasonable cases.. may want to query pump status before commands are written
-    def dispense(self, plunger_position):
+    def dispense(self):
+        plunger_position = 0
         busy = self.queryPump()
         if(busy == bin(0)):
             print("Pump is busy!!!!!")
@@ -563,15 +566,18 @@ class MainWindow(QMainWindow):
             command_string = "/1V" + str(drawspeed) + "I1A6000V" + str(dispensespeed)
             for column in range(8):
                 if(plunger_position - increment < 0):
-                    command_string = command_string + "V" + str(drawspeed) + "I1A6000V" + str(dispensespeed)
+                    command_string += "V" + str(drawspeed) + "I1A6000V" + str(dispensespeed)
                     plunger_position = 6000
-                    command_string = command_string + "I" + str(column+2) + "D" + str(increment)
+                    command_string += "I" + str(column+2) + "D" + str(increment)
                     plunger_position = plunger_position - increment
                 else:
-                    command_string = command_string + "I" + str(column+2) + "D" + str(increment)
+                    command_string += "I" + str(column+2) + "D" + str(increment)
                     plunger_position = plunger_position - increment
                 print(plunger_position)
                 print(command_string)
+            command_string += "I1A0"
+            plunger_position = 0
+            print(command_string)
             self.write(command_string)
         #if "all" check box is not selected, dispense based off of the checkboxes that are
         else:
@@ -584,12 +590,12 @@ class MainWindow(QMainWindow):
                 print(states)
                 if(states == True):
                     if(plunger_position - increment < 0):
-                        command_string = command_string + "V" + str(drawspeed) + "I1A6000V" + str(dispensespeed)
+                        command_string += "V" + str(drawspeed) + "I1A6000V" + str(dispensespeed)
                         plunger_position = 6000
-                        command_string = command_string + "I" + str(index) + "D" + str(increment)
+                        command_string += "I" + str(index) + "D" + str(increment)
                         plunger_position = plunger_position - increment
                     else:
-                        command_string = command_string + "I" + str(index) + "D" + str(increment)
+                        command_string += "I" + str(index) + "D" + str(increment)
                         plunger_position = plunger_position - increment
                     print(plunger_position)
                     print(command_string)
@@ -662,6 +668,7 @@ if __name__ == "__main__":
 
     #list all available com ports in comboBox on window
     for info in PyQt5.QtSerialPort.QSerialPortInfo.availablePorts():
+        if "USB" in info.portName():
             window.ui.comPortComboBox.addItem(info.portName())
 
     #window.show()
