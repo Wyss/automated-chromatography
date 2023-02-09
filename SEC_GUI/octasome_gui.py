@@ -599,7 +599,9 @@ class MainWindow(QMainWindow):
                         plunger_position = plunger_position - increment
                     print(plunger_position)
                     print(command_string)
-                    #self.serial.write(command.encode())
+            command_string += "I1A0"
+            plunger_position = 0
+            print(command_string)
             self.write(command_string)
 
 #method to check which column boxes are selected; for use by the dispense/prime methods
