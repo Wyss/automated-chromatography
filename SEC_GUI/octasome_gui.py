@@ -377,7 +377,7 @@ class MainWindow(QMainWindow):
                 return
         drawspeed = int(self.ui.drawSpeedSpinBox.value())    #get speed from GUI
         dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    #get speed from GUI
-        command_string = "/1I1V" + str(drawspeed) + "A800" + "V" + str(dispensespeed) + "A0V" + str(drawspeed) + "A6000"
+        command_string = "/1I1V" + str(drawspeed) + "A2000" + "V" + str(dispensespeed) + "A0V" + str(drawspeed) + "A6000"
     #build command string
         command_string += "V" + str(dispensespeed)
         for column in range(8):
