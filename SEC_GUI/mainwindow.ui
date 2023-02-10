@@ -247,35 +247,35 @@
     height: 40px;
 }
 QCheckBox::indicator:unchecked {
-	 image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/BlankCheckBox400px.svg);
+	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
 }
 
 QCheckBox::indicator:unchecked:hover {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
 }
 
 QCheckBox::indicator:unchecked:pressed {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked {
-     image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/CheckedCheckBox400px.svg);
+     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked:hover {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked:pressed {
-     image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
 }
 QCheckBox::indicator:checked:disabled
 {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
+    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
 }
 QCheckBox::indicator:unchecked:disabled
 {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/DisabledCheckBox400px.svg);
+    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
 }</string>
            </property>
            <property name="text">
@@ -300,35 +300,35 @@ QCheckBox::indicator:unchecked:disabled
     height: 40px;
 }
 QCheckBox::indicator:unchecked {
-	 image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/BlankCheckBox400px.svg);
+	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
 }
 
 QCheckBox::indicator:unchecked:hover {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
 }
 
 QCheckBox::indicator:unchecked:pressed {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked {
-     image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/CheckedCheckBox400px.svg);
+     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked:hover {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked:pressed {
-     image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
 }
 QCheckBox::indicator:checked:disabled
 {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
+    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
 }
 QCheckBox::indicator:unchecked:disabled
 {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/DisabledCheckBox400px.svg);
+    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
 }</string>
              </property>
              <property name="text">
@@ -351,35 +351,35 @@ QCheckBox::indicator:unchecked:disabled
     height: 40px;
 }
 QCheckBox::indicator:unchecked {
-	 image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/BlankCheckBox400px.svg);
+	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
 }
 
 QCheckBox::indicator:unchecked:hover {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
 }
 
 QCheckBox::indicator:unchecked:pressed {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked {
-     image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/CheckedCheckBox400px.svg);
+     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked:hover {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked:pressed {
-     image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
 }
 QCheckBox::indicator:checked:disabled
 {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
+    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
 }
 QCheckBox::indicator:unchecked:disabled
 {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/DisabledCheckBox400px.svg);
+    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
 }</string>
              </property>
              <property name="text">
@@ -402,35 +402,35 @@ QCheckBox::indicator:unchecked:disabled
     height: 40px;
 }
 QCheckBox::indicator:unchecked {
-	 image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/BlankCheckBox400px.svg);
+	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
 }
 
 QCheckBox::indicator:unchecked:hover {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
 }
 
 QCheckBox::indicator:unchecked:pressed {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked {
-     image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/CheckedCheckBox400px.svg);
+     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked:hover {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked:pressed {
-     image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
 }
 QCheckBox::indicator:checked:disabled
 {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
+    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
 }
 QCheckBox::indicator:unchecked:disabled
 {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/DisabledCheckBox400px.svg);
+    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
 }</string>
              </property>
              <property name="text">
@@ -453,35 +453,35 @@ QCheckBox::indicator:unchecked:disabled
     height: 40px;
 }
 QCheckBox::indicator:unchecked {
-	 image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/BlankCheckBox400px.svg);
+	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
 }
 
 QCheckBox::indicator:unchecked:hover {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
 }
 
 QCheckBox::indicator:unchecked:pressed {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked {
-     image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/CheckedCheckBox400px.svg);
+     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked:hover {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked:pressed {
-     image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
 }
 QCheckBox::indicator:checked:disabled
 {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
+    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
 }
 QCheckBox::indicator:unchecked:disabled
 {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/DisabledCheckBox400px.svg);
+    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
 }</string>
              </property>
              <property name="text">
@@ -508,35 +508,35 @@ QCheckBox::indicator:unchecked:disabled
     height: 40px;
 }
 QCheckBox::indicator:unchecked {
-	 image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/BlankCheckBox400px.svg);
+	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
 }
 
 QCheckBox::indicator:unchecked:hover {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
 }
 
 QCheckBox::indicator:unchecked:pressed {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked {
-     image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/CheckedCheckBox400px.svg);
+     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked:hover {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked:pressed {
-     image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
 }
 QCheckBox::indicator:checked:disabled
 {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
+    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
 }
 QCheckBox::indicator:unchecked:disabled
 {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/DisabledCheckBox400px.svg);
+    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
 }</string>
              </property>
              <property name="text">
@@ -559,35 +559,35 @@ QCheckBox::indicator:unchecked:disabled
     height: 40px;
 }
 QCheckBox::indicator:unchecked {
-	 image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/BlankCheckBox400px.svg);
+	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
 }
 
 QCheckBox::indicator:unchecked:hover {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
 }
 
 QCheckBox::indicator:unchecked:pressed {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked {
-     image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/CheckedCheckBox400px.svg);
+     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked:hover {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked:pressed {
-     image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
 }
 QCheckBox::indicator:checked:disabled
 {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
+    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
 }
 QCheckBox::indicator:unchecked:disabled
 {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/DisabledCheckBox400px.svg);
+    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
 }</string>
              </property>
              <property name="text">
@@ -610,35 +610,35 @@ QCheckBox::indicator:unchecked:disabled
     height: 40px;
 }
 QCheckBox::indicator:unchecked {
-	 image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/BlankCheckBox400px.svg);
+	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
 }
 
 QCheckBox::indicator:unchecked:hover {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
 }
 
 QCheckBox::indicator:unchecked:pressed {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked {
-     image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/CheckedCheckBox400px.svg);
+     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked:hover {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked:pressed {
-     image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
 }
 QCheckBox::indicator:checked:disabled
 {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
+    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
 }
 QCheckBox::indicator:unchecked:disabled
 {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/DisabledCheckBox400px.svg);
+    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
 }</string>
              </property>
              <property name="text">
@@ -661,35 +661,35 @@ QCheckBox::indicator:unchecked:disabled
     height: 40px;
 }
 QCheckBox::indicator:unchecked {
-	 image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/BlankCheckBox400px.svg);
+	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
 }
 
 QCheckBox::indicator:unchecked:hover {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
 }
 
 QCheckBox::indicator:unchecked:pressed {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked {
-     image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/CheckedCheckBox400px.svg);
+     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked:hover {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
 }
 
 QCheckBox::indicator:checked:pressed {
-     image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
 }
 QCheckBox::indicator:checked:disabled
 {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
+    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
 }
 QCheckBox::indicator:unchecked:disabled
 {
-    image: url(/home/pi/Desktop/SEC_GUI/CheckBoxIcons/DisabledCheckBox400px.svg);
+    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
 }</string>
              </property>
              <property name="text">
@@ -829,7 +829,7 @@ QCheckBox::indicator:unchecked:disabled
            <x>10</x>
            <y>35</y>
            <width>201</width>
-           <height>60</height>
+           <height>61</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -908,7 +908,7 @@ QCheckBox::indicator:unchecked:disabled
            <x>10</x>
            <y>33</y>
            <width>201</width>
-           <height>60</height>
+           <height>61</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -993,14 +993,14 @@ QCheckBox::indicator:unchecked:disabled
         <item>
          <widget class="QPushButton" name="fillButton">
           <property name="text">
-           <string>Fill Pump</string>
+           <string>Fill Syringe Barrel</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="primeButton">
           <property name="text">
-           <string>Prime Lines</string>
+           <string>Prime/Clean Lines</string>
           </property>
          </widget>
         </item>
@@ -1011,14 +1011,14 @@ QCheckBox::indicator:unchecked:disabled
         <item>
          <widget class="QPushButton" name="emptyButton">
           <property name="text">
-           <string>Empty Pump</string>
+           <string>Empty Syringe Barrel</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="cleanButton">
+         <widget class="QPushButton" name="emptyLinesButton">
           <property name="text">
-           <string>Clean Pump</string>
+           <string>Empty Lines</string>
           </property>
          </widget>
         </item>
@@ -1034,7 +1034,7 @@ QCheckBox::indicator:unchecked:disabled
      <x>0</x>
      <y>0</y>
      <width>480</width>
-     <height>27</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

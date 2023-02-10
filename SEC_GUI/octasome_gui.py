@@ -24,35 +24,48 @@ class MainWindow(QMainWindow):
         self.timer  = QTimer(self)
         self.ui.setupUi(self)
         self.show()
-    #connect GUI signals to methods
-        self.ui.connectButton.clicked.connect(self.serialConnect)                       #connect/disconnect from serial port
-        self.ui.refreshButton.clicked.connect(self.serialRefresh)                       #refresh available ports in COM spinbox
-        self.ui.syringeButton.clicked.connect(self.setSyringeSize)                      #updates GUI units and underlying maths
-        self.ui.initializeButton.clicked.connect(self.initializePump)                   #initialize pump and valve select motors
-        self.ui.fillButton.clicked.connect(self.fillPump)                               #fill the syringe barrel with fluid
-        self.ui.emptyButton.clicked.connect(self.emptyPumpLines)                                #empty the syringe barrel into storage reservoir
-        self.ui.primeButton.clicked.connect(self.primeLines)                            #auto-prime fluid lines
-        self.ui.cleanButton.clicked.connect(self.cleanLines)                            #cleans pump by flushing all lines [with water]
-        self.ui.drawSpeedSpinBox.valueChanged.connect(self.updateDrawSlider)            #updates draw speed slider
-        self.ui.drawSpeedSlider.valueChanged.connect(self.updateDrawSpeed)               #updates draw speed spinbox
-        self.ui.dispenseSpeedSpinBox.valueChanged.connect(self.updateDispenseSlider)    #updates dispense speed slider
-        self.ui.dispenseSpeedSlider.valueChanged.connect(self.updateDispenseSpeed)       #updates dispense speed spin box
-        self.ui.dispenseSpinBox.valueChanged.connect(self.updateDispenseVolSlider)      #updates dispense volume slider
-        self.ui.dispenseVolumeSlider.valueChanged.connect(self.updateDispenseVolume)     #updates dispense volume spin box
-        self.ui.dispenseVolumeButton.clicked.connect(self.dispense)                           #dispenses specified volumes to specified columns
-        self.ui.allCheckBox.stateChanged.connect(self.enableColumnSelect)               #toggles column checkbox states
-        self.ui.stopButton.clicked.connect(self.stopPump)                               #sends halt command to pump
+        # connect GUI signals to methods
+        self.ui.connectButton.clicked.connect(self.serialConnect)                       # connect/disconnect from serial port
+        self.ui.refreshButton.clicked.connect(self.serialRefresh)                       # refresh available ports in COM spinbox
+        self.ui.syringeButton.clicked.connect(self.setSyringeSize)                      # updates GUI units and underlying maths
+        self.ui.initializeButton.clicked.connect(self.initializePump)                   # initialize pump and valve select motors
+        self.ui.fillButton.clicked.connect(self.fillPump)                               # fill the syringe barrel with fluid
+        self.ui.emptyButton.clicked.connect(self.emptyPump)                             # empty the syringe barrel into storage reservoir
+        self.ui.primeButton.clicked.connect(self.primeLines)                            # auto-prime fluid lines
+        self.ui.emptyLinesButton.clicked.connect(self.emptyPumpLines)                   # cleans pump by flushing all lines [with water]
+        self.ui.drawSpeedSpinBox.valueChanged.connect(self.updateDrawSlider)            # updates draw speed slider
+        self.ui.drawSpeedSlider.valueChanged.connect(self.updateDrawSpeed)              # updates draw speed spinbox
+        self.ui.dispenseSpeedSpinBox.valueChanged.connect(self.updateDispenseSlider)    # updates dispense speed slider
+        self.ui.dispenseSpeedSlider.valueChanged.connect(self.updateDispenseSpeed)      # updates dispense speed spin box
+        self.ui.dispenseSpinBox.valueChanged.connect(self.updateDispenseVolSlider)      # updates dispense volume slider
+        self.ui.dispenseVolumeSlider.valueChanged.connect(self.updateDispenseVolume)    # updates dispense volume spin box
+        self.ui.dispenseVolumeButton.clicked.connect(self.dispense)                     # dispenses specified volumes to specified columns
+        self.ui.allCheckBox.stateChanged.connect(self.enableColumnSelect)               # toggles column checkbox states
+        self.ui.stopButton.clicked.connect(self.stopPump)                               # sends halt command to pump
 
 
+        # Set tooltips/statustips
+        self.ui.fillButton.setToolTip("Fully draw syringe, from reservoir")
+        self.ui.emptyButton.setToolTip("Dispense syringe barrel to reservoir")
+        self.ui.primeButton.setToolTip(
+                "1. Draw partly from reservoir.\n"
+                "2. Dispense back to reservoir (remove any air).\n"
+                "3. Draw fully from reservoir\n"
+                "4. Dispense to each column line equally")
+        self.ui.emptyLinesButton.setToolTip(
+                "Draw from each column line, dispense to reservoir.")
+        self.ui.dispenseVolumeButton.setToolTip(
+                "Dispense specified volume from reservoir to column lines*\n"
+                "* Either all columns, or specified columns")
 
-    #default GUI state (everything greyed out except for comms until serial comms are connected):
+        # default GUI state (everything greyed out except for comms until serial comms are connected):
 
         self.ui.setUpBox.setEnabled(False)
         self.ui.dispenseBox.setEnabled(False)
         self.ui.adjustmentBox.setEnabled(False)
         self.ui.emergencyStopBox.setEnabled(False)
 
-    #column check boxes - if "all" is selected, then individual selection is greyed out
+        # column check boxes - if "all" is selected, then individual selection is greyed out
         self.ui.allCheckBox.setChecked(True)
         self.ui.column1CheckBox.setEnabled(False)
         self.ui.column1CheckBox.setEnabled(False)
@@ -66,11 +79,11 @@ class MainWindow(QMainWindow):
         self.ui.column7CheckBox.setEnabled(False)
         self.ui.column8CheckBox.setEnabled(False)
 
-    #precision with which dispense volume can be set
+        # precision with which dispense volume can be set
         self.ui.dispenseSpinBox.setSingleStep(0.1)
         self.ui.dispenseVolumeSlider.setSingleStep(100)
 
-    #maximum and minimum values for pump speeds
+        # maximum and minimum values for pump speeds
         self.ui.drawSpeedSpinBox.setMaximum(6000)
         self.ui.drawSpeedSpinBox.setMinimum(100)
         self.ui.drawSpeedSlider.setMinimum(1)
@@ -80,19 +93,19 @@ class MainWindow(QMainWindow):
         self.ui.dispenseSpeedSlider.setMinimum(1)
         self.ui.dispenseSpeedSlider.setMaximum(60)
 
-    #steps
+        # steps
         self.ui.drawSpeedSpinBox.setSingleStep(100)
         self.ui.drawSpeedSlider.setSingleStep(1)
         self.ui.dispenseSpeedSpinBox.setSingleStep(100)
         self.ui.dispenseSpeedSlider.setSingleStep(1)
 
-    #initial, default speed
+        # initial, default speed
         self.ui.drawSpeedSpinBox.setValue(400)
         #self.ui.drawSpeedSlider.setValue(30)
         self.ui.dispenseSpeedSpinBox.setValue(400)
         #self.ui.dispenseSpeedSlider.setValue(30)
 
-    #serial port
+        # serial port
         self.serial = PyQt5.QtSerialPort.QSerialPort(self)
 
     def setBaud(self, baud=9600):
@@ -104,22 +117,24 @@ class MainWindow(QMainWindow):
         if baud == 38400:
             self.serial.setBaudRate(PyQt5.QtSerialPort.QSerialPort.Baud38400)
 
-#attempts to connect to serial com port with assumed settings (i.e. 38400baud, 8N1)
-#NOTE: baud rate was manually changed to 38400
+    # attempts to connect to serial com port with assumed settings
     def serialConnect(self):
-    #disable connect button before attempt
+        # disable connect button before attempt
         self.ui.connectButton.setEnabled(False)
         portname = self.ui.comPortComboBox.currentText()
-    #serial port settings
+        # serial port settings
         self.serial.setPortName(portname)
         self.serial.setDataBits(PyQt5.QtSerialPort.QSerialPort.Data8)
         self.serial.setParity(PyQt5.QtSerialPort.QSerialPort.NoParity)
         self.serial.setStopBits(PyQt5.QtSerialPort.QSerialPort.OneStop)
         self.serial.setFlowControl(PyQt5.QtSerialPort.QSerialPort.NoFlowControl)
-    #check if connection was successful
+        # check if connection was successful.
+        # Try baudrates 38400 and 9600
+        opened = False
         self.setBaud(38400)
         opened = self.serial.open(PyQt5.QtCore.QIODevice.ReadWrite)
         baud = 38400
+        # queryPump() on a failed open yields an int instead of a string
         if isinstance(self.queryPump(), int):
             self.serialDisconnect()
             self.setBaud(9600)
@@ -127,13 +142,12 @@ class MainWindow(QMainWindow):
             opened = self.serial.open(PyQt5.QtCore.QIODevice.ReadWrite)
             baud = 9600
 
+        # if connection is successful:
         if opened:
-        #if connection is successful:
             self.serial.open(PyQt5.QtCore.QIODevice.ReadWrite)
             print("Connection Successful")
             print("Baud: {}".format(baud))
             self.serialInfo = PyQt5.QtSerialPort.QSerialPortInfo(portname)
-        #TODO: use this information to check that the GUI is connected to the correct device
             print(self.serialInfo.description())
             print(self.serialInfo.manufacturer())
             print(self.serialInfo.portName())
@@ -141,31 +155,31 @@ class MainWindow(QMainWindow):
             print(self.serialInfo.serialNumber())
             print(self.serialInfo.systemLocation())
             print(self.serialInfo.vendorIdentifier())
-        #disable the combo-box when connected, change the connect button to a disconnect button
+            # disable the combo-box when connected, change the connect button to a disconnect button
             self.ui.comPortComboBox.setEnabled(False)
             self.ui.refreshButton.setEnabled(False)
             self.ui.connectButton.setText("Disconnect")
-        #since serial connection was successful, enable/disable portions of the GUI
+            # since serial connection was successful, enable/disable portions of the GUI
             self.ui.setUpBox.setEnabled(True)
             self.ui.initializeButton.setEnabled(False)
             self.ui.fillButton.setEnabled(False)
             self.ui.emptyButton.setEnabled(False)
-        #change the method that the the connect button is linked to (serialDisconnect)
+            # change the method that the the connect button is linked to (serialDisconnect)
             self.ui.connectButton.clicked.disconnect()
             self.ui.connectButton.clicked.connect(self.serialDisconnect)
+        # if connection is unsuccessful:
         else:
-        #if connection is unsuccessful:
             print("Connection Failed")
-        #display a pop-up indicating unsuccessful connection
+            # display a pop-up indicating unsuccessful connection
             dlg = QMessageBox(self)
             dlg.setWindowTitle("Connection Failed")
             dlg.setText("Failed to connect :(")
             dlg.setIcon(QMessageBox.Critical)
             button = dlg.exec()
-        #close dialog when the OK button is pressed
+            # close dialog when the OK button is pressed
             if button == QMessageBox.Ok:
                 print("OK!")
-    #re-enable the connect (now disconnect) button
+        # re-enable the connect (now disconnect) button
         self.ui.connectButton.setEnabled(True)
 
 #disconnects from the serial port, re-configures GUI to allow re-connection to serial port
@@ -328,20 +342,21 @@ class MainWindow(QMainWindow):
 #empties pump by changing to first valve, moving to position 0 (1000 steps per second)
     def emptyPump(self):
         #display pop up if pump is busy..
-        # busy = self.queryPump()
-        # if(busy == bin(0)):
-        #     print("Pump is busy!!!!!")
-        #     dlg = QMessageBox(self)
-        #     dlg.setWindowTitle("Warning")
-        #     dlg.setText("Pump is busy")
-        #     dlg.setIcon(QMessageBox.Information)
-        #     button = dlg.exec()
-        #     if button == QMessageBox.Ok:
-        #         print("OK!")
-        #         return
+        busy = self.queryPump()
+        if(busy == bin(0)):
+            print("Pump is busy!!!!!")
+            dlg = QMessageBox(self)
+            dlg.setWindowTitle("Warning")
+            dlg.setText("Pump is busy")
+            dlg.setIcon(QMessageBox.Information)
+            button = dlg.exec()
+            if button == QMessageBox.Ok:
+                print("OK!")
+                return
         #build command string
         speed = int(self.ui.dispenseSpeedSpinBox.value())    #get speed from GUI
         command_string = "/1I1V" + str(speed) + "A0"
+        print(command_string)
         self.write(command_string)
         plunger_position = 0
 
