@@ -24,6 +24,8 @@ class MainWindow(QMainWindow):
         self.timer  = QTimer(self)
         self.ui.setupUi(self)
         self.show()
+        self.CmdStr = CommandStringBuilder(self)
+
         # connect GUI signals to methods
         self.ui.connectButton.clicked.connect(self.serialConnect)                       # connect/disconnect from serial port
         self.ui.refreshButton.clicked.connect(self.serialRefresh)                       # refresh available ports in COM spinbox
@@ -42,7 +44,6 @@ class MainWindow(QMainWindow):
         self.ui.dispenseVolumeButton.clicked.connect(self.dispense)                     # dispenses specified volumes to specified columns
         self.ui.allCheckBox.stateChanged.connect(self.enableColumnSelect)               # toggles column checkbox states
         self.ui.stopButton.clicked.connect(self.stopPump)                               # sends halt command to pump
-
 
         # Set tooltips/statustips
         self.ui.fillButton.setToolTip("Fully draw syringe, from reservoir")
@@ -241,7 +242,7 @@ class MainWindow(QMainWindow):
         frame_list = [byte for byte in raw_frame]
         print(frame_list)
         print(raw_data)
-        return(frame_list)
+        return frame_list
 
     def setSyringeSize(self):
         """after syringe size is "set", change dispense box units to display
@@ -698,6 +699,49 @@ class MainWindow(QMainWindow):
                 self.timer.start(1000)
             else:
                 return
+
+
+class CommandStringBuilder(object):
+    """Generates strings for pump commands"""
+    def __init__(self):
+        pass
+
+    def setPumpID(self, id):
+        """Set the target pump to receive subsequent commands"""
+        return "{}".format(id)
+
+    def setTopSpeed(self, speed):
+        """Set the pump's top speed for subsequent movements"""
+        return "V{}".format(speed)
+
+    def setStartSpeed(self, speed):
+        """Set the pump's starting speed for subsequent movements"""
+        return "v{}".format(speed)
+
+    def setAcceleration(self, slope):
+        """Set the speed slope for subsequent movements"""
+        return "L{}".format(slope)
+
+    def setValve(self, valve):
+        """Change the valve to the specified number valve (1-9)"""
+        return "I{}".format(valve)
+
+    def absolutePosition(self, position):
+        """Move the plunger to the absolute position given"""
+        return "A{}".format(position)
+
+    def relativeDraw(self, steps):
+        """Move the plunger down (draw) by the number of given steps"""
+        return "P{}".format(steps)
+
+    def relativeDispense(self, steps):
+        """Move the plunger up (dispense) by the number of given steps"""
+        return "D{}".format(steps)
+
+    def execute(self):
+        """Executes the command string"""
+        return "R"
+
 
 # MAIN
 if __name__ == "__main__":
