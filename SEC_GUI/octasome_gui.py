@@ -1,11 +1,11 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog, QMessageBox
-from PyQt5.QtCore import QFile, QTimer, pyqtSignal
-from PyQt5 import QtTest
-from mainwindow import Ui_MainWindow
-import PyQt5.QtSerialPort
 import math
 import time
+import atexit
+from PyQt5 import QtTest, QtSerialPort
+from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog, QMessageBox
+from PyQt5.QtCore import QFile, QTimer, QIODevice, pyqtSignal
+from mainwindow import Ui_MainWindow
 
 # PLUNGER_POSITION = 0
 # MAXSPEED = 6000
@@ -27,23 +27,40 @@ class MainWindow(QMainWindow):
         self.CmdStr = CommandStringBuilder(self)
 
         # connect GUI signals to methods
-        self.ui.connectButton.clicked.connect(self.serialConnect)                       # connect/disconnect from serial port
-        self.ui.refreshButton.clicked.connect(self.serialRefresh)                       # refresh available ports in COM spinbox
-        self.ui.syringeButton.clicked.connect(self.setSyringeSize)                      # updates GUI units and underlying maths
-        self.ui.initializeButton.clicked.connect(self.initializePump)                   # initialize pump and valve select motors
-        self.ui.fillButton.clicked.connect(self.fillPump)                               # fill the syringe barrel with fluid
-        self.ui.emptyButton.clicked.connect(self.emptyPump)                             # empty the syringe barrel into storage reservoir
-        self.ui.primeButton.clicked.connect(self.primeLines)                            # auto-prime fluid lines
-        self.ui.emptyLinesButton.clicked.connect(self.emptyPumpLines)                   # cleans pump by flushing all lines [with water]
-        self.ui.drawSpeedSpinBox.valueChanged.connect(self.updateDrawSlider)            # updates draw speed slider
-        self.ui.drawSpeedSlider.valueChanged.connect(self.updateDrawSpeed)              # updates draw speed spinbox
-        self.ui.dispenseSpeedSpinBox.valueChanged.connect(self.updateDispenseSlider)    # updates dispense speed slider
-        self.ui.dispenseSpeedSlider.valueChanged.connect(self.updateDispenseSpeed)      # updates dispense speed spin box
-        self.ui.dispenseSpinBox.valueChanged.connect(self.updateDispenseVolSlider)      # updates dispense volume slider
-        self.ui.dispenseVolumeSlider.valueChanged.connect(self.updateDispenseVolume)    # updates dispense volume spin box
-        self.ui.dispenseVolumeButton.clicked.connect(self.dispense)                     # dispenses specified volumes to specified columns
-        self.ui.allCheckBox.stateChanged.connect(self.enableColumnSelect)               # toggles column checkbox states
-        self.ui.stopButton.clicked.connect(self.stopPump)                               # sends halt command to pump
+        # connect/disconnect from serial port:
+        self.ui.connectButton.clicked.connect(self.serialConnect)
+        # refresh available ports in COM spinbox:
+        self.ui.refreshButton.clicked.connect(self.serialRefresh)
+        # update GUI units and underlying maths:
+        self.ui.syringeButton.clicked.connect(self.setSyringeSize)
+        # initialize pump and valve select motors:
+        self.ui.initializeButton.clicked.connect(self.initializePump)
+        # fill the syringe barrel with fluid:
+        self.ui.fillButton.clicked.connect(self.fillPump)
+        # empty the syringe barrel into storage reservoir:
+        self.ui.emptyButton.clicked.connect(self.emptyPump)
+        # auto-prime fluid lines:
+        self.ui.primeButton.clicked.connect(self.primeLines)
+        # Remove all fluid from lines back to reservoir:
+        self.ui.emptyLinesButton.clicked.connect(self.emptyPumpLines)
+        # update draw speed slider:
+        self.ui.drawSpeedSpinBox.valueChanged.connect(self.updateDrawSlider)
+        # update draw speed spinbox:
+        self.ui.drawSpeedSlider.valueChanged.connect(self.updateDrawSpeed)
+        # update dispense speed slider:
+        self.ui.dispenseSpeedSpinBox.valueChanged.connect(self.updateDispenseSlider)
+        # update dispense speed spin box:
+        self.ui.dispenseSpeedSlider.valueChanged.connect(self.updateDispenseSpeed)
+        # update dispense volume slider:
+        self.ui.dispenseSpinBox.valueChanged.connect(self.updateDispenseVolSlider)
+        # update dispense volume spin box:
+        self.ui.dispenseVolumeSlider.valueChanged.connect(self.updateDispenseVolume)
+        # dispense specified volumes to specified columns:
+        self.ui.dispenseVolumeButton.clicked.connect(self.dispense)
+        # toggle column checkbox states:
+        self.ui.allCheckBox.stateChanged.connect(self.enableColumnSelect)
+        # send halt command to pump:
+        self.ui.stopButton.clicked.connect(self.stopPump)
 
         # Set tooltips/statustips
         self.ui.fillButton.setToolTip("Fully draw syringe, from reservoir")
@@ -109,15 +126,18 @@ class MainWindow(QMainWindow):
         # self.ui.dispenseSpeedSlider.setValue(30)
 
         # serial port
-        self.serial = PyQt5.QtSerialPort.QSerialPort(self)
+        self.serial = QtSerialPort.QSerialPort(self)
+
+        # Run when app exist
+        atexit.register(self.exitCommands)
 
 
     def setBaud(self, baud=9600):
         """Set the baud rate to the `baud` given."""
         if baud == 9600:
-            self.serial.setBaudRate(PyQt5.QtSerialPort.QSerialPort.Baud9600)
+            self.serial.setBaudRate(QtSerialPort.QSerialPort.Baud9600)
         if baud == 38400:
-            self.serial.setBaudRate(PyQt5.QtSerialPort.QSerialPort.Baud38400)
+            self.serial.setBaudRate(QtSerialPort.QSerialPort.Baud38400)
 
     def serialConnect(self):
         """attempts to connect to serial com port with assumed settings"""
@@ -126,30 +146,30 @@ class MainWindow(QMainWindow):
         portname = self.ui.comPortComboBox.currentText()
         # serial port settings
         self.serial.setPortName(portname)
-        self.serial.setDataBits(PyQt5.QtSerialPort.QSerialPort.Data8)
-        self.serial.setParity(PyQt5.QtSerialPort.QSerialPort.NoParity)
-        self.serial.setStopBits(PyQt5.QtSerialPort.QSerialPort.OneStop)
-        self.serial.setFlowControl(PyQt5.QtSerialPort.QSerialPort.NoFlowControl)
+        self.serial.setDataBits(QtSerialPort.QSerialPort.Data8)
+        self.serial.setParity(QtSerialPort.QSerialPort.NoParity)
+        self.serial.setStopBits(QtSerialPort.QSerialPort.OneStop)
+        self.serial.setFlowControl(QtSerialPort.QSerialPort.NoFlowControl)
         # check if connection was successful.
         # Try baudrates 38400 and 9600
         opened = False
         self.setBaud(38400)
-        opened = self.serial.open(PyQt5.QtCore.QIODevice.ReadWrite)
+        opened = self.serial.open(QIODevice.ReadWrite)
         baud = 38400
         # queryPump() on a failed open yields an int instead of a string
         if isinstance(self.queryPump(), int):
             self.serialDisconnect()
             self.setBaud(9600)
             self.stateChanged.emit("Open")
-            opened = self.serial.open(PyQt5.QtCore.QIODevice.ReadWrite)
+            opened = self.serial.open(QIODevice.ReadWrite)
             baud = 9600
 
         # if connection is successful:
         if opened:
-            self.serial.open(PyQt5.QtCore.QIODevice.ReadWrite)
+            self.serial.open(QIODevice.ReadWrite)
             print("Connection Successful")
             print("Baud: {}".format(baud))
-            self.serialInfo = PyQt5.QtSerialPort.QSerialPortInfo(portname)
+            self.serialInfo = QtSerialPort.QSerialPortInfo(portname)
             print(self.serialInfo.description())
             print(self.serialInfo.manufacturer())
             print(self.serialInfo.portName())
@@ -211,7 +231,7 @@ class MainWindow(QMainWindow):
         # removes all items from combobox
         self.ui.comPortComboBox.clear()
         # adds available ports to combobox list
-        for info in PyQt5.QtSerialPort.QSerialPortInfo.availablePorts():
+        for info in QtSerialPort.QSerialPortInfo.availablePorts():
             if "USB" in info.portName():
                 self.ui.comPortComboBox.addItem(info.portName())
 
@@ -700,6 +720,14 @@ class MainWindow(QMainWindow):
             else:
                 return
 
+    # def closeEvent(self, event):
+    def exitCommands(self, event):
+        """Things to run at application exit"""
+        if self.serial.isOpen():
+            print("closing serial port...")
+            self.serial.close()
+            print("serial port closed.")
+
 
 class CommandStringBuilder(object):
     """Generates strings for pump commands"""
@@ -751,7 +779,7 @@ if __name__ == "__main__":
     window = MainWindow()
 
     # list all available com ports in comboBox on window
-    for info in PyQt5.QtSerialPort.QSerialPortInfo.availablePorts():
+    for info in QtSerialPort.QSerialPortInfo.availablePorts():
         if "USB" in info.portName():
             window.ui.comPortComboBox.addItem(info.portName())
 
