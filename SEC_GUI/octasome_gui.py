@@ -24,7 +24,7 @@ class MainWindow(QMainWindow):
         self.timer  = QTimer(self)
         self.ui.setupUi(self)
         self.show()
-        self.CmdStr = CommandStringBuilder(self)
+        self.CmdStr = CommandStringBuilder()
 
         # connect GUI signals to methods
         # connect/disconnect from serial port:
@@ -416,7 +416,7 @@ class MainWindow(QMainWindow):
                 return
         drawspeed = int(self.ui.drawSpeedSpinBox.value())    # get speed from GUI
         dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    # get speed from GUI
-        command_string = "/1I1V" + str(drawspeed) + "A2000" + "I2V" + str(dispensespeed) + "A0V" + str(drawspeed) + "A6000"
+        command_string = "/1I1V" + str(drawspeed) + "A1200" + "I2V" + str(dispensespeed) + "A0I1V" + str(drawspeed) + "A6000"
         # build command string
         command_string += "V" + str(dispensespeed)
         for column in range(8):
@@ -721,8 +721,9 @@ class MainWindow(QMainWindow):
                 return
 
     # def closeEvent(self, event):
-    def exitCommands(self, event):
+    def exitCommands(self):
         """Things to run at application exit"""
+        print("exiting cleanly...")
         if self.serial.isOpen():
             print("closing serial port...")
             self.serial.close()
