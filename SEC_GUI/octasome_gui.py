@@ -1,6 +1,7 @@
 import sys
 import math
 import time
+import signal
 import atexit
 from PyQt5 import QtTest, QtSerialPort
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog, QMessageBox
@@ -771,10 +772,12 @@ class CommandStringBuilder(object):
         """Executes the command string"""
         return "R"
 
-
 # MAIN
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+
+    # ctrl+C quits from terminal, but not cleanly
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     # instance of MainWindow class
     window = MainWindow()
