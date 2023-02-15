@@ -4,7 +4,8 @@ import time
 import signal
 import atexit
 from PyQt5 import QtTest, QtSerialPort
-from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog, QMessageBox
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QDialog, QMessageBox,
+                             QPushButton, qApp)
 from PyQt5.QtCore import QFile, QTimer, QIODevice, pyqtSignal
 from mainwindow import Ui_MainWindow
 
@@ -65,7 +66,15 @@ class MainWindow(QMainWindow):
         # quit application
         self.ui.actionQuit.triggered.connect(qApp.quit)
 
-        # Set tooltips/statustips
+        # Set tooltips
+        self.ui.refreshButton.setToolTip("Refresh the list of COM ports")
+        self.ui.connectButton.setToolTip(
+                "Connect to the COM port selected in the dropdown")
+        self.ui.syringeButton.setToolTip(
+                "Set the syringe barrel size (ensure this matches the "
+                "physical barrel size)")
+        self.ui.initializeButton.setToolTip(
+                "Initialize pump before sending commands")
         self.ui.fillButton.setToolTip("Fully draw syringe, from reservoir")
         self.ui.emptyButton.setToolTip("Dispense syringe barrel to reservoir")
         self.ui.primeButton.setToolTip(
@@ -78,6 +87,10 @@ class MainWindow(QMainWindow):
         self.ui.dispenseVolumeButton.setToolTip(
                 "Dispense specified volume from reservoir to column lines*\n"
                 "* Either all columns, or specified columns")
+        self.ui.stopButton.setToolTip("Interrupt pump and stop all actions.")
+        # for all pushbuttons, set statustip to its tooltip
+        for button in self.ui.centralwidget.findChildren(QPushButton):
+            button.setStatusTip(button.toolTip())
 
         # default GUI state (everything greyed out except for comms until
         # serial comms are connected):
