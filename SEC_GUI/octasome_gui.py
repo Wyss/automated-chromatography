@@ -62,6 +62,8 @@ class MainWindow(QMainWindow):
         self.ui.allCheckBox.stateChanged.connect(self.enableColumnSelect)
         # send halt command to pump:
         self.ui.stopButton.clicked.connect(self.stopPump)
+        # quit application
+        self.ui.actionQuit.triggered.connect(qApp.quit)
 
         # Set tooltips/statustips
         self.ui.fillButton.setToolTip("Fully draw syringe, from reservoir")
