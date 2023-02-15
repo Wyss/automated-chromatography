@@ -36,47 +36,37 @@
       <x>10</x>
       <y>0</y>
       <width>461</width>
-      <height>71</height>
+      <height>61</height>
      </rect>
     </property>
     <property name="title">
      <string>Communications</string>
     </property>
-    <widget class="QWidget" name="layoutWidget">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>31</y>
-       <width>441</width>
-       <height>32</height>
-      </rect>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QComboBox" name="comPortComboBox">
-        <item>
-         <property name="text">
-          <string>&lt;COM Port&gt;</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="connectButton">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="refreshButton">
+       <property name="text">
+        <string>Refresh</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comPortComboBox">
+       <item>
         <property name="text">
-         <string>Connect</string>
+         <string>&lt;COM Port&gt;</string>
         </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="refreshButton">
-        <property name="text">
-         <string>Refresh</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="connectButton">
+       <property name="text">
+        <string>Connect</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
    <widget class="QGroupBox" name="setUpBox">
     <property name="geometry">
@@ -84,82 +74,96 @@
       <x>10</x>
       <y>70</y>
       <width>461</width>
-      <height>71</height>
+      <height>56</height>
      </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
     </property>
     <property name="title">
      <string>Set Up</string>
     </property>
-    <widget class="QWidget" name="layoutWidget">
-     <property name="geometry">
-      <rect>
-       <x>12</x>
-       <y>31</y>
-       <width>441</width>
-       <height>32</height>
-      </rect>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <item>
-       <widget class="QComboBox" name="syringeComboBox">
-        <item>
-         <property name="text">
-          <string>25 mL</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>50 μL</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>100 μL</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>250 μL</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>500 μL</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>1 mL</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>5 mL</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>10 mL</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="syringeButton">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QComboBox" name="syringeComboBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <item>
         <property name="text">
-         <string>Set Syringe Size</string>
+         <string>25 mL</string>
         </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="initializeButton">
+       </item>
+       <item>
         <property name="text">
-         <string>Initialize Pump</string>
+         <string>50 μL</string>
         </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
+       </item>
+       <item>
+        <property name="text">
+         <string>100 μL</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>250 μL</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>500 μL</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>1 mL</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>5 mL</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>10 mL</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="syringeButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Set Syringe Size</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="initializeButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Initialize Pump</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
    <widget class="QGroupBox" name="emergencyStopBox">
     <property name="geometry">
@@ -167,25 +171,21 @@
       <x>10</x>
       <y>690</y>
       <width>461</width>
-      <height>61</height>
+      <height>56</height>
      </rect>
     </property>
     <property name="title">
      <string>Emergency Stop</string>
     </property>
-    <widget class="QPushButton" name="stopButton">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>30</y>
-       <width>441</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>STOP PUMP</string>
-     </property>
-    </widget>
+    <layout class="QVBoxLayout" name="verticalLayout_6">
+     <item>
+      <widget class="QPushButton" name="stopButton">
+       <property name="text">
+        <string>STOP PUMP</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
    <widget class="QGroupBox" name="dispenseBox">
     <property name="geometry">
@@ -778,6 +778,9 @@ QCheckBox::indicator:unchecked:disabled
        </item>
        <item>
         <widget class="QSlider" name="dispenseVolumeSlider">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="maximum">
           <number>25</number>
          </property>
@@ -802,35 +805,53 @@ QCheckBox::indicator:unchecked:disabled
       <x>10</x>
       <y>140</y>
       <width>461</width>
-      <height>191</height>
+      <height>194</height>
      </rect>
     </property>
     <property name="title">
      <string>Adjustments</string>
     </property>
-    <widget class="QWidget" name="layoutWidget">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>90</y>
-       <width>441</width>
-       <height>101</height>
-      </rect>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_5">
-      <item>
-       <widget class="QGroupBox" name="speedGroupBox">
-        <property name="title">
-         <string>Draw Speed</string>
-        </property>
-        <widget class="QWidget" name="layoutWidget">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>35</y>
-           <width>201</width>
-           <height>61</height>
-          </rect>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="2" column="1">
+      <widget class="QPushButton" name="emptyLinesButton">
+       <property name="text">
+        <string>Empty Lines</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QPushButton" name="primeButton">
+       <property name="text">
+        <string>Prime/Clean Lines</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPushButton" name="emptyButton">
+       <property name="text">
+        <string>Empty Syringe Barrel</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QPushButton" name="fillButton">
+       <property name="text">
+        <string>Fill Syringe Barrel</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0" colspan="2">
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <widget class="QGroupBox" name="drawSpeedGroupBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Draw Speed</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_5">
           <item>
@@ -879,14 +900,14 @@ QCheckBox::indicator:unchecked:disabled
           </item>
           <item>
            <widget class="QSlider" name="drawSpeedSlider">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="maximum">
              <number>10000</number>
             </property>
             <property name="singleStep">
              <number>100</number>
-            </property>
-            <property name="value">
-             <number>3000</number>
             </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -895,23 +916,19 @@ QCheckBox::indicator:unchecked:disabled
           </item>
          </layout>
         </widget>
-       </widget>
-      </item>
-      <item>
-       <widget class="QGroupBox" name="groupBox">
-        <property name="title">
-         <string>Dispense Speed</string>
-        </property>
-        <widget class="QWidget" name="layoutWidget">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>33</y>
-           <width>201</width>
-           <height>61</height>
-          </rect>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="dispenseSpeedGroupBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_6">
+         <property name="title">
+          <string>Dispense Speed</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_7">
             <item>
@@ -958,14 +975,20 @@ QCheckBox::indicator:unchecked:disabled
           </item>
           <item>
            <widget class="QSlider" name="dispenseSpeedSlider">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="maximum">
              <number>10000</number>
             </property>
             <property name="singleStep">
              <number>100</number>
-            </property>
-            <property name="value">
-             <number>3000</number>
             </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -974,58 +997,10 @@ QCheckBox::indicator:unchecked:disabled
           </item>
          </layout>
         </widget>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QWidget" name="layoutWidget">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>30</y>
-       <width>441</width>
-       <height>56</height>
-      </rect>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_8">
-      <item>
-       <layout class="QVBoxLayout" name="verticalLayout_7">
-        <item>
-         <widget class="QPushButton" name="fillButton">
-          <property name="text">
-           <string>Fill Syringe Barrel</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="primeButton">
-          <property name="text">
-           <string>Prime/Clean Lines</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <widget class="QPushButton" name="emptyButton">
-          <property name="text">
-           <string>Empty Syringe Barrel</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="emptyLinesButton">
-          <property name="text">
-           <string>Empty Lines</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -1037,9 +1012,52 @@ QCheckBox::indicator:unchecked:disabled
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionQuit"/>
+   </widget>
+   <addaction name="menuFile"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
  </widget>
+ <tabstops>
+  <tabstop>refreshButton</tabstop>
+  <tabstop>comPortComboBox</tabstop>
+  <tabstop>connectButton</tabstop>
+  <tabstop>syringeComboBox</tabstop>
+  <tabstop>syringeButton</tabstop>
+  <tabstop>initializeButton</tabstop>
+  <tabstop>fillButton</tabstop>
+  <tabstop>emptyButton</tabstop>
+  <tabstop>primeButton</tabstop>
+  <tabstop>emptyLinesButton</tabstop>
+  <tabstop>drawSpeedSpinBox</tabstop>
+  <tabstop>dispenseSpeedSpinBox</tabstop>
+  <tabstop>dispenseSpinBox</tabstop>
+  <tabstop>allCheckBox</tabstop>
+  <tabstop>column1CheckBox</tabstop>
+  <tabstop>column2CheckBox</tabstop>
+  <tabstop>column3CheckBox</tabstop>
+  <tabstop>column4CheckBox</tabstop>
+  <tabstop>column5CheckBox</tabstop>
+  <tabstop>column6CheckBox</tabstop>
+  <tabstop>column7CheckBox</tabstop>
+  <tabstop>column8CheckBox</tabstop>
+  <tabstop>dispenseVolumeButton</tabstop>
+  <tabstop>stopButton</tabstop>
+  <tabstop>dispenseSpeedSlider</tabstop>
+  <tabstop>dispenseVolumeSlider</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
