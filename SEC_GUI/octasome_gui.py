@@ -787,12 +787,23 @@ class CommandStringBuilder(object):
         """Executes the command string"""
         return "R"
 
+def _sigint_handler(*args):
+    """Handle ctrl+c sigint cleanly"""
+    print("\n"
+          "Quitting from ctrl+c")
+    qApp.quit()
+
 # MAIN
 if __name__ == "__main__":
+    # handle sigint (ctrl+c) with sigint_handler function
+    signal.signal(signal.SIGINT, _sigint_handler)
+
     app = QApplication(sys.argv)
 
-    # ctrl+C quits from terminal, but not cleanly
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    # allows interpreter handle ctrl+C every 250 ms
+    sigint_timer = QTimer()
+    sigint_timer.start(250)
+    sigint_timer.timeout.connect(lambda: None)
 
     # instance of MainWindow class
     window = MainWindow()
