@@ -143,6 +143,7 @@ class MainWindow(QMainWindow):
 
         # serial port
         self.serial = QtSerialPort.QSerialPort(self)
+        self.serialRefresh()
 
         # Run when app exist
         atexit.register(self.exitCommands)
@@ -250,6 +251,8 @@ class MainWindow(QMainWindow):
         for info in QtSerialPort.QSerialPortInfo.availablePorts():
             if "USB" in info.portName():
                 self.ui.comPortComboBox.addItem(info.portName())
+        if self.ui.comPortComboBox.count() == 0:
+            self.ui.comPortComboBox.addItem("<no COM found>")
 
     def write(self, command):
         """sends a command through the serial port (appends the R to indicate
@@ -807,11 +810,6 @@ if __name__ == "__main__":
 
     # instance of MainWindow class
     window = MainWindow()
-
-    # list all available com ports in comboBox on window
-    for info in QtSerialPort.QSerialPortInfo.availablePorts():
-        if "USB" in info.portName():
-            window.ui.comPortComboBox.addItem(info.portName())
 
     # window.show()
     sys.exit(app.exec())
