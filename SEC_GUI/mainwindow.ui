@@ -48,7 +48,7 @@
         <widget class="QComboBox" name="comPortComboBox">
          <item>
           <property name="text">
-           <string>&lt;COM Port&gt;</string>
+           <string>com port list</string>
           </property>
          </item>
         </widget>
@@ -437,15 +437,72 @@
          <property name="title">
           <string>Column Selection</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_2">
-          <item row="0" column="0">
-           <layout class="QVBoxLayout" name="verticalLayout_4">
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <widget class="QCheckBox" name="allCheckBox">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+                <weight>50</weight>
+                <bold>false</bold>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QCheckBox::indicator {
+    width: 40px;
+    height: 40px;
+}
+QCheckBox::indicator:unchecked {
+	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:hover {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:pressed {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked {
+     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:hover {
+    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:pressed {
+     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:checked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:unchecked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
+}</string>
+              </property>
+              <property name="text">
+               <string>All</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_3">
               <item>
-               <widget class="QCheckBox" name="allCheckBox">
-                <property name="enabled">
-                 <bool>true</bool>
+               <widget class="QCheckBox" name="column1CheckBox">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>40</height>
+                 </size>
                 </property>
                 <property name="font">
                  <font>
@@ -492,23 +549,27 @@ QCheckBox::indicator:unchecked:disabled
 }</string>
                 </property>
                 <property name="text">
-                 <string>All</string>
+                 <string>Column 1</string>
                 </property>
                </widget>
               </item>
               <item>
-               <layout class="QVBoxLayout" name="verticalLayout_3">
-                <item>
-                 <widget class="QCheckBox" name="column1CheckBox">
-                  <property name="font">
-                   <font>
-                    <pointsize>12</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">QCheckBox::indicator {
+               <widget class="QCheckBox" name="column2CheckBox">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QCheckBox::indicator {
     width: 40px;
     height: 40px;
 }
@@ -543,180 +604,29 @@ QCheckBox::indicator:unchecked:disabled
 {
     image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
 }</string>
-                  </property>
-                  <property name="text">
-                   <string>Column 1</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="column2CheckBox">
-                  <property name="font">
-                   <font>
-                    <pointsize>12</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">QCheckBox::indicator {
-    width: 40px;
-    height: 40px;
-}
-QCheckBox::indicator:unchecked {
-	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
-}
-
-QCheckBox::indicator:unchecked:hover {
-    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
-}
-
-QCheckBox::indicator:unchecked:pressed {
-    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
-}
-
-QCheckBox::indicator:checked {
-     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
-}
-
-QCheckBox::indicator:checked:hover {
-    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
-}
-
-QCheckBox::indicator:checked:pressed {
-     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
-}
-QCheckBox::indicator:checked:disabled
-{
-    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
-}
-QCheckBox::indicator:unchecked:disabled
-{
-    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
-}</string>
-                  </property>
-                  <property name="text">
-                   <string>Column 2</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="column3CheckBox">
-                  <property name="font">
-                   <font>
-                    <pointsize>12</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">QCheckBox::indicator {
-    width: 40px;
-    height: 40px;
-}
-QCheckBox::indicator:unchecked {
-	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
-}
-
-QCheckBox::indicator:unchecked:hover {
-    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
-}
-
-QCheckBox::indicator:unchecked:pressed {
-    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
-}
-
-QCheckBox::indicator:checked {
-     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
-}
-
-QCheckBox::indicator:checked:hover {
-    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
-}
-
-QCheckBox::indicator:checked:pressed {
-     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
-}
-QCheckBox::indicator:checked:disabled
-{
-    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
-}
-QCheckBox::indicator:unchecked:disabled
-{
-    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
-}</string>
-                  </property>
-                  <property name="text">
-                   <string>Column 3</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="column4CheckBox">
-                  <property name="font">
-                   <font>
-                    <pointsize>12</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">QCheckBox::indicator {
-    width: 40px;
-    height: 40px;
-}
-QCheckBox::indicator:unchecked {
-	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
-}
-
-QCheckBox::indicator:unchecked:hover {
-    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
-}
-
-QCheckBox::indicator:unchecked:pressed {
-    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
-}
-
-QCheckBox::indicator:checked {
-     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
-}
-
-QCheckBox::indicator:checked:hover {
-    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
-}
-
-QCheckBox::indicator:checked:pressed {
-     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
-}
-QCheckBox::indicator:checked:disabled
-{
-    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
-}
-QCheckBox::indicator:unchecked:disabled
-{
-    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
-}</string>
-                  </property>
-                  <property name="text">
-                   <string>Column 4</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
+                </property>
+                <property name="text">
+                 <string>Column 2</string>
+                </property>
+               </widget>
               </item>
               <item>
-               <layout class="QVBoxLayout" name="verticalLayout_2">
-                <item>
-                 <widget class="QCheckBox" name="column5CheckBox">
-                  <property name="font">
-                   <font>
-                    <pointsize>12</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">QCheckBox::indicator {
+               <widget class="QCheckBox" name="column3CheckBox">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QCheckBox::indicator {
     width: 40px;
     height: 40px;
 }
@@ -751,23 +661,29 @@ QCheckBox::indicator:unchecked:disabled
 {
     image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
 }</string>
-                  </property>
-                  <property name="text">
-                   <string>Column 5</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="column6CheckBox">
-                  <property name="font">
-                   <font>
-                    <pointsize>12</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">QCheckBox::indicator {
+                </property>
+                <property name="text">
+                 <string>Column 3</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="column4CheckBox">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QCheckBox::indicator {
     width: 40px;
     height: 40px;
 }
@@ -802,132 +718,260 @@ QCheckBox::indicator:unchecked:disabled
 {
     image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
 }</string>
-                  </property>
-                  <property name="text">
-                   <string>Column 6</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="column7CheckBox">
-                  <property name="font">
-                   <font>
-                    <pointsize>12</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">QCheckBox::indicator {
-    width: 40px;
-    height: 40px;
-}
-QCheckBox::indicator:unchecked {
-	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
-}
-
-QCheckBox::indicator:unchecked:hover {
-    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
-}
-
-QCheckBox::indicator:unchecked:pressed {
-    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
-}
-
-QCheckBox::indicator:checked {
-     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
-}
-
-QCheckBox::indicator:checked:hover {
-    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
-}
-
-QCheckBox::indicator:checked:pressed {
-     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
-}
-QCheckBox::indicator:checked:disabled
-{
-    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
-}
-QCheckBox::indicator:unchecked:disabled
-{
-    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
-}</string>
-                  </property>
-                  <property name="text">
-                   <string>Column 7</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="column8CheckBox">
-                  <property name="font">
-                   <font>
-                    <pointsize>12</pointsize>
-                    <weight>50</weight>
-                    <bold>false</bold>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">QCheckBox::indicator {
-    width: 40px;
-    height: 40px;
-}
-QCheckBox::indicator:unchecked {
-	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
-}
-
-QCheckBox::indicator:unchecked:hover {
-    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
-}
-
-QCheckBox::indicator:unchecked:pressed {
-    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
-}
-
-QCheckBox::indicator:checked {
-     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
-}
-
-QCheckBox::indicator:checked:hover {
-    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
-}
-
-QCheckBox::indicator:checked:pressed {
-     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
-}
-QCheckBox::indicator:checked:disabled
-{
-    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
-}
-QCheckBox::indicator:unchecked:disabled
-{
-    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
-}</string>
-                  </property>
-                  <property name="text">
-                   <string>Column 8</string>
-                  </property>
-                  <property name="iconSize">
-                   <size>
-                    <width>16</width>
-                    <height>16</height>
-                   </size>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
+                </property>
+                <property name="text">
+                 <string>Column 4</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
             <item>
-             <widget class="QPushButton" name="dispenseVolumeButton">
-              <property name="text">
-               <string>Dispense to Columns</string>
-              </property>
-             </widget>
+             <layout class="QVBoxLayout" name="verticalLayout_2">
+              <item>
+               <widget class="QCheckBox" name="column5CheckBox">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QCheckBox::indicator {
+    width: 40px;
+    height: 40px;
+}
+QCheckBox::indicator:unchecked {
+	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:hover {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:pressed {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked {
+     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:hover {
+    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:pressed {
+     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:checked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:unchecked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
+}</string>
+                </property>
+                <property name="text">
+                 <string>Column 5</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="column6CheckBox">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QCheckBox::indicator {
+    width: 40px;
+    height: 40px;
+}
+QCheckBox::indicator:unchecked {
+	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:hover {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:pressed {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked {
+     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:hover {
+    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:pressed {
+     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:checked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:unchecked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
+}</string>
+                </property>
+                <property name="text">
+                 <string>Column 6</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="column7CheckBox">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QCheckBox::indicator {
+    width: 40px;
+    height: 40px;
+}
+QCheckBox::indicator:unchecked {
+	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:hover {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:pressed {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked {
+     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:hover {
+    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:pressed {
+     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:checked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:unchecked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
+}</string>
+                </property>
+                <property name="text">
+                 <string>Column 7</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="column8CheckBox">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>12</pointsize>
+                  <weight>50</weight>
+                  <bold>false</bold>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QCheckBox::indicator {
+    width: 40px;
+    height: 40px;
+}
+QCheckBox::indicator:unchecked {
+	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:hover {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:pressed {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked {
+     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:hover {
+    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:pressed {
+     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:checked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:unchecked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
+}</string>
+                </property>
+                <property name="text">
+                 <string>Column 8</string>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>16</width>
+                  <height>16</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
+          </item>
+          <item>
+           <widget class="QPushButton" name="dispenseVolumeButton">
+            <property name="text">
+             <string>Dispense to Columns</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
