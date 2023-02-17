@@ -634,51 +634,59 @@ class MainWindow(QMainWindow):
         drawspeed = int(self.ui.drawSpeedSpinBox.value())    # get speed from GUI
         dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    # get speed from GUI
         # get the number of steps needed based on value of dispense volume
-        increment = self.dispenseVolumeSteps()
+        steps_per_line = self.dispenseVolumeSteps()
         # if the "all" check box is selected, dispense to all valves
         if(self.ui.allCheckBox.checkState()):
             print("all columns")
-            # builds command string.. may update this..
-            command_string = "/1V" + str(drawspeed) + "I1A6000V" + str(dispensespeed)
-            for column in range(8):
-                if(plunger_position - increment < 0):
+            valves = [True]*8   # [True, True, True, ...]
+        # else just the selected valves
+        else:
+            valves = self.getColumnCheckBoxes()     # # [True, False, True, ...]
+        # builds command string.
+        print(valves)
+        # calculate how many total steps needed to dispense entire volume
+        total_steps = steps_per_line*valves.count(True)
+        # if total dispense is less than 1 stroke, continue as normal
+        if total_steps <= 6000:
+        # if dispense requires refills, divide evenly and dispense multiple times
+        else:
+#TODO actually calculate the following:
+            # ex. 10ml to 8 lines
+            # 10ml*8 = 80ml total
+            print("line_vol * num_lines = total_vol")
+            # 80ml/25ml = 3.2 strokes per line (3 full strokes plus extra)
+            print("total_vol / barrel_vol = total_strokes")
+            # dispense 25ml/8lines = 3.125ml per line
+            print("barrel_vol / num_lines = vol_per_line")
+            # 3.125ml*3strokes = 9.375ml has been dispensed
+            print("vol_per_line * int(total_strokes) = dispensed_so_far") 
+            # 80/25 - int(80/25) = 0.2 = 20% of a full stroke remains to complete the dispense
+            print("total_vol/barrel_vol - total_vol\%barrel_vol = percent_stroke_remaining")
+            # dispense 0.2*25ml/8lines = 0.625ml per line
+            print("percent_stroke_remaining * barrel_vol / num_lines = remaining_vol_per_line")
+            # in total, 3.125*3+.625 = 10ml dispensed per line 
+            print("dispensed_so_far + remaining_vol_per_line = line_vol")
+        command_string = "/1"
+        # will build command string based on the column boxes that are checked
+#TODO rework the following for the new system above
+        for idx, valve in enumerate(valves):
+            port = idx + 1  # port starts at 2
+            print(valve)
+            if valve:
+                if plunger_position - steps_per_line < 0:
                     command_string += "V" + str(drawspeed) + "I1A6000V" + str(dispensespeed)
                     plunger_position = 6000
-                    command_string += "I" + str(column+2) + "D" + str(increment)
-                    plunger_position = plunger_position - increment
+                    command_string += "I" + str(port) + "D" + str(steps_per_line)
+                    plunger_position = plunger_position - steps_per_line
                 else:
-                    command_string += "I" + str(column+2) + "D" + str(increment)
-                    plunger_position = plunger_position - increment
+                    command_string += "I" + str(port) + "D" + str(steps_per_line)
+                    plunger_position = plunger_position - steps_per_line
                 print(plunger_position)
                 print(command_string)
-            command_string += "I1A0"
-            plunger_position = 0
-            print(command_string)
-            self.write(command_string)
-        # if "all" check box is not selected, dispense based off of the checkboxes that are
-        else:
-            valves = self.getColumnCheckBoxes()
-            index = 1
-            command_string = "/1"
-            # will build command string based on the column boxes that are checked
-            for states in valves:
-                index = index + 1
-                print(states)
-                if(states == True):
-                    if(plunger_position - increment < 0):
-                        command_string += "V" + str(drawspeed) + "I1A6000V" + str(dispensespeed)
-                        plunger_position = 6000
-                        command_string += "I" + str(index) + "D" + str(increment)
-                        plunger_position = plunger_position - increment
-                    else:
-                        command_string += "I" + str(index) + "D" + str(increment)
-                        plunger_position = plunger_position - increment
-                    print(plunger_position)
-                    print(command_string)
-            command_string += "I1A0"
-            plunger_position = 0
-            print(command_string)
-            self.write(command_string)
+        command_string += "I1A0"
+        plunger_position = 0
+        print(command_string)
+        self.write(command_string)
 
     def getColumnCheckBoxes(self):
         """method to check which column boxes are selected; for use by the
@@ -686,13 +694,13 @@ class MainWindow(QMainWindow):
         """
         # boolean array, true = box selected
         result = [self.ui.column1CheckBox.isChecked(),
-            self.ui.column2CheckBox.isChecked(),
-            self.ui.column3CheckBox.isChecked(),
-            self.ui.column4CheckBox.isChecked(),
-            self.ui.column5CheckBox.isChecked(),
-            self.ui.column6CheckBox.isChecked(),
-            self.ui.column7CheckBox.isChecked(),
-            self.ui.column8CheckBox.isChecked()]
+                  self.ui.column2CheckBox.isChecked(),
+                  self.ui.column3CheckBox.isChecked(),
+                  self.ui.column4CheckBox.isChecked(),
+                  self.ui.column5CheckBox.isChecked(),
+                  self.ui.column6CheckBox.isChecked(),
+                  self.ui.column7CheckBox.isChecked(),
+                  self.ui.column8CheckBox.isChecked()]
         return result
 
     def stopPump(self):
