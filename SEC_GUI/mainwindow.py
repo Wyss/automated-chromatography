@@ -643,10 +643,16 @@ class Ui_MainWindow(object):
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 480, 21))
         self.menubar.setObjectName("menubar")
+        self.menuFile = QtWidgets.QMenu(self.menubar)
+        self.menuFile.setObjectName("menuFile")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
+        self.actionQuit = QtWidgets.QAction(MainWindow)
+        self.actionQuit.setObjectName("actionQuit")
+        self.menuFile.addAction(self.actionQuit)
+        self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -694,6 +700,9 @@ class Ui_MainWindow(object):
         self.primeButton.setText(_translate("MainWindow", "Prime/Clean Lines"))
         self.emptyButton.setText(_translate("MainWindow", "Empty Syringe Barrel"))
         self.emptyLinesButton.setText(_translate("MainWindow", "Empty Lines"))
+        self.menuFile.setTitle(_translate("MainWindow", "File"))
+        self.actionQuit.setText(_translate("MainWindow", "Quit"))
+        self.actionQuit.setShortcut(_translate("MainWindow", "Ctrl+Q"))
 
 
 if __name__ == "__main__":
