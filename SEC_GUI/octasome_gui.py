@@ -28,7 +28,10 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
         self.show()
         self.CmdStr = CommandStringBuilder()
+
+        # set constants/configs
         self.debug = debug
+        # self.max_steps = 6000
 
         # connect GUI signals to methods
         # connect/disconnect from serial port:
@@ -302,20 +305,20 @@ class MainWindow(QMainWindow):
         appropriate scale (uL or mL)
         """
         # retreive volume from combobox
-        size_numerical = self.getNumerical()
+        syringe_size_ml = self.getSyringeSize_ml()
         # check if milliliters or microliters?
-        if(size_numerical < 1): # microliters
-            self.ui.dispenseSpinBox.setMaximum(size_numerical*1000)
+        if(syringe_size_ml < 1): # microliters
+            self.ui.dispenseSpinBox.setMaximum(syringe_size_ml*1000)
             self.ui.dispenseSpinBox.setSingleStep(0.100)
-            self.ui.dispenseSpinBox.setValue(size_numerical*1000)
+            self.ui.dispenseSpinBox.setValue(syringe_size_ml*1000)
             self.ui.dispenseUnits.setText("\u03bcL")
-            self.ui.dispenseVolumeSlider.setMaximum(int(size_numerical*1000/0.1))
+            self.ui.dispenseVolumeSlider.setMaximum(int(syringe_size_ml*1000/0.1))
             self.ui.dispenseVolumeSlider.setSingleStep(1)
         else: # milliliters
-            self.ui.dispenseSpinBox.setMaximum((size_numerical))
+            self.ui.dispenseSpinBox.setMaximum((syringe_size_ml))
             self.ui.dispenseSpinBox.setSingleStep(0.100)
             self.ui.dispenseSpinBox.setValue(2)
-            self.ui.dispenseVolumeSlider.setMaximum(int((size_numerical)/0.1))
+            self.ui.dispenseVolumeSlider.setMaximum(int((syringe_size_ml)/0.1))
             self.ui.dispenseVolumeSlider.setSingleStep(1)
             self.ui.dispenseUnits.setText("mL")
         # display pop-up confirmation that the syringe size has been set
@@ -330,21 +333,22 @@ class MainWindow(QMainWindow):
             self.ui.initializeButton.setEnabled(True)
             print("OK!")
 
-    def getNumerical(self):
-        """returns numerical value of selected syringe size, since the values
-        are strings in the combobox
+    def getSyringeSize_ml(self):
+        """returns numerical value of selected syringe size in ml, since the
+        values are strings in the combobox
         """
         size = self.ui.syringeComboBox.currentText()
-        return{
-            '25 mL':25,
-            '50 \u03bcL':0.05,
-            '100 \u03bcL':0.1,
-            '250 \u03bcL':0.25,
-            '500 \u03bcL':0.5,
-            '1 mL':1,
-            '5 mL':5,
-            '10 mL':10,
-            }[size]
+        syringe_options = {
+            '25 mL': 25,
+            '10 mL': 10,
+            '5 mL': 5,
+            '1 mL': 1,
+            '500 \u03bcL': 0.5,
+            '250 \u03bcL': 0.25,
+            '100 \u03bcL': 0.1,
+            '50 \u03bcL': 0.05
+            }
+        return syringe_options[size]
 
     def initializePump(self):
         """initializes pump"""
@@ -367,7 +371,6 @@ class MainWindow(QMainWindow):
             # self.write("/1Z15,9,1v400V400A6000v800V800A0")
             # self.write("/1Z")
             self.write("/1w1,0I1W0")
-        plunger_position = 0
         # after initialization, enable the rest of the GUI
         self.ui.fillButton.setEnabled(True)
         self.ui.emptyButton.setEnabled(True)
@@ -410,7 +413,6 @@ class MainWindow(QMainWindow):
         speed = int(self.ui.drawSpeedSpinBox.value())  # get speed from GUI
         command_string = "/1I1V" + str(speed) + "A6000"
         self.write(command_string)
-        plunger_position = 6000
 
     def emptyPump(self):
         """empties pump by changing to first valve, moving to position 0
@@ -432,7 +434,6 @@ class MainWindow(QMainWindow):
         speed = int(self.ui.dispenseSpeedSpinBox.value())    # get speed from GUI
         command_string = "/1I1V" + str(speed) + "A0"
         self.write(command_string)
-        plunger_position = 0
 
     def primeLines(self):
         """primes lines by dispensing a fixed volume through each channel"""
@@ -457,7 +458,6 @@ class MainWindow(QMainWindow):
         for column in range(8):
             command_string += "I" + str(column+2) + "D" + str(750)
         command_string += "I1V" + str(drawspeed)# + "A6000"
-        plunger_position = 6000
         self.write(command_string)
 
     def emptyLines(self):
@@ -498,7 +498,6 @@ class MainWindow(QMainWindow):
         for column in range(8):
             command_string += "I" + str(column+2) + "P" + str(750)
         command_string += "I1V" + str(dispensespeed) + "A0"
-        plunger_position = 0
         self.write(command_string)
         # self.emptyPump()
         # # do not build and send command until pump is no longer busy
@@ -530,7 +529,6 @@ class MainWindow(QMainWindow):
         for column in range(8):
             command_string += "I" + str(column+2) + "D" + str(750)
         command_string += "I1V" + str(drawspeed)# + "A6000"
-        plunger_position = 6000
         self.write(command_string)
 
     def flushLines(self):
@@ -587,26 +585,6 @@ class MainWindow(QMainWindow):
         self.ui.dispenseSpinBox.setValue(val)
         dispense_volume = val
 
-    def dispenseVolumeSteps(self):
-        """translates dispense volume value from spin box into number of steps
-        (based off of syringe size)
-
-        NOTE: assumes 6000 steps = full plunge
-        """
-        # calls getNumerical method to translate the selected volume into a numerical value
-        full_volume = self.getNumerical()
-        # if the chosen syringe volume is uL scale, treat dispense volume value as uL
-        if self.getNumerical() < 1:
-            target_volume = self.ui.dispenseSpinBox.value()/1000
-        else:
-            target_volume = self.ui.dispenseSpinBox.value()
-        # milli-liters per step = volume of syringe/total number of steps possible
-        mL_per_step = full_volume/6000
-        # calculate steps needed
-        steps = int(target_volume/mL_per_step)
-        print("steps per dispense: " + str(steps))
-        return steps
-
     def enableColumnSelect(self):
         """toggles column checkbox enable states based off of "all" checkbox"""
         if(self.ui.allCheckBox.checkState()):
@@ -631,7 +609,6 @@ class MainWindow(QMainWindow):
     def dispense(self):
         """dispenses to the columns (all or individually selected)"""
         # TODO: make sure this deals with all reasonable cases.. may want to query pump status before commands are written
-        plunger_position = 0
         busy = self.queryPump()
         if(busy == bin(0)):
             print("Pump is busy!!!!!")
@@ -645,60 +622,62 @@ class MainWindow(QMainWindow):
                 return
         drawspeed = int(self.ui.drawSpeedSpinBox.value())    # get speed from GUI
         dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    # get speed from GUI
-        # get the number of steps needed based on value of dispense volume
-        steps_per_line = self.dispenseVolumeSteps()
-        # if the "all" check box is selected, dispense to all valves
+        # if the "all" check box is selected, dispense to all columns
         if(self.ui.allCheckBox.checkState()):
             print("all columns")
-            valves = [True]*8   # [True, True, True, ...]
-        # else just the selected valves
+            columns = [True]*8   # [True, True, True, ...]
+        # else just the selected columns
         else:
-            valves = self.getColumnCheckBoxes()     # # [True, False, True, ...]
+            columns = self.getColumnCheckBoxes()    # [True, False, True, ...]
+        num_cols = columns.count(True)
+        # get the number of steps needed based on value of dispense volume
+        syringe_size_ml = self.getSyringeSize_ml()
+        if syringe_size_ml < 1:
+            ml_per_column = self.ui.dispenseSpinBox.value()/1000
+        else:
+            ml_per_column = self.ui.dispenseSpinBox.value()
+        total_ml = ml_per_column*num_cols
+        steps_per_column = self.volumeToSteps(ml_per_column)
+        total_steps = self.volumeToSteps(ml_per_column*num_cols)
+        num_of_strokes = total_ml/syringe_size_ml
         # builds command string.
-        print(valves)
-        # calculate how many total steps needed to dispense entire volume
-        total_steps = steps_per_line*valves.count(True)
-        # if total dispense is less than 1 stroke, continue as normal
-        if total_steps <= 6000:
-            pass
-        # if dispense requires refills, divide evenly and dispense multiple times
-        else:
-#TODO actually calculate the following:
-            # ex. 10ml to 8 lines
-            # 10ml*8 = 80ml total
-            print("line_vol * num_lines = total_vol")
-            # 80ml/25ml = 3.2 strokes per line (3 full strokes plus extra)
-            print("total_vol / barrel_vol = total_strokes")
-            # dispense 25ml/8lines = 3.125ml per line
-            print("barrel_vol / num_lines = vol_per_line")
-            # 3.125ml*3strokes = 9.375ml has been dispensed
-            print("vol_per_line * int(total_strokes) = dispensed_so_far") 
-            # 80/25 - int(80/25) = 0.2 = 20% of a full stroke remains to complete the dispense
-            print("total_vol/barrel_vol - total_vol\%barrel_vol = percent_stroke_remaining")
-            # dispense 0.2*25ml/8lines = 0.625ml per line
-            print("percent_stroke_remaining * barrel_vol / num_lines = remaining_vol_per_line")
-            # in total, 3.125*3+.625 = 10ml dispensed per line 
-            print("dispensed_so_far + remaining_vol_per_line = line_vol")
-        command_string = "/1"
-        # will build command string based on the column boxes that are checked
-#TODO rework the following for the new system above
-        for idx, valve in enumerate(valves):
-            port = idx + 1  # port starts at 2
-            print(valve)
-            if valve:
-                if plunger_position - steps_per_line < 0:
-                    command_string += "V" + str(drawspeed) + "I1A6000V" + str(dispensespeed)
-                    plunger_position = 6000
-                    command_string += "I" + str(port) + "D" + str(steps_per_line)
-                    plunger_position = plunger_position - steps_per_line
-                else:
-                    command_string += "I" + str(port) + "D" + str(steps_per_line)
-                    plunger_position = plunger_position - steps_per_line
-                print(plunger_position)
-                print(command_string)
-        command_string += "I1A0"
-        plunger_position = 0
-        self.write(command_string)
+        self.dbprint(
+            "\n\tDISPENSE:\n"
+            "\t\t# of columns: {num_cols}\n"
+            "\t\tml/column:    {ml_per_column}\n"
+            "\t\ttotal ml:     {total_ml}\n"
+            "\t\tsteps/column: {steps_per_column}\n"
+            "\t\ttotal steps:  {total_steps}\n"
+            "\t\t# of strokes: {num_of_strokes}"
+            "".format(num_cols=num_cols, ml_per_column=ml_per_column,
+                      total_ml=total_ml, steps_per_column=steps_per_column,
+                      total_steps=total_steps, num_of_strokes=num_of_strokes
+                      ).expandtabs(4))
+
+        steps_remaining = total_steps
+        cmd_str = "/1"
+        # do the dispense in a loop
+        while steps_remaining > 0:
+            # if more than 1 stroke req'd, full stroke & reduce steps_remaining
+            if steps_remaining > 6000:
+                steps = 6000
+                sub_steps_per_col = int(6000/num_cols)
+                steps_remaining -= 6000
+            # if less than 1 stroke req'd, just do that many steps
+            else:
+                steps = int(steps_remaining)
+                sub_steps_per_col = int(steps_remaining/num_cols)
+                steps_remaining = 0
+            # draw from reservoir and prepare dispense speed
+            cmd_str += "V" + str(drawspeed) + "I1A" + str(steps) + "V" + str(dispensespeed)
+            # dispense to each selected column
+            for idx, col in enumerate(columns):
+                if col:
+                    port = idx + 2  # port starts at 2
+                    cmd_str += "I" + str(port) + "D" + str(sub_steps_per_col)
+                    self.dbprint(cmd_str)
+        cmd_str += "I1A0"
+        self.write(cmd_str)
 
     def getColumnCheckBoxes(self):
         """method to check which column boxes are selected; for use by the
@@ -723,24 +702,13 @@ class MainWindow(QMainWindow):
         else:
             self.serial.write("/1TR\r\n".encode())
 
-    def getSteps(self, target_volume):
-        # assume no microstepping for now..
-        total_stepcount = 6000
-        syringeVolume = getNumerical() # gets the numerical value for syringe size based off of combobox
-        steps = int((target_volume/syringeVolume)*total_stepcount)
-        return steps
-
-    def dispenseVolumeToValve(self, volume, valve):
-        steps = getSteps(self, target_volume)               # function to translate volume into steps
-        speed = int(self.ui.dispenseSpeedSpinBox.value())   # get speed from GUI
-        target_column = valve + 1                           # 9 channels, 1 is connected to resevoir, 2-9 route to columns
-
-        if(plunger_position == 0):
-            fillPump()
-        # build the right command based off of volume, speed, and desired valve
-        self._waitReady(self, 0.3, 10, 20)
-
-        command_string = "/1" + "v10L4" + "V" + str(speed) + "c10" + "I" + str(target_column) + "D" + str(steps)
+    def volumeToSteps(self, volume_ml):
+        """Convert given volume in ml to a number of steps
+        """
+        syringe_vol = self.getSyringeSize_ml()
+        # steps = vol*(max_steps/max_vol)
+        steps = volume_ml * (6000/syringe_vol)
+        return int(steps)
 
     def _waitReady(self, polling_interval=1, timeout=10, delay=None):
         print("waiting..\n")
@@ -773,8 +741,11 @@ class MainWindow(QMainWindow):
 
     def dbprint(self, msg=""):
         """helper function, 'debug print.' Appends "DEBUG MODE: " before message
+        and only displays if app running in debug mode
         """
-        print("DEBUG MODE: {}".format(msg))
+        if self.debug:
+            print("DEBUG MODE: {}".format(msg))
+        return
 
 
 class CommandStringBuilder(object):
