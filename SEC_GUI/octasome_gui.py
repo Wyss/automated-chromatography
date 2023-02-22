@@ -355,19 +355,9 @@ class MainWindow(QMainWindow):
         if self.debug:
             self.dbprint("pump initialized")
         else:
-            # first, query pump
-            busy = self.queryPump()
-            # if pump is busy, then display a pop up indicating that pump is busy
-            if(busy == bin(0)):
-                print("Pump is busy!!!!!")
-                dlg = QMessageBox(self)
-                dlg.setWindowTitle("Warning")
-                dlg.setText("Pump is busy")
-                dlg.setIcon(QMessageBox.Information)
-                button = dlg.exec()
-                if button == QMessageBox.Ok:
-                    print("OK!")
-                    return
+            # check if pump is busy
+            if self.checkBusy():
+                return
             # self.write("/1Z15,9,1v400V400A6000v800V800A0")
             # self.write("/1Z")
             self.write("/1w1,0I1W0")
@@ -397,18 +387,9 @@ class MainWindow(QMainWindow):
         """fills pump by changing to first valve, moving to position 6000
         (400steps per second)
         """
-        # display pop up if pump is busy..
-        busy = self.queryPump()
-        if(busy == bin(0)):
-            print("Pump is busy!!!!!")
-            dlg = QMessageBox(self)
-            dlg.setWindowTitle("Warning")
-            dlg.setText("Pump is busy")
-            dlg.setIcon(QMessageBox.Information)
-            button = dlg.exec()
-            if button == QMessageBox.Ok:
-                print("OK!")
-                return
+        # check if pump is busy
+        if self.checkBusy():
+            return
         # build command string
         speed = int(self.ui.drawSpeedSpinBox.value())  # get speed from GUI
         command_string = "/1I1V" + str(speed) + "A6000"
@@ -418,18 +399,9 @@ class MainWindow(QMainWindow):
         """empties pump by changing to first valve, moving to position 0
         (1000 steps per second)
         """
-        # display pop up if pump is busy..
-        busy = self.queryPump()
-        if(busy == bin(0)):
-            print("Pump is busy!!!!!")
-            dlg = QMessageBox(self)
-            dlg.setWindowTitle("Warning")
-            dlg.setText("Pump is busy")
-            dlg.setIcon(QMessageBox.Information)
-            button = dlg.exec()
-            if button == QMessageBox.Ok:
-                print("OK!")
-                return
+        # check if pump is busy
+        if self.checkBusy():
+            return
         # build command string
         speed = int(self.ui.dispenseSpeedSpinBox.value())    # get speed from GUI
         command_string = "/1I1V" + str(speed) + "A0"
@@ -438,18 +410,8 @@ class MainWindow(QMainWindow):
     def primeLines(self):
         """primes lines by dispensing a fixed volume through each channel"""
         # check if pump is busy
-        # display pop up if pump is busy..
-        busy = self.queryPump()
-        if(busy == bin(0)):
-            print("Pump is busy!!!!!")
-            dlg = QMessageBox(self)
-            dlg.setWindowTitle("Warning")
-            dlg.setText("Pump is busy")
-            dlg.setIcon(QMessageBox.Information)
-            button = dlg.exec()
-            if button == QMessageBox.Ok:
-                print("OK!")
-                return
+        if self.checkBusy():
+            return
         drawspeed = int(self.ui.drawSpeedSpinBox.value())    # get speed from GUI
         dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    # get speed from GUI
         command_string = "/1I1V" + str(drawspeed) + "A1200" + "I2V" + str(dispensespeed) + "A0I1V" + str(drawspeed) + "A6000"
@@ -480,17 +442,8 @@ class MainWindow(QMainWindow):
     def emptyPumpLines(self):
         """empties pumps and lines"""
         # check if pump is busy
-        busy = self.queryPump()
-        if(busy == bin(0)):
-            print("Pump is busy!!!!!")
-            dlg = QMessageBox(self)
-            dlg.setWindowTitle("Warning")
-            dlg.setText("Pump is busy")
-            dlg.setIcon(QMessageBox.Information)
-            button = dlg.exec()
-            if button == QMessageBox.Ok:
-                print("OK!")
-                return
+        if self.checkBusy():
+            return
         # empty pump and lines
         drawspeed = int(self.ui.drawSpeedSpinBox.value())    # get speed from GUI
         dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    # get speed from GUI
@@ -509,18 +462,8 @@ class MainWindow(QMainWindow):
     def cleanLines(self):
         """clean lines by dispensing a fixed volume through each channel"""
         # check if pump is busy
-        # display pop up if pump is busy..
-        busy = self.queryPump()
-        if(busy == bin(0)):
-            print("Pump is busy!!!!!")
-            dlg = QMessageBox(self)
-            dlg.setWindowTitle("Warning")
-            dlg.setText("Pump is busy")
-            dlg.setIcon(QMessageBox.Information)
-            button = dlg.exec()
-            if button == QMessageBox.Ok:
-                print("OK!")
-                return
+        if self.checkBusy():
+            return
         drawspeed = int(self.ui.drawSpeedSpinBox.value())    # get speed from GUI
         dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    # get speed from GUI
         command_string = "/1I1V" + str(drawspeed) + "A6000"
@@ -534,17 +477,8 @@ class MainWindow(QMainWindow):
     def flushLines(self):
         """flushes lines a couple of times..."""
         # check if pump is busy
-        busy = self.queryPump()
-        if(busy == bin(0)):
-            print("Pump is busy!!!!!")
-            dlg = QMessageBox(self)
-            dlg.setWindowTitle("Warning")
-            dlg.setText("Pump is busy")
-            dlg.setIcon(QMessageBox.Information)
-            button = dlg.exec()
-            if button == QMessageBox.Ok:
-                print("OK!")
-                return
+        if self.checkBusy():
+            return
         self.cleanLines()
 
     def updateDrawSlider(self):
@@ -609,17 +543,9 @@ class MainWindow(QMainWindow):
     def dispense(self):
         """dispenses to the columns (all or individually selected)"""
         # TODO: make sure this deals with all reasonable cases.. may want to query pump status before commands are written
-        busy = self.queryPump()
-        if(busy == bin(0)):
-            print("Pump is busy!!!!!")
-            dlg = QMessageBox(self)
-            dlg.setWindowTitle("Warning")
-            dlg.setText("Pump is busy")
-            dlg.setIcon(QMessageBox.Information)
-            button = dlg.exec()
-            if button == QMessageBox.Ok:
-                print("OK!")
-                return
+        # check if pump is busy
+        if self.checkBusy():
+            return
         drawspeed = int(self.ui.drawSpeedSpinBox.value())    # get speed from GUI
         dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    # get speed from GUI
         # if the "all" check box is selected, dispense to all columns
@@ -709,6 +635,23 @@ class MainWindow(QMainWindow):
         # steps = vol*(max_steps/max_vol)
         steps = volume_ml * (6000/syringe_vol)
         return int(steps)
+
+    def checkBusy(self):
+        """Test if pump is busy. If it is, display a warning popup.
+        """
+        busy = self.queryPump()
+        if busy == bin(0):
+            print("Pump is busy!!!!!")
+            dlg = QMessageBox(self)
+            dlg.setWindowTitle("Warning")
+            dlg.setText("Pump is busy")
+            dlg.setIcon(QMessageBox.Information)
+            button = dlg.exec()
+            if button == QMessageBox.Ok:
+                print("OK!")
+                return True
+        else:
+            return False
 
     def _waitReady(self, polling_interval=1, timeout=10, delay=None):
         print("waiting..\n")
