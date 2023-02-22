@@ -21,7 +21,7 @@ from mainwindow import Ui_MainWindow
 class MainWindow(QMainWindow):
     stateChanged = pyqtSignal(str)
 
-    def __init__(self, debug=False):
+    def __init__(self, debug=False, busy_debug=False):
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
         self.timer  = QTimer(self)
@@ -31,6 +31,7 @@ class MainWindow(QMainWindow):
 
         # set constants/configs
         self.debug = debug
+        self.busy_debug = busy_debug
         # self.max_steps = 6000
 
         # connect GUI signals to methods
@@ -636,22 +637,34 @@ class MainWindow(QMainWindow):
         steps = volume_ml * (6000/syringe_vol)
         return int(steps)
 
-    def checkBusy(self):
-        """Test if pump is busy. If it is, display a warning popup.
+    def checkBusy(self, attempts=3, timeout=.1):
+        """Test if pump is busy. Retries `attempts` times, waiting `timeout`
+        seconds between attempts. If it is busy after that, display a warning
+        popup and stop attempting.
         """
-        busy = self.queryPump()
-        if busy == bin(0):
-            print("Pump is busy!!!!!")
-            dlg = QMessageBox(self)
-            dlg.setWindowTitle("Warning")
-            dlg.setText("Pump is busy")
-            dlg.setIcon(QMessageBox.Information)
-            button = dlg.exec()
-            if button == QMessageBox.Ok:
-                print("OK!")
-                return True
-        else:
-            return False
+        # Try (attempts) times and wait (timeout) sec between
+        for attempt in range(attempts):
+            print("Busy. Retry {}".format(attempt+1))
+            # check for debugging busy flag or try for real
+            if self.busy_debug:
+                busy = bin(0)
+            else:
+                busy = self.queryPump()
+            # return if not busy or sleep if busy
+            if busy != bin(0):
+                return False
+            else:
+                time.sleep(timeout)
+        # if it reaches here, it IS busy, display popup
+        print("Pump is busy!!!!!")
+        dlg = QMessageBox(self)
+        dlg.setWindowTitle("Warning")
+        dlg.setText("Pump is busy")
+        dlg.setIcon(QMessageBox.Information)
+        button = dlg.exec()
+        if button == QMessageBox.Ok:
+            print("OK!")
+            return True
 
     def _waitReady(self, polling_interval=1, timeout=10, delay=None):
         print("waiting..\n")
@@ -744,9 +757,19 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--debug",
             help="Don't attempt pump communication, enable buttons as if "
-            "connected",
+                 "connected",
+            action="store_true")
+    parser.add_argument("-b", "--busy-debug",
+            help="Pretend the pump is always busy for debugging. Only works "
+                 "in conjunction with [-d --debug] arg.",
             action="store_true")
     args = parser.parse_args()
+
+    # argparse: -b needs -d
+    if args.busy_debug and not args.debug:
+        print("-b (--busy-debug) arg only works with -d (--debug) arg. "
+              "Activating -d (--debug).")
+        args.debug=True
 
     # handle sigint (ctrl+c) with sigint_handler function
     signal.signal(signal.SIGINT, _sigint_handler)
@@ -759,7 +782,7 @@ if __name__ == "__main__":
     sigint_timer.timeout.connect(lambda: None)
 
     # instance of MainWindow class
-    window = MainWindow(args.debug)
+    window = MainWindow(args.debug, args.busy_debug)
 
     # window.show()
     sys.exit(app.exec())
