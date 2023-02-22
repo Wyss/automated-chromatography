@@ -2,6 +2,7 @@ import sys
 import math
 import time
 import signal
+import argparse
 import atexit
 from PyQt5 import QtTest, QtSerialPort
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QDialog, QMessageBox,
@@ -20,13 +21,14 @@ from mainwindow import Ui_MainWindow
 class MainWindow(QMainWindow):
     stateChanged = pyqtSignal(str)
 
-    def __init__(self):
+    def __init__(self, debug=False):
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
         self.timer  = QTimer(self)
         self.ui.setupUi(self)
         self.show()
         self.CmdStr = CommandStringBuilder()
+        self.debug = debug
 
         # connect GUI signals to methods
         # connect/disconnect from serial port:
@@ -162,38 +164,44 @@ class MainWindow(QMainWindow):
         self.ui.connectButton.setEnabled(False)
         portname = self.ui.comPortComboBox.currentText()
         # serial port settings
-        self.serial.setPortName(portname)
-        self.serial.setDataBits(QtSerialPort.QSerialPort.Data8)
-        self.serial.setParity(QtSerialPort.QSerialPort.NoParity)
-        self.serial.setStopBits(QtSerialPort.QSerialPort.OneStop)
-        self.serial.setFlowControl(QtSerialPort.QSerialPort.NoFlowControl)
-        # check if connection was successful.
-        # Try baudrates 38400 and 9600
-        opened = False
-        self.setBaud(38400)
-        opened = self.serial.open(QIODevice.ReadWrite)
-        baud = 38400
-        # queryPump() on a failed open yields an int instead of a string
-        if isinstance(self.queryPump(), int):
-            self.serialDisconnect()
-            self.setBaud(9600)
-            self.stateChanged.emit("Open")
+        if self.debug:
+            opened = True
+        else:
+            self.serial.setPortName(portname)
+            self.serial.setDataBits(QtSerialPort.QSerialPort.Data8)
+            self.serial.setParity(QtSerialPort.QSerialPort.NoParity)
+            self.serial.setStopBits(QtSerialPort.QSerialPort.OneStop)
+            self.serial.setFlowControl(QtSerialPort.QSerialPort.NoFlowControl)
+            # check if connection was successful.
+            # Try baudrates 38400 and 9600
+            opened = False
+            self.setBaud(38400)
             opened = self.serial.open(QIODevice.ReadWrite)
-            baud = 9600
+            baud = 38400
+            # queryPump() on a failed open yields an int instead of a string
+            if isinstance(self.queryPump(), int):
+                self.serialDisconnect()
+                self.setBaud(9600)
+                self.stateChanged.emit("Open")
+                opened = self.serial.open(QIODevice.ReadWrite)
+                baud = 9600
 
         # if connection is successful:
         if opened:
-            self.serial.open(QIODevice.ReadWrite)
-            print("Connection Successful")
-            print("Baud: {}".format(baud))
-            self.serialInfo = QtSerialPort.QSerialPortInfo(portname)
-            print(self.serialInfo.description())
-            print(self.serialInfo.manufacturer())
-            print(self.serialInfo.portName())
-            print(self.serialInfo.productIdentifier())
-            print(self.serialInfo.serialNumber())
-            print(self.serialInfo.systemLocation())
-            print(self.serialInfo.vendorIdentifier())
+            if self.debug:
+                self.dbprint("pump connected")
+            else:
+                self.serial.open(QIODevice.ReadWrite)
+                print("Connection Successful")
+                print("Baud: {}".format(baud))
+                self.serialInfo = QtSerialPort.QSerialPortInfo(portname)
+                print(self.serialInfo.description())
+                print(self.serialInfo.manufacturer())
+                print(self.serialInfo.portName())
+                print(self.serialInfo.productIdentifier())
+                print(self.serialInfo.serialNumber())
+                print(self.serialInfo.systemLocation())
+                print(self.serialInfo.vendorIdentifier())
             # disable the combo-box when connected, change the connect button
             # to a disconnect button
             self.ui.comPortComboBox.setEnabled(False)
@@ -228,9 +236,12 @@ class MainWindow(QMainWindow):
         """disconnects from the serial port, re-configures GUI to allow
         re-connection to serial port
         """
-        # close serial port
-        self.serial.close()
-        print("Disconnected")
+        if self.debug:
+            self.dbprint("disconnected")
+        else:
+            # close serial port
+            self.serial.close()
+            print("Disconnected")
         # re-enable combo-box, change disconnect button to connect button,
         # connect correct method to connect button
         self.ui.comPortComboBox.setEnabled(True)
@@ -260,12 +271,15 @@ class MainWindow(QMainWindow):
         """
         command = command + "R\r\n"
         print(command)
-        self.serial.write(command.encode())
-        # may not need this portion of the code
-        self.serial.waitForBytesWritten(100)
-        if(self.serial.waitForReadyRead(100)):
-            response = self.receive()
-            return response
+        if self.debug:
+            self.dbprint("command sent")
+        else:
+            self.serial.write(command.encode())
+            # may not need this portion of the code
+            self.serial.waitForBytesWritten(100)
+            if(self.serial.waitForReadyRead(100)):
+                response = self.receive()
+                return response
 
     def receive(self):
         """receives data from the serial port (while data is available in the
@@ -334,22 +348,25 @@ class MainWindow(QMainWindow):
 
     def initializePump(self):
         """initializes pump"""
-        # first, query pump
-        busy = self.queryPump()
-        # if pump is busy, then display a pop up indicating that pump is busy
-        if(busy == bin(0)):
-            print("Pump is busy!!!!!")
-            dlg = QMessageBox(self)
-            dlg.setWindowTitle("Warning")
-            dlg.setText("Pump is busy")
-            dlg.setIcon(QMessageBox.Information)
-            button = dlg.exec()
-            if button == QMessageBox.Ok:
-                print("OK!")
-                return
-        # self.write("/1Z15,9,1v400V400A6000v800V800A0")
-        # self.write("/1Z")
-        self.write("/1w1,0I1W0")
+        if self.debug:
+            self.dbprint("pump initialized")
+        else:
+            # first, query pump
+            busy = self.queryPump()
+            # if pump is busy, then display a pop up indicating that pump is busy
+            if(busy == bin(0)):
+                print("Pump is busy!!!!!")
+                dlg = QMessageBox(self)
+                dlg.setWindowTitle("Warning")
+                dlg.setText("Pump is busy")
+                dlg.setIcon(QMessageBox.Information)
+                button = dlg.exec()
+                if button == QMessageBox.Ok:
+                    print("OK!")
+                    return
+            # self.write("/1Z15,9,1v400V400A6000v800V800A0")
+            # self.write("/1Z")
+            self.write("/1w1,0I1W0")
         plunger_position = 0
         # after initialization, enable the rest of the GUI
         self.ui.fillButton.setEnabled(True)
@@ -414,7 +431,6 @@ class MainWindow(QMainWindow):
         # build command string
         speed = int(self.ui.dispenseSpeedSpinBox.value())    # get speed from GUI
         command_string = "/1I1V" + str(speed) + "A0"
-        print(command_string)
         self.write(command_string)
         plunger_position = 0
 
@@ -442,7 +458,6 @@ class MainWindow(QMainWindow):
             command_string += "I" + str(column+2) + "D" + str(750)
         command_string += "I1V" + str(drawspeed)# + "A6000"
         plunger_position = 6000
-        print(command_string)
         self.write(command_string)
 
     def emptyLines(self):
@@ -456,7 +471,6 @@ class MainWindow(QMainWindow):
         command_string = "/1I1V" + str(speed)
         for column in range(8):
             command_string += "I" + str(column+2) + "P" + str(750)
-        print(command_string)
         # do not send another command until pump is no longer busy
         # self._waitReady()
         # empty pump
@@ -485,7 +499,6 @@ class MainWindow(QMainWindow):
             command_string += "I" + str(column+2) + "P" + str(750)
         command_string += "I1V" + str(dispensespeed) + "A0"
         plunger_position = 0
-        print(command_string)
         self.write(command_string)
         # self.emptyPump()
         # # do not build and send command until pump is no longer busy
@@ -518,7 +531,6 @@ class MainWindow(QMainWindow):
             command_string += "I" + str(column+2) + "D" + str(750)
         command_string += "I1V" + str(drawspeed)# + "A6000"
         plunger_position = 6000
-        print(command_string)
         self.write(command_string)
 
     def flushLines(self):
@@ -648,6 +660,7 @@ class MainWindow(QMainWindow):
         total_steps = steps_per_line*valves.count(True)
         # if total dispense is less than 1 stroke, continue as normal
         if total_steps <= 6000:
+            pass
         # if dispense requires refills, divide evenly and dispense multiple times
         else:
 #TODO actually calculate the following:
@@ -685,7 +698,6 @@ class MainWindow(QMainWindow):
                 print(command_string)
         command_string += "I1A0"
         plunger_position = 0
-        print(command_string)
         self.write(command_string)
 
     def getColumnCheckBoxes(self):
@@ -706,7 +718,10 @@ class MainWindow(QMainWindow):
     def stopPump(self):
         """interrupts the pump and stops operation"""
         print("STOP PUMP!!!!")
-        self.serial.write("/1TR\r\n".encode())
+        if self.debug:
+            self.dbprint("stopped")
+        else:
+            self.serial.write("/1TR\r\n".encode())
 
     def getSteps(self, target_volume):
         # assume no microstepping for now..
@@ -755,6 +770,11 @@ class MainWindow(QMainWindow):
             print("closing serial port...")
             self.serial.close()
             print("serial port closed.")
+
+    def dbprint(self, msg=""):
+        """helper function, 'debug print.' Appends "DEBUG MODE: " before message
+        """
+        print("DEBUG MODE: {}".format(msg))
 
 
 class CommandStringBuilder(object):
@@ -806,6 +826,14 @@ def _sigint_handler(*args):
 
 # MAIN
 if __name__ == "__main__":
+    # cmdline argument handling
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-d", "--debug",
+            help="Don't attempt pump communication, enable buttons as if "
+            "connected",
+            action="store_true")
+    args = parser.parse_args()
+
     # handle sigint (ctrl+c) with sigint_handler function
     signal.signal(signal.SIGINT, _sigint_handler)
 
@@ -817,7 +845,7 @@ if __name__ == "__main__":
     sigint_timer.timeout.connect(lambda: None)
 
     # instance of MainWindow class
-    window = MainWindow()
+    window = MainWindow(args.debug)
 
     # window.show()
     sys.exit(app.exec())
