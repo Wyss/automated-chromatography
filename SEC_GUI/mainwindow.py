@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '.\mainwindow.ui'
+# Form implementation generated from reading ui file 'mainwindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.9
 #
@@ -18,7 +18,7 @@ class Ui_MainWindow(object):
         MainWindow.setMinimumSize(QtCore.QSize(480, 800))
         MainWindow.setMaximumSize(QtCore.QSize(480, 800))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(".\\../../../Desktop/unnamed.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("../../../Desktop/unnamed.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -520,6 +520,7 @@ class Ui_MainWindow(object):
         self.dispenseUnits.setObjectName("dispenseUnits")
         self.horizontalLayout_4.addWidget(self.dispenseUnits)
         self.dispenseVolumeSlider = QtWidgets.QSlider(self.layoutWidget3)
+        self.dispenseVolumeSlider.setEnabled(False)
         self.dispenseVolumeSlider.setMaximum(25)
         self.dispenseVolumeSlider.setProperty("value", 2)
         self.dispenseVolumeSlider.setOrientation(QtCore.Qt.Horizontal)
@@ -568,6 +569,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_6.addWidget(self.drawSpeedUnits)
         self.verticalLayout_5.addLayout(self.horizontalLayout_6)
         self.drawSpeedSlider = QtWidgets.QSlider(self.layoutWidget5)
+        self.drawSpeedSlider.setEnabled(False)
         self.drawSpeedSlider.setMaximum(10000)
         self.drawSpeedSlider.setSingleStep(100)
         self.drawSpeedSlider.setProperty("value", 3000)
@@ -608,6 +610,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_7.addWidget(self.dispenseSpeedUnits)
         self.verticalLayout_6.addLayout(self.horizontalLayout_7)
         self.dispenseSpeedSlider = QtWidgets.QSlider(self.layoutWidget6)
+        self.dispenseSpeedSlider.setEnabled(False)
         self.dispenseSpeedSlider.setMaximum(10000)
         self.dispenseSpeedSlider.setSingleStep(100)
         self.dispenseSpeedSlider.setProperty("value", 3000)
@@ -656,6 +659,32 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        MainWindow.setTabOrder(self.comPortComboBox, self.connectButton)
+        MainWindow.setTabOrder(self.connectButton, self.refreshButton)
+        MainWindow.setTabOrder(self.refreshButton, self.syringeComboBox)
+        MainWindow.setTabOrder(self.syringeComboBox, self.syringeButton)
+        MainWindow.setTabOrder(self.syringeButton, self.initializeButton)
+        MainWindow.setTabOrder(self.initializeButton, self.fillButton)
+        MainWindow.setTabOrder(self.fillButton, self.emptyButton)
+        MainWindow.setTabOrder(self.emptyButton, self.primeButton)
+        MainWindow.setTabOrder(self.primeButton, self.emptyLinesButton)
+        MainWindow.setTabOrder(self.emptyLinesButton, self.drawSpeedSpinBox)
+        MainWindow.setTabOrder(self.drawSpeedSpinBox, self.dispenseSpeedSpinBox)
+        MainWindow.setTabOrder(self.dispenseSpeedSpinBox, self.dispenseSpinBox)
+        MainWindow.setTabOrder(self.dispenseSpinBox, self.allCheckBox)
+        MainWindow.setTabOrder(self.allCheckBox, self.column1CheckBox)
+        MainWindow.setTabOrder(self.column1CheckBox, self.column2CheckBox)
+        MainWindow.setTabOrder(self.column2CheckBox, self.column3CheckBox)
+        MainWindow.setTabOrder(self.column3CheckBox, self.column4CheckBox)
+        MainWindow.setTabOrder(self.column4CheckBox, self.column5CheckBox)
+        MainWindow.setTabOrder(self.column5CheckBox, self.column6CheckBox)
+        MainWindow.setTabOrder(self.column6CheckBox, self.column7CheckBox)
+        MainWindow.setTabOrder(self.column7CheckBox, self.column8CheckBox)
+        MainWindow.setTabOrder(self.column8CheckBox, self.dispenseVolumeButton)
+        MainWindow.setTabOrder(self.dispenseVolumeButton, self.stopButton)
+        MainWindow.setTabOrder(self.stopButton, self.drawSpeedSlider)
+        MainWindow.setTabOrder(self.drawSpeedSlider, self.dispenseSpeedSlider)
+        MainWindow.setTabOrder(self.dispenseSpeedSlider, self.dispenseVolumeSlider)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -666,13 +695,13 @@ class Ui_MainWindow(object):
         self.refreshButton.setText(_translate("MainWindow", "Refresh"))
         self.setUpBox.setTitle(_translate("MainWindow", "Set Up"))
         self.syringeComboBox.setItemText(0, _translate("MainWindow", "25 mL"))
-        self.syringeComboBox.setItemText(1, _translate("MainWindow", "50 μL"))
-        self.syringeComboBox.setItemText(2, _translate("MainWindow", "100 μL"))
-        self.syringeComboBox.setItemText(3, _translate("MainWindow", "250 μL"))
+        self.syringeComboBox.setItemText(1, _translate("MainWindow", "10 mL"))
+        self.syringeComboBox.setItemText(2, _translate("MainWindow", "5 mL"))
+        self.syringeComboBox.setItemText(3, _translate("MainWindow", "1 mL"))
         self.syringeComboBox.setItemText(4, _translate("MainWindow", "500 μL"))
-        self.syringeComboBox.setItemText(5, _translate("MainWindow", "1 mL"))
-        self.syringeComboBox.setItemText(6, _translate("MainWindow", "5 mL"))
-        self.syringeComboBox.setItemText(7, _translate("MainWindow", "10 mL"))
+        self.syringeComboBox.setItemText(5, _translate("MainWindow", "250 μL"))
+        self.syringeComboBox.setItemText(6, _translate("MainWindow", "100 μL"))
+        self.syringeComboBox.setItemText(7, _translate("MainWindow", "50 μL"))
         self.syringeButton.setText(_translate("MainWindow", "Set Syringe Size"))
         self.initializeButton.setText(_translate("MainWindow", "Initialize Pump"))
         self.emergencyStopBox.setTitle(_translate("MainWindow", "Emergency Stop"))

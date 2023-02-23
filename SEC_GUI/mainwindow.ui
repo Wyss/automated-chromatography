@@ -109,27 +109,7 @@
         </item>
         <item>
          <property name="text">
-          <string>50 μL</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>100 μL</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>250 μL</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>500 μL</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>1 mL</string>
+          <string>10 mL</string>
          </property>
         </item>
         <item>
@@ -139,7 +119,27 @@
         </item>
         <item>
          <property name="text">
-          <string>10 mL</string>
+          <string>1 mL</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>500 μL</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>250 μL</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>100 μL</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>50 μL</string>
          </property>
         </item>
        </widget>
@@ -752,7 +752,7 @@ QCheckBox::indicator:unchecked:disabled
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
          <property name="decimals">
-          <number>3</number>
+          <number>1</number>
          </property>
          <property name="maximum">
           <double>1000.000000000000000</double>
@@ -778,6 +778,9 @@ QCheckBox::indicator:unchecked:disabled
        </item>
        <item>
         <widget class="QSlider" name="dispenseVolumeSlider">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="maximum">
           <number>25</number>
          </property>
@@ -879,6 +882,9 @@ QCheckBox::indicator:unchecked:disabled
           </item>
           <item>
            <widget class="QSlider" name="drawSpeedSlider">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="maximum">
              <number>10000</number>
             </property>
@@ -958,6 +964,9 @@ QCheckBox::indicator:unchecked:disabled
           </item>
           <item>
            <widget class="QSlider" name="dispenseSpeedSlider">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="maximum">
              <number>10000</number>
             </property>
@@ -1055,6 +1064,35 @@ QCheckBox::indicator:unchecked:disabled
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>comPortComboBox</tabstop>
+  <tabstop>connectButton</tabstop>
+  <tabstop>refreshButton</tabstop>
+  <tabstop>syringeComboBox</tabstop>
+  <tabstop>syringeButton</tabstop>
+  <tabstop>initializeButton</tabstop>
+  <tabstop>fillButton</tabstop>
+  <tabstop>emptyButton</tabstop>
+  <tabstop>primeButton</tabstop>
+  <tabstop>emptyLinesButton</tabstop>
+  <tabstop>drawSpeedSpinBox</tabstop>
+  <tabstop>dispenseSpeedSpinBox</tabstop>
+  <tabstop>dispenseSpinBox</tabstop>
+  <tabstop>allCheckBox</tabstop>
+  <tabstop>column1CheckBox</tabstop>
+  <tabstop>column2CheckBox</tabstop>
+  <tabstop>column3CheckBox</tabstop>
+  <tabstop>column4CheckBox</tabstop>
+  <tabstop>column5CheckBox</tabstop>
+  <tabstop>column6CheckBox</tabstop>
+  <tabstop>column7CheckBox</tabstop>
+  <tabstop>column8CheckBox</tabstop>
+  <tabstop>dispenseVolumeButton</tabstop>
+  <tabstop>stopButton</tabstop>
+  <tabstop>drawSpeedSlider</tabstop>
+  <tabstop>dispenseSpeedSlider</tabstop>
+  <tabstop>dispenseVolumeSlider</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
