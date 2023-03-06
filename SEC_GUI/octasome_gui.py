@@ -73,27 +73,7 @@ class MainWindow(QMainWindow):
         self.ui.actionQuit.triggered.connect(qApp.quit)
 
         # Set tooltips
-        self.ui.refreshButton.setToolTip("Refresh the list of COM ports")
-        self.ui.connectButton.setToolTip(
-                "Connect to the COM port selected in the dropdown")
-        self.ui.syringeButton.setToolTip(
-                "Set the syringe barrel size (ensure this matches the "
-                "physical barrel size)")
-        self.ui.initializeButton.setToolTip(
-                "Initialize pump before sending commands")
-        self.ui.fillButton.setToolTip("Fully draw syringe, from reservoir")
-        self.ui.emptyButton.setToolTip("Dispense syringe barrel to reservoir")
-        self.ui.primeButton.setToolTip(
-                "1. Draw partly from reservoir.\n"
-                "2. Dispense back to reservoir (remove any air).\n"
-                "3. Draw fully from reservoir\n"
-                "4. Dispense to each column line equally")
-        self.ui.emptyLinesButton.setToolTip(
-                "Draw from each column line, dispense to reservoir.")
-        self.ui.dispenseVolumeButton.setToolTip(
-                "Dispense specified volume from reservoir to column lines*\n"
-                "* Either all columns, or specified columns")
-        self.ui.stopButton.setToolTip("Interrupt pump and stop all actions.")
+        self.setConnectTooltip()
         # for all pushbuttons, set statustip to its tooltip
         for button in self.ui.centralwidget.findChildren(QPushButton):
             button.setStatusTip(button.toolTip())
@@ -154,6 +134,12 @@ class MainWindow(QMainWindow):
         # Run when app exist
         atexit.register(self.exitCommands)
 
+    def setConnectTooltip(self):
+        """Set the Connect button tooltip for when it's in "connect" mode
+        """
+        tip = "Connect to the COM port selected in the dropdown"
+        self.ui.connectButton.setToolTip(tip)
+        self.ui.connectButton.setStatusTip(tip)
 
     def setBaud(self, baud=9600):
         """Set the baud rate to the `baud` given."""
@@ -211,12 +197,16 @@ class MainWindow(QMainWindow):
             self.ui.comPortComboBox.setEnabled(False)
             self.ui.refreshButton.setEnabled(False)
             self.ui.connectButton.setText("Disconnect")
+            self.ui.connectButton.setToolTip(
+                "Close the serial connection to the pump")
+            self.ui.connectButton.setStatusTip(self.ui.connectButton.toolTip())
             # since serial connection was successful, enable/disable portions
             # of the GUI
             self.ui.setUpBox.setEnabled(True)
             self.ui.initializeButton.setEnabled(False)
             self.ui.fillButton.setEnabled(False)
             self.ui.emptyButton.setEnabled(False)
+            self.ui.actionConsole.setEnabled(True)
             # change the method that the the connect button is linked to
             # (serialDisconnect)
             self.ui.connectButton.clicked.disconnect()
@@ -255,6 +245,8 @@ class MainWindow(QMainWindow):
         self.ui.dispenseBox.setEnabled(False)
         self.ui.setUpBox.setEnabled(False)
         self.ui.emergencyStopBox.setEnabled(False)
+        self.ui.actionConsole.setEnabled(False)
+        self.setConnectTooltip()
         self.ui.connectButton.clicked.disconnect()
         self.ui.connectButton.clicked.connect(self.serialConnect)
 

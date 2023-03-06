@@ -506,7 +506,7 @@ class Ui_MainWindow(object):
         font.setWeight(75)
         self.dispenseSpinBox.setFont(font)
         self.dispenseSpinBox.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.dispenseSpinBox.setDecimals(3)
+        self.dispenseSpinBox.setDecimals(1)
         self.dispenseSpinBox.setMaximum(1000.0)
         self.dispenseSpinBox.setProperty("value", 2.0)
         self.dispenseSpinBox.setObjectName("dispenseSpinBox")
@@ -654,6 +654,10 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
         self.actionQuit = QtWidgets.QAction(MainWindow)
         self.actionQuit.setObjectName("actionQuit")
+        self.actionConsole = QtWidgets.QAction(MainWindow)
+        self.actionConsole.setEnabled(False)
+        self.actionConsole.setObjectName("actionConsole")
+        self.menuFile.addAction(self.actionConsole)
         self.menuFile.addAction(self.actionQuit)
         self.menubar.addAction(self.menuFile.menuAction())
 
@@ -692,6 +696,7 @@ class Ui_MainWindow(object):
         self.commsBox.setTitle(_translate("MainWindow", "Communications"))
         self.comPortComboBox.setItemText(0, _translate("MainWindow", "<COM Port>"))
         self.connectButton.setText(_translate("MainWindow", "Connect"))
+        self.refreshButton.setToolTip(_translate("MainWindow", "Refresh the list of COM ports"))
         self.refreshButton.setText(_translate("MainWindow", "Refresh"))
         self.setUpBox.setTitle(_translate("MainWindow", "Set Up"))
         self.syringeComboBox.setItemText(0, _translate("MainWindow", "25 mL"))
@@ -702,9 +707,12 @@ class Ui_MainWindow(object):
         self.syringeComboBox.setItemText(5, _translate("MainWindow", "250 μL"))
         self.syringeComboBox.setItemText(6, _translate("MainWindow", "100 μL"))
         self.syringeComboBox.setItemText(7, _translate("MainWindow", "50 μL"))
+        self.syringeButton.setToolTip(_translate("MainWindow", "Set the syringe barrel size (ensure this matches the physical barrel size)"))
         self.syringeButton.setText(_translate("MainWindow", "Set Syringe Size"))
+        self.initializeButton.setToolTip(_translate("MainWindow", "Initialize pump before sending commands"))
         self.initializeButton.setText(_translate("MainWindow", "Initialize Pump"))
         self.emergencyStopBox.setTitle(_translate("MainWindow", "Emergency Stop"))
+        self.stopButton.setToolTip(_translate("MainWindow", "Interrupt pump and stop all actions."))
         self.stopButton.setText(_translate("MainWindow", "STOP PUMP"))
         self.dispenseBox.setTitle(_translate("MainWindow", "Dispense"))
         self.columnSelectBox.setTitle(_translate("MainWindow", "Column Selection"))
@@ -717,6 +725,8 @@ class Ui_MainWindow(object):
         self.column6CheckBox.setText(_translate("MainWindow", "Column 6"))
         self.column7CheckBox.setText(_translate("MainWindow", "Column 7"))
         self.column8CheckBox.setText(_translate("MainWindow", "Column 8"))
+        self.dispenseVolumeButton.setToolTip(_translate("MainWindow", "Dispense specified volume from reservoir to column lines*\n"
+"* Either all columns, or specified columns"))
         self.dispenseVolumeButton.setText(_translate("MainWindow", "Dispense to Columns"))
         self.dispenseVolumeBox.setTitle(_translate("MainWindow", "Dispense Volume"))
         self.dispenseUnits.setText(_translate("MainWindow", "mL"))
@@ -725,13 +735,23 @@ class Ui_MainWindow(object):
         self.drawSpeedUnits.setText(_translate("MainWindow", "steps/s"))
         self.groupBox.setTitle(_translate("MainWindow", "Dispense Speed"))
         self.dispenseSpeedUnits.setText(_translate("MainWindow", "steps/s"))
+        self.fillButton.setToolTip(_translate("MainWindow", "Fully draw syringe, from reservoir"))
         self.fillButton.setText(_translate("MainWindow", "Fill Syringe Barrel"))
+        self.primeButton.setToolTip(_translate("MainWindow", "1. Draw partly from reservoir.\n"
+"2. Dispense back to reservoir (remove any air).\n"
+"3. Draw fully from reservoir.\n"
+"4. Dispense to each column line equally."))
         self.primeButton.setText(_translate("MainWindow", "Prime/Clean Lines"))
+        self.emptyButton.setToolTip(_translate("MainWindow", "Dispense syringe barrel to reservoir"))
         self.emptyButton.setText(_translate("MainWindow", "Empty Syringe Barrel"))
+        self.emptyLinesButton.setToolTip(_translate("MainWindow", "Draw from each column line, dispense to reservoir."))
         self.emptyLinesButton.setText(_translate("MainWindow", "Empty Lines"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.actionQuit.setText(_translate("MainWindow", "Quit"))
+        self.actionQuit.setStatusTip(_translate("MainWindow", "Quit the application"))
         self.actionQuit.setShortcut(_translate("MainWindow", "Ctrl+Q"))
+        self.actionConsole.setText(_translate("MainWindow", "Console"))
+        self.actionConsole.setStatusTip(_translate("MainWindow", "Open a console for manual serial commands. Connection must be open."))
 
 
 if __name__ == "__main__":
