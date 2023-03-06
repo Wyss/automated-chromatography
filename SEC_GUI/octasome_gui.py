@@ -78,7 +78,7 @@ class MainWindow(QMainWindow):
                 "Connect to the COM port selected in the dropdown")
         self.ui.syringeButton.setToolTip(
                 "Set the syringe barrel size (ensure this matches the "
-                "physical barrel size)")
+                "physical barrel size). Disconnect to change.")
         self.ui.initializeButton.setToolTip(
                 "Initialize pump before sending commands")
         self.ui.fillButton.setToolTip("Fully draw syringe, from reservoir")
@@ -255,6 +255,9 @@ class MainWindow(QMainWindow):
         self.ui.dispenseBox.setEnabled(False)
         self.ui.setUpBox.setEnabled(False)
         self.ui.emergencyStopBox.setEnabled(False)
+        self.ui.syringeButton.setEnabled(True)
+        self.ui.syringeButton.setText("Set Syringe Size")
+        self.ui.syringeComboBox.setEnabled(True)
         self.ui.connectButton.clicked.disconnect()
         self.ui.connectButton.clicked.connect(self.serialConnect)
 
@@ -323,16 +326,13 @@ class MainWindow(QMainWindow):
             self.ui.dispenseVolumeSlider.setSingleStep(1)
             self.ui.dispenseUnits.setText("mL")
         # display pop-up confirmation that the syringe size has been set
-        print("Syringe size set to " + self.ui.syringeComboBox.currentText())
-        dlg = QMessageBox(self)
-        dlg.setWindowTitle("Confirmation")
-        dlg.setText("Syringe size set to " + self.ui.syringeComboBox.currentText())
-        dlg.setIcon(QMessageBox.Information)
-        button = dlg.exec()
-        # once OK is pressed, enable the pump initialization button
-        if button == QMessageBox.Ok:
-            self.ui.initializeButton.setEnabled(True)
-            print("OK!")
+        size = self.ui.syringeComboBox.currentText()
+        print("Syringe size set to " + size)
+
+        self.ui.syringeButton.setText("Syringe is {}".format(size))
+        self.ui.syringeButton.setEnabled(False)
+        self.ui.syringeComboBox.setEnabled(False)
+        self.ui.initializeButton.setEnabled(True)
 
     def getSyringeSize_ml(self):
         """returns numerical value of selected syringe size in ml, since the
