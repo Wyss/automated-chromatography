@@ -296,10 +296,10 @@ class MainWindow(QMainWindow):
             raw_byte = self.serial.read(1)
         raw_frame = bytearray(raw_data)
         frame_list = [byte for byte in raw_frame]
-        print(frame_list)
+        str_data = str(raw_data)[2:-1]
         print(raw_data)
         if self.file_name:
-            self.file.write("< {}".format(raw_data))
+            self.file.write("< {}\n\n".format(str_data))
         return frame_list
 
     def setSyringeSize(self):
