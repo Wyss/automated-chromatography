@@ -21,7 +21,7 @@ from mainwindow import Ui_MainWindow
 class MainWindow(QMainWindow):
     stateChanged = pyqtSignal(str)
 
-    def __init__(self, debug=False, busy_debug=False):
+    def __init__(self, debug=False, busy_debug=False, file_name=None):
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
         self.timer  = QTimer(self)
@@ -32,6 +32,11 @@ class MainWindow(QMainWindow):
         # set constants/configs
         self.debug = debug
         self.busy_debug = busy_debug
+        self.file_name = file_name
+        if self.file_name:
+            self.file = open(self.file_name, "w")
+            print("File opened: {}".format(self.file.name))
+            # self.openFile(self.write)
         # self.max_steps = 6000
 
         # connect GUI signals to methods
@@ -73,27 +78,7 @@ class MainWindow(QMainWindow):
         self.ui.actionQuit.triggered.connect(qApp.quit)
 
         # Set tooltips
-        self.ui.refreshButton.setToolTip("Refresh the list of COM ports")
-        self.ui.connectButton.setToolTip(
-                "Connect to the COM port selected in the dropdown")
-        self.ui.syringeButton.setToolTip(
-                "Set the syringe barrel size (ensure this matches the "
-                "physical barrel size). Disconnect to change.")
-        self.ui.initializeButton.setToolTip(
-                "Initialize pump before sending commands")
-        self.ui.fillButton.setToolTip("Fully draw syringe, from reservoir")
-        self.ui.emptyButton.setToolTip("Dispense syringe barrel to reservoir")
-        self.ui.primeButton.setToolTip(
-                "1. Draw partly from reservoir.\n"
-                "2. Dispense back to reservoir (remove any air).\n"
-                "3. Draw fully from reservoir\n"
-                "4. Dispense to each column line equally")
-        self.ui.emptyLinesButton.setToolTip(
-                "Draw from each column line, dispense to reservoir.")
-        self.ui.dispenseVolumeButton.setToolTip(
-                "Dispense specified volume from reservoir to column lines*\n"
-                "* Either all columns, or specified columns")
-        self.ui.stopButton.setToolTip("Interrupt pump and stop all actions.")
+        self.setConnectTooltip()
         # for all pushbuttons, set statustip to its tooltip
         for button in self.ui.centralwidget.findChildren(QPushButton):
             button.setStatusTip(button.toolTip())
@@ -154,6 +139,12 @@ class MainWindow(QMainWindow):
         # Run when app exist
         atexit.register(self.exitCommands)
 
+    def setConnectTooltip(self):
+        """Set the Connect button tooltip for when it's in "connect" mode
+        """
+        tip = "Connect to the COM port selected in the dropdown"
+        self.ui.connectButton.setToolTip(tip)
+        self.ui.connectButton.setStatusTip(tip)
 
     def setBaud(self, baud=9600):
         """Set the baud rate to the `baud` given."""
@@ -211,12 +202,16 @@ class MainWindow(QMainWindow):
             self.ui.comPortComboBox.setEnabled(False)
             self.ui.refreshButton.setEnabled(False)
             self.ui.connectButton.setText("Disconnect")
+            self.ui.connectButton.setToolTip(
+                "Close the serial connection to the pump")
+            self.ui.connectButton.setStatusTip(self.ui.connectButton.toolTip())
             # since serial connection was successful, enable/disable portions
             # of the GUI
             self.ui.setUpBox.setEnabled(True)
             self.ui.initializeButton.setEnabled(False)
             self.ui.fillButton.setEnabled(False)
             self.ui.emptyButton.setEnabled(False)
+            self.ui.actionConsole.setEnabled(True)
             # change the method that the the connect button is linked to
             # (serialDisconnect)
             self.ui.connectButton.clicked.disconnect()
@@ -258,6 +253,8 @@ class MainWindow(QMainWindow):
         self.ui.syringeButton.setEnabled(True)
         self.ui.syringeButton.setText("Set Syringe Size")
         self.ui.syringeComboBox.setEnabled(True)
+        self.ui.actionConsole.setEnabled(False)
+        self.setConnectTooltip()
         self.ui.connectButton.clicked.disconnect()
         self.ui.connectButton.clicked.connect(self.serialConnect)
 
@@ -272,19 +269,21 @@ class MainWindow(QMainWindow):
         if self.ui.comPortComboBox.count() == 0:
             self.ui.comPortComboBox.addItem("<no COM found>")
 
-    def write(self, command):
+    def write(self, cmd):
         """sends a command through the serial port (appends the R to indicate
         execution), returns pump response
         """
-        command = command + "R\r\n"
-        print(command)
+        cmd += "R\r\n"
+        print(cmd)
+        if self.file_name:
+            self.file.write("> {}".format(cmd))
         if self.debug:
             self.dbprint("command sent")
         else:
-            self.serial.write(command.encode())
+            self.serial.write(cmd.encode())
             # may not need this portion of the code
             self.serial.waitForBytesWritten(100)
-            if(self.serial.waitForReadyRead(100)):
+            if self.serial.waitForReadyRead(100):
                 response = self.receive()
                 return response
 
@@ -300,8 +299,10 @@ class MainWindow(QMainWindow):
             raw_byte = self.serial.read(1)
         raw_frame = bytearray(raw_data)
         frame_list = [byte for byte in raw_frame]
-        print(frame_list)
+        str_data = str(raw_data)[2:-1]
         print(raw_data)
+        if self.file_name:
+            self.file.write("< {}\n\n".format(str_data))
         return frame_list
 
     def setSyringeSize(self):
@@ -355,13 +356,12 @@ class MainWindow(QMainWindow):
         """initializes pump"""
         if self.debug:
             self.dbprint("pump initialized")
-        else:
-            # check if pump is busy
-            if self.checkBusy():
-                return
-            # self.write("/1Z15,9,1v400V400A6000v800V800A0")
-            # self.write("/1Z")
-            self.write("/1w1,0I1W0")
+        # check if pump is busy
+        if self.checkBusy(busy_debug=False):
+            return
+        # self.write("/1Z15,9,1v400V400A6000v800V800A0")
+        # self.write("/1Z")
+        self.write("/1w1,0I1W0")
         # after initialization, enable the rest of the GUI
         self.ui.fillButton.setEnabled(True)
         self.ui.emptyButton.setEnabled(True)
@@ -624,10 +624,14 @@ class MainWindow(QMainWindow):
     def stopPump(self):
         """interrupts the pump and stops operation"""
         print("STOP PUMP!!!!")
+        cmd = "/1TR\r\n"
         if self.debug:
             self.dbprint("stopped")
+            print(cmd)
+            if self.file_name:
+                self.file.write("> {}".format(cmd))
         else:
-            self.serial.write("/1TR\r\n".encode())
+            self.serial.write(cmd.encode())
 
     def volumeToSteps(self, volume_ml):
         """Convert given volume in ml to a number of steps
@@ -637,16 +641,22 @@ class MainWindow(QMainWindow):
         steps = volume_ml * (6000/syringe_vol)
         return int(steps)
 
-    def checkBusy(self, attempts=3, timeout=.1):
+    def checkBusy(self, attempts=3, timeout=.1, busy_debug=None):
         """Test if pump is busy. Retries `attempts` times, waiting `timeout`
         seconds between attempts. If it is busy after that, display a warning
         popup and stop attempting.
         """
+        if busy_debug is None:
+            busy_debug = self.busy_debug
+        if self.debug and not busy_debug:
+            self.dbprint("not busy")
+            return False
         # Try (attempts) times and wait (timeout) sec between
         for attempt in range(attempts):
             print("Busy. Retry {}".format(attempt+1))
             # check for debugging busy flag or try for real
-            if self.busy_debug:
+            if busy_debug:
+                self.dbprint("busy")
                 busy = bin(0)
             else:
                 busy = self.queryPump()
@@ -686,10 +696,19 @@ class MainWindow(QMainWindow):
             else:
                 return
 
+    # def openFile(self, filename):
+    #     """Open the file `filename` (and create if needed) for saving serial
+    #     commands sent and received
+    #     """
+    #     self.file = open(filename, "w")
+
     # def closeEvent(self, event):
     def exitCommands(self):
         """Things to run at application exit"""
         print("exiting cleanly...")
+        if self.file_name:
+            self.file.close()
+            print("File {} closed".format(self.file_name))
         if self.serial.isOpen():
             print("closing serial port...")
             self.serial.close()
@@ -757,12 +776,16 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--debug",
             help="Don't attempt pump communication, enable buttons as if "
-                 "connected",
+                 "connected.",
             action="store_true")
     parser.add_argument("-b", "--busy-debug",
             help="Pretend the pump is always busy for debugging. Only works "
                  "in conjunction with [-d --debug] arg.",
             action="store_true")
+    parser.add_argument("-w", "--write", metavar="FILENAME",
+            help="Write the serial commands to FILENAME. Appends '.log' to "
+                 "name.",
+            action="store")
     args = parser.parse_args()
 
     # argparse: -b needs -d
@@ -770,6 +793,11 @@ if __name__ == "__main__":
         print("-b (--busy-debug) arg only works with -d (--debug) arg. "
               "Activating -d (--debug).")
         args.debug=True
+    # argparse: -w saves filename filename
+    if args.write:
+        file_name = "{}.log".format(args.write)
+    else:
+        file_name = None
 
     # handle sigint (ctrl+c) with sigint_handler function
     signal.signal(signal.SIGINT, _sigint_handler)
@@ -782,7 +810,7 @@ if __name__ == "__main__":
     sigint_timer.timeout.connect(lambda: None)
 
     # instance of MainWindow class
-    window = MainWindow(args.debug, args.busy_debug)
+    window = MainWindow(args.debug, args.busy_debug, file_name)
 
     # window.show()
     sys.exit(app.exec())

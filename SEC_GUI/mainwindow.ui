@@ -70,6 +70,9 @@
       </item>
       <item>
        <widget class="QPushButton" name="refreshButton">
+        <property name="toolTip">
+         <string>Refresh the list of COM ports</string>
+        </property>
         <property name="text">
          <string>Refresh</string>
         </property>
@@ -109,27 +112,7 @@
         </item>
         <item>
          <property name="text">
-          <string>50 μL</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>100 μL</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>250 μL</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>500 μL</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>1 mL</string>
+          <string>10 mL</string>
          </property>
         </item>
         <item>
@@ -139,13 +122,36 @@
         </item>
         <item>
          <property name="text">
-          <string>10 mL</string>
+          <string>1 mL</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>500 μL</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>250 μL</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>100 μL</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>50 μL</string>
          </property>
         </item>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="syringeButton">
+        <property name="toolTip">
+         <string>Set the syringe barrel size (ensure this matches the physical barrel size)</string>
+        </property>
         <property name="text">
          <string>Set Syringe Size</string>
         </property>
@@ -153,6 +159,9 @@
       </item>
       <item>
        <widget class="QPushButton" name="initializeButton">
+        <property name="toolTip">
+         <string>Initialize pump before sending commands</string>
+        </property>
         <property name="text">
          <string>Initialize Pump</string>
         </property>
@@ -181,6 +190,9 @@
        <width>441</width>
        <height>21</height>
       </rect>
+     </property>
+     <property name="toolTip">
+      <string>Interrupt pump and stop all actions.</string>
      </property>
      <property name="text">
       <string>STOP PUMP</string>
@@ -709,6 +721,10 @@ QCheckBox::indicator:unchecked:disabled
        </item>
        <item>
         <widget class="QPushButton" name="dispenseVolumeButton">
+         <property name="toolTip">
+          <string>Dispense specified volume from reservoir to column lines*
+* Either all columns, or specified columns</string>
+         </property>
          <property name="text">
           <string>Dispense to Columns</string>
          </property>
@@ -752,7 +768,7 @@ QCheckBox::indicator:unchecked:disabled
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
          <property name="decimals">
-          <number>3</number>
+          <number>1</number>
          </property>
          <property name="maximum">
           <double>1000.000000000000000</double>
@@ -778,6 +794,9 @@ QCheckBox::indicator:unchecked:disabled
        </item>
        <item>
         <widget class="QSlider" name="dispenseVolumeSlider">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="maximum">
           <number>25</number>
          </property>
@@ -879,6 +898,9 @@ QCheckBox::indicator:unchecked:disabled
           </item>
           <item>
            <widget class="QSlider" name="drawSpeedSlider">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="maximum">
              <number>10000</number>
             </property>
@@ -958,6 +980,9 @@ QCheckBox::indicator:unchecked:disabled
           </item>
           <item>
            <widget class="QSlider" name="dispenseSpeedSlider">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="maximum">
              <number>10000</number>
             </property>
@@ -992,6 +1017,9 @@ QCheckBox::indicator:unchecked:disabled
        <layout class="QVBoxLayout" name="verticalLayout_7">
         <item>
          <widget class="QPushButton" name="fillButton">
+          <property name="toolTip">
+           <string>Fully draw syringe, from reservoir</string>
+          </property>
           <property name="text">
            <string>Fill Syringe Barrel</string>
           </property>
@@ -999,6 +1027,12 @@ QCheckBox::indicator:unchecked:disabled
         </item>
         <item>
          <widget class="QPushButton" name="primeButton">
+          <property name="toolTip">
+           <string>1. Draw partly from reservoir.
+2. Dispense back to reservoir (remove any air).
+3. Draw fully from reservoir.
+4. Dispense to each column line equally.</string>
+          </property>
           <property name="text">
            <string>Prime/Clean Lines</string>
           </property>
@@ -1010,6 +1044,9 @@ QCheckBox::indicator:unchecked:disabled
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
          <widget class="QPushButton" name="emptyButton">
+          <property name="toolTip">
+           <string>Dispense syringe barrel to reservoir</string>
+          </property>
           <property name="text">
            <string>Empty Syringe Barrel</string>
           </property>
@@ -1017,6 +1054,9 @@ QCheckBox::indicator:unchecked:disabled
         </item>
         <item>
          <widget class="QPushButton" name="emptyLinesButton">
+          <property name="toolTip">
+           <string>Draw from each column line, dispense to reservoir.</string>
+          </property>
           <property name="text">
            <string>Empty Lines</string>
           </property>
@@ -1041,6 +1081,7 @@ QCheckBox::indicator:unchecked:disabled
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionConsole"/>
     <addaction name="actionQuit"/>
    </widget>
    <addaction name="menuFile"/>
@@ -1050,11 +1091,54 @@ QCheckBox::indicator:unchecked:disabled
    <property name="text">
     <string>Quit</string>
    </property>
+   <property name="statusTip">
+    <string>Quit the application</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
    </property>
   </action>
+  <action name="actionConsole">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Console</string>
+   </property>
+   <property name="statusTip">
+    <string>Open a console for manual serial commands. Connection must be open.</string>
+   </property>
+  </action>
  </widget>
+ <tabstops>
+  <tabstop>comPortComboBox</tabstop>
+  <tabstop>connectButton</tabstop>
+  <tabstop>refreshButton</tabstop>
+  <tabstop>syringeComboBox</tabstop>
+  <tabstop>syringeButton</tabstop>
+  <tabstop>initializeButton</tabstop>
+  <tabstop>fillButton</tabstop>
+  <tabstop>emptyButton</tabstop>
+  <tabstop>primeButton</tabstop>
+  <tabstop>emptyLinesButton</tabstop>
+  <tabstop>drawSpeedSpinBox</tabstop>
+  <tabstop>dispenseSpeedSpinBox</tabstop>
+  <tabstop>dispenseSpinBox</tabstop>
+  <tabstop>allCheckBox</tabstop>
+  <tabstop>column1CheckBox</tabstop>
+  <tabstop>column2CheckBox</tabstop>
+  <tabstop>column3CheckBox</tabstop>
+  <tabstop>column4CheckBox</tabstop>
+  <tabstop>column5CheckBox</tabstop>
+  <tabstop>column6CheckBox</tabstop>
+  <tabstop>column7CheckBox</tabstop>
+  <tabstop>column8CheckBox</tabstop>
+  <tabstop>dispenseVolumeButton</tabstop>
+  <tabstop>stopButton</tabstop>
+  <tabstop>drawSpeedSlider</tabstop>
+  <tabstop>dispenseSpeedSlider</tabstop>
+  <tabstop>dispenseVolumeSlider</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
