@@ -768,13 +768,10 @@ QCheckBox::indicator:unchecked:disabled
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
          <property name="decimals">
-          <number>1</number>
+          <number>2</number>
          </property>
-         <property name="maximum">
-          <double>1000.000000000000000</double>
-         </property>
-         <property name="value">
-          <double>2.000000000000000</double>
+         <property name="singleStep">
+          <double>0.100000000000000</double>
          </property>
         </widget>
        </item>
@@ -793,21 +790,12 @@ QCheckBox::indicator:unchecked:disabled
         </widget>
        </item>
        <item>
-        <widget class="QSlider" name="dispenseVolumeSlider">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="maximum">
-          <number>25</number>
-         </property>
-         <property name="value">
-          <number>2</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="invertedAppearance">
-          <bool>false</bool>
+        <widget class="QLabel" name="volRangeLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
         </widget>
        </item>
@@ -869,14 +857,8 @@ QCheckBox::indicator:unchecked:disabled
               <property name="decimals">
                <number>0</number>
               </property>
-              <property name="maximum">
-               <double>10000.000000000000000</double>
-              </property>
               <property name="singleStep">
                <double>100.000000000000000</double>
-              </property>
-              <property name="value">
-               <double>0.000000000000000</double>
               </property>
              </widget>
             </item>
@@ -895,25 +877,6 @@ QCheckBox::indicator:unchecked:disabled
              </widget>
             </item>
            </layout>
-          </item>
-          <item>
-           <widget class="QSlider" name="drawSpeedSlider">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="maximum">
-             <number>10000</number>
-            </property>
-            <property name="singleStep">
-             <number>100</number>
-            </property>
-            <property name="value">
-             <number>3000</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
           </item>
          </layout>
         </widget>
@@ -951,14 +914,8 @@ QCheckBox::indicator:unchecked:disabled
               <property name="decimals">
                <number>0</number>
               </property>
-              <property name="maximum">
-               <double>10000.000000000000000</double>
-              </property>
               <property name="singleStep">
                <double>100.000000000000000</double>
-              </property>
-              <property name="value">
-               <double>0.000000000000000</double>
               </property>
              </widget>
             </item>
@@ -977,25 +934,6 @@ QCheckBox::indicator:unchecked:disabled
              </widget>
             </item>
            </layout>
-          </item>
-          <item>
-           <widget class="QSlider" name="dispenseSpeedSlider">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="maximum">
-             <number>10000</number>
-            </property>
-            <property name="singleStep">
-             <number>100</number>
-            </property>
-            <property name="value">
-             <number>3000</number>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
           </item>
          </layout>
         </widget>
@@ -1135,9 +1073,6 @@ QCheckBox::indicator:unchecked:disabled
   <tabstop>column8CheckBox</tabstop>
   <tabstop>dispenseVolumeButton</tabstop>
   <tabstop>stopButton</tabstop>
-  <tabstop>drawSpeedSlider</tabstop>
-  <tabstop>dispenseSpeedSlider</tabstop>
-  <tabstop>dispenseVolumeSlider</tabstop>
  </tabstops>
  <resources/>
  <connections/>
