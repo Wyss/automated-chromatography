@@ -56,18 +56,6 @@ class MainWindow(QMainWindow):
         self.ui.primeButton.clicked.connect(self.primeLines)
         # Remove all fluid from lines back to reservoir:
         self.ui.emptyLinesButton.clicked.connect(self.emptyPumpLines)
-        # update draw speed slider:
-        self.ui.drawSpeedSpinBox.valueChanged.connect(self.updateDrawSlider)
-        # update draw speed spinbox:
-        self.ui.drawSpeedSlider.valueChanged.connect(self.updateDrawSpeed)
-        # update dispense speed slider:
-        self.ui.dispenseSpeedSpinBox.valueChanged.connect(self.updateDispenseSlider)
-        # update dispense speed spin box:
-        self.ui.dispenseSpeedSlider.valueChanged.connect(self.updateDispenseSpeed)
-        # update dispense volume slider:
-        self.ui.dispenseSpinBox.valueChanged.connect(self.updateDispenseVolSlider)
-        # update dispense volume spin box:
-        self.ui.dispenseVolumeSlider.valueChanged.connect(self.updateDispenseVolume)
         # dispense specified volumes to specified columns:
         self.ui.dispenseVolumeButton.clicked.connect(self.dispense)
         # toggle column checkbox states:
@@ -106,31 +94,22 @@ class MainWindow(QMainWindow):
         self.ui.column7CheckBox.setEnabled(False)
         self.ui.column8CheckBox.setEnabled(False)
 
-        # precision with which dispense volume can be set
-        self.ui.dispenseSpinBox.setSingleStep(0.1)
-        self.ui.dispenseVolumeSlider.setSingleStep(100)
+        # set dispense volume precision (set in mainwindow.*)
+        # self.ui.dispenseSpinBox.setSingleStep(0.1)
 
         # maximum and minimum values for pump speeds
-        self.ui.drawSpeedSpinBox.setMaximum(6000)
+        self.ui.drawSpeedSpinBox.setMaximum(800)
         self.ui.drawSpeedSpinBox.setMinimum(100)
-        self.ui.drawSpeedSlider.setMinimum(1)
-        self.ui.drawSpeedSlider.setMaximum(60)
-        self.ui.dispenseSpeedSpinBox.setMaximum(6000)
+        self.ui.dispenseSpeedSpinBox.setMaximum(800)
         self.ui.dispenseSpeedSpinBox.setMinimum(100)
-        self.ui.dispenseSpeedSlider.setMinimum(1)
-        self.ui.dispenseSpeedSlider.setMaximum(60)
 
         # steps
         self.ui.drawSpeedSpinBox.setSingleStep(100)
-        self.ui.drawSpeedSlider.setSingleStep(1)
         self.ui.dispenseSpeedSpinBox.setSingleStep(100)
-        self.ui.dispenseSpeedSlider.setSingleStep(1)
 
         # initial, default speed
         self.ui.drawSpeedSpinBox.setValue(400)
-        # self.ui.drawSpeedSlider.setValue(30)
         self.ui.dispenseSpeedSpinBox.setValue(400)
-        # self.ui.dispenseSpeedSlider.setValue(30)
 
         # serial port
         self.serial = QtSerialPort.QSerialPort(self)
@@ -313,19 +292,21 @@ class MainWindow(QMainWindow):
         syringe_size_ml = self.getSyringeSize_ml()
         # check if milliliters or microliters?
         if(syringe_size_ml < 1): # microliters
+            units = "\u03bcL"
             self.ui.dispenseSpinBox.setMaximum(syringe_size_ml*1000)
             self.ui.dispenseSpinBox.setSingleStep(0.100)
             self.ui.dispenseSpinBox.setValue(syringe_size_ml*1000)
-            self.ui.dispenseUnits.setText("\u03bcL")
-            self.ui.dispenseVolumeSlider.setMaximum(int(syringe_size_ml*1000/0.1))
-            self.ui.dispenseVolumeSlider.setSingleStep(1)
+            self.ui.dispenseUnits.setText(units)
+            self.ui.volRangeLabel.setText(
+                    "(0-{}{})".format(syringe_size_ml*1000, units))
         else: # milliliters
+            units = "mL"
             self.ui.dispenseSpinBox.setMaximum((syringe_size_ml))
             self.ui.dispenseSpinBox.setSingleStep(0.100)
             self.ui.dispenseSpinBox.setValue(2)
-            self.ui.dispenseVolumeSlider.setMaximum(int((syringe_size_ml)/0.1))
-            self.ui.dispenseVolumeSlider.setSingleStep(1)
-            self.ui.dispenseUnits.setText("mL")
+            self.ui.dispenseUnits.setText(units)
+            self.ui.volRangeLabel.setText(
+                    "(0-{}{})".format(syringe_size_ml, units))
         # display pop-up confirmation that the syringe size has been set
         size = self.ui.syringeComboBox.currentText()
         print("Syringe size set to " + size)
@@ -481,44 +462,6 @@ class MainWindow(QMainWindow):
         if self.checkBusy():
             return
         self.cleanLines()
-
-    def updateDrawSlider(self):
-        """updates draw speed slider when spinbox is changed"""
-        tick = int(int(self.ui.drawSpeedSpinBox.value())/100)
-        self.ui.drawSpeedSlider.setValue(tick)
-        operating_speed = tick
-
-    def updateDrawSpeed(self):
-        """updates draw speed spinbox when slider is changed"""
-        val = self.ui.drawSpeedSlider.value()
-        val = val*100
-        self.ui.drawSpeedSpinBox.setValue(val)
-        operating_speed = val
-
-    def updateDispenseSlider(self):
-        """updates dispense speed slider when spinbox is changed"""
-        tick = int(int(self.ui.dispenseSpeedSpinBox.value())/100)
-        self.ui.dispenseSpeedSlider.setValue(tick)
-        operating_speed = tick
-
-    def updateDispenseSpeed(self):
-        """updates dispense speed spinbox when slider is changed"""
-        val = self.ui.dispenseSpeedSlider.value()
-        val = val*100
-        self.ui.dispenseSpeedSpinBox.setValue(val)
-        operating_speed = val
-
-    def updateDispenseVolSlider(self):
-        """updates dispense volume slider when spinbox is changed"""
-        tick = int(self.ui.dispenseSpinBox.value()/0.1)
-        self.ui.dispenseVolumeSlider.setValue(tick)
-        dispense_volume = tick
-
-    def updateDispenseVolume(self):
-        """updates dispense volume spinbox when slider is changed"""
-        val = self.ui.dispenseVolumeSlider.value()*0.1
-        self.ui.dispenseSpinBox.setValue(val)
-        dispense_volume = val
 
     def enableColumnSelect(self):
         """toggles column checkbox enable states based off of "all" checkbox"""
