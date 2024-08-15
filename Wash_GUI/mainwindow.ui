@@ -1,0 +1,1079 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>480</width>
+    <height>800</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>480</width>
+    <height>800</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>480</width>
+    <height>800</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>SEC</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../../../Desktop/unnamed.jpg</normaloff>../../../Desktop/unnamed.jpg</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QGroupBox" name="commsBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>0</y>
+      <width>461</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Communications</string>
+    </property>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>31</y>
+       <width>441</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QComboBox" name="comPortComboBox">
+        <item>
+         <property name="text">
+          <string>&lt;COM Port&gt;</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="connectButton">
+        <property name="text">
+         <string>Connect</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="refreshButton">
+        <property name="toolTip">
+         <string>Refresh the list of COM ports</string>
+        </property>
+        <property name="text">
+         <string>Refresh</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="setUpBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>70</y>
+      <width>461</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Set Up</string>
+    </property>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>12</x>
+       <y>31</y>
+       <width>441</width>
+       <height>32</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QComboBox" name="syringeComboBox">
+        <item>
+         <property name="text">
+          <string>25 mL</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>10 mL</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>5 mL</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>1 mL</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>500 μL</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>250 μL</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>100 μL</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>50 μL</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="syringeButton">
+        <property name="toolTip">
+         <string>Set the syringe barrel size (ensure this matches the physical barrel size)</string>
+        </property>
+        <property name="text">
+         <string>Set Syringe Size</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="initializeButton">
+        <property name="toolTip">
+         <string>Initialize pump before sending commands</string>
+        </property>
+        <property name="text">
+         <string>Initialize Pump</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="emergencyStopBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>690</y>
+      <width>461</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Emergency Stop</string>
+    </property>
+    <widget class="QPushButton" name="stopButton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>441</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Interrupt pump and stop all actions.</string>
+     </property>
+     <property name="text">
+      <string>STOP PUMP</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="dispenseBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>330</y>
+      <width>461</width>
+      <height>361</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Dispense</string>
+    </property>
+    <widget class="QGroupBox" name="columnSelectBox">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>90</y>
+       <width>441</width>
+       <height>261</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="title">
+      <string>Column Selection</string>
+     </property>
+     <widget class="QWidget" name="layoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>30</y>
+        <width>421</width>
+        <height>221</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QCheckBox" name="allCheckBox">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>12</pointsize>
+             <weight>50</weight>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QCheckBox::indicator {
+    width: 40px;
+    height: 40px;
+}
+QCheckBox::indicator:unchecked {
+	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:hover {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:pressed {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked {
+     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:hover {
+    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:pressed {
+     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:checked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:unchecked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
+}</string>
+           </property>
+           <property name="text">
+            <string>All</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_3">
+           <item>
+            <widget class="QCheckBox" name="column1CheckBox">
+             <property name="font">
+              <font>
+               <pointsize>12</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QCheckBox::indicator {
+    width: 40px;
+    height: 40px;
+}
+QCheckBox::indicator:unchecked {
+	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:hover {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:pressed {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked {
+     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:hover {
+    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:pressed {
+     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:checked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:unchecked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
+}</string>
+             </property>
+             <property name="text">
+              <string>Column 1</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="column2CheckBox">
+             <property name="font">
+              <font>
+               <pointsize>12</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QCheckBox::indicator {
+    width: 40px;
+    height: 40px;
+}
+QCheckBox::indicator:unchecked {
+	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:hover {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:pressed {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked {
+     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:hover {
+    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:pressed {
+     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:checked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:unchecked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
+}</string>
+             </property>
+             <property name="text">
+              <string>Column 2</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="column3CheckBox">
+             <property name="font">
+              <font>
+               <pointsize>12</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QCheckBox::indicator {
+    width: 40px;
+    height: 40px;
+}
+QCheckBox::indicator:unchecked {
+	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:hover {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:pressed {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked {
+     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:hover {
+    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:pressed {
+     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:checked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:unchecked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
+}</string>
+             </property>
+             <property name="text">
+              <string>Column 3</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="column4CheckBox">
+             <property name="font">
+              <font>
+               <pointsize>12</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QCheckBox::indicator {
+    width: 40px;
+    height: 40px;
+}
+QCheckBox::indicator:unchecked {
+	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:hover {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:pressed {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked {
+     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:hover {
+    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:pressed {
+     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:checked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:unchecked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
+}</string>
+             </property>
+             <property name="text">
+              <string>Column 4</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <item>
+            <widget class="QCheckBox" name="column5CheckBox">
+             <property name="font">
+              <font>
+               <pointsize>12</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QCheckBox::indicator {
+    width: 40px;
+    height: 40px;
+}
+QCheckBox::indicator:unchecked {
+	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:hover {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:pressed {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked {
+     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:hover {
+    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:pressed {
+     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:checked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:unchecked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
+}</string>
+             </property>
+             <property name="text">
+              <string>Column 5</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="column6CheckBox">
+             <property name="font">
+              <font>
+               <pointsize>12</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QCheckBox::indicator {
+    width: 40px;
+    height: 40px;
+}
+QCheckBox::indicator:unchecked {
+	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:hover {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:pressed {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked {
+     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:hover {
+    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:pressed {
+     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:checked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:unchecked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
+}</string>
+             </property>
+             <property name="text">
+              <string>Column 6</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="column7CheckBox">
+             <property name="font">
+              <font>
+               <pointsize>12</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QCheckBox::indicator {
+    width: 40px;
+    height: 40px;
+}
+QCheckBox::indicator:unchecked {
+	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:hover {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:pressed {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked {
+     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:hover {
+    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:pressed {
+     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:checked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:unchecked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
+}</string>
+             </property>
+             <property name="text">
+              <string>Column 7</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="column8CheckBox">
+             <property name="font">
+              <font>
+               <pointsize>12</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QCheckBox::indicator {
+    width: 40px;
+    height: 40px;
+}
+QCheckBox::indicator:unchecked {
+	 image: url(./CheckBoxIcons/BlankCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:hover {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:unchecked:pressed {
+    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked {
+     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:hover {
+    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+
+QCheckBox::indicator:checked:pressed {
+     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:checked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);
+}
+QCheckBox::indicator:unchecked:disabled
+{
+    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);
+}</string>
+             </property>
+             <property name="text">
+              <string>Column 8</string>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>16</width>
+               <height>16</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QPushButton" name="dispenseVolumeButton">
+         <property name="toolTip">
+          <string>Dispense specified volume from reservoir to column lines*
+* Either all columns, or specified columns</string>
+         </property>
+         <property name="text">
+          <string>Dispense to Columns</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="dispenseVolumeBox">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>441</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Dispense Volume</string>
+     </property>
+     <widget class="QWidget" name="layoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>11</x>
+        <y>31</y>
+        <width>421</width>
+        <height>37</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <widget class="QDoubleSpinBox" name="dispenseSpinBox">
+         <property name="font">
+          <font>
+           <pointsize>14</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="decimals">
+          <number>2</number>
+         </property>
+         <property name="singleStep">
+          <double>0.100000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="dispenseUnits">
+         <property name="font">
+          <font>
+           <pointsize>14</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>mL</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="volRangeLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="adjustmentBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>140</y>
+      <width>461</width>
+      <height>191</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Adjustments</string>
+    </property>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>90</y>
+       <width>441</width>
+       <height>101</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_5">
+      <item>
+       <widget class="QGroupBox" name="speedGroupBox">
+        <property name="title">
+         <string>Draw Speed</string>
+        </property>
+        <widget class="QWidget" name="layoutWidget">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>35</y>
+           <width>201</width>
+           <height>61</height>
+          </rect>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <widget class="QDoubleSpinBox" name="drawSpeedSpinBox">
+              <property name="font">
+               <font>
+                <pointsize>14</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="decimals">
+               <number>0</number>
+              </property>
+              <property name="singleStep">
+               <double>100.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="drawSpeedUnits">
+              <property name="font">
+               <font>
+                <pointsize>14</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>steps/s</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox">
+        <property name="title">
+         <string>Dispense Speed</string>
+        </property>
+        <widget class="QWidget" name="layoutWidget">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>33</y>
+           <width>201</width>
+           <height>61</height>
+          </rect>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_6">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_7">
+            <item>
+             <widget class="QDoubleSpinBox" name="dispenseSpeedSpinBox">
+              <property name="font">
+               <font>
+                <pointsize>14</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="decimals">
+               <number>0</number>
+              </property>
+              <property name="singleStep">
+               <double>100.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="dispenseSpeedUnits">
+              <property name="font">
+               <font>
+                <pointsize>14</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>steps/s</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>441</width>
+       <height>56</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_8">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_7">
+        <item>
+         <widget class="QPushButton" name="fillButton">
+          <property name="toolTip">
+           <string>Fully draw syringe, from reservoir</string>
+          </property>
+          <property name="text">
+           <string>Fill Syringe Barrel</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="primeButton">
+          <property name="toolTip">
+           <string>1. Draw partly from reservoir.
+2. Dispense back to reservoir (remove any air).
+3. Draw fully from reservoir.
+4. Dispense to each column line equally.</string>
+          </property>
+          <property name="text">
+           <string>Prime/Clean Lines</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QPushButton" name="emptyButton">
+          <property name="toolTip">
+           <string>Dispense syringe barrel to reservoir</string>
+          </property>
+          <property name="text">
+           <string>Empty Syringe Barrel</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="emptyLinesButton">
+          <property name="toolTip">
+           <string>Draw from each column line, dispense to reservoir.</string>
+          </property>
+          <property name="text">
+           <string>Empty Lines</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>480</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionConsole"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <addaction name="menuFile"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+   <property name="statusTip">
+    <string>Quit the application</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionConsole">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Console</string>
+   </property>
+   <property name="statusTip">
+    <string>Open a console for manual serial commands. Connection must be open.</string>
+   </property>
+  </action>
+ </widget>
+ <tabstops>
+  <tabstop>comPortComboBox</tabstop>
+  <tabstop>connectButton</tabstop>
+  <tabstop>refreshButton</tabstop>
+  <tabstop>syringeComboBox</tabstop>
+  <tabstop>syringeButton</tabstop>
+  <tabstop>initializeButton</tabstop>
+  <tabstop>fillButton</tabstop>
+  <tabstop>emptyButton</tabstop>
+  <tabstop>primeButton</tabstop>
+  <tabstop>emptyLinesButton</tabstop>
+  <tabstop>drawSpeedSpinBox</tabstop>
+  <tabstop>dispenseSpeedSpinBox</tabstop>
+  <tabstop>dispenseSpinBox</tabstop>
+  <tabstop>allCheckBox</tabstop>
+  <tabstop>column1CheckBox</tabstop>
+  <tabstop>column2CheckBox</tabstop>
+  <tabstop>column3CheckBox</tabstop>
+  <tabstop>column4CheckBox</tabstop>
+  <tabstop>column5CheckBox</tabstop>
+  <tabstop>column6CheckBox</tabstop>
+  <tabstop>column7CheckBox</tabstop>
+  <tabstop>column8CheckBox</tabstop>
+  <tabstop>dispenseVolumeButton</tabstop>
+  <tabstop>stopButton</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>
