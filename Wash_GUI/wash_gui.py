@@ -79,20 +79,24 @@ class MainWindow(QMainWindow):
         self.ui.adjustmentBox.setEnabled(False)
         self.ui.emergencyStopBox.setEnabled(False)
 
+        # default syringe size
+        self.ui.syringeComboBox.setCurrentText("5 mL")
+
         # column check boxes - if "all" is selected, then individual selection
         # is greyed out
         self.ui.allCheckBox.setChecked(True)
-        self.ui.column1CheckBox.setEnabled(False)
-        self.ui.column1CheckBox.setEnabled(False)
-        self.ui.column1CheckBox.setEnabled(False)
-        self.ui.column1CheckBox.setEnabled(False)
-        self.ui.column2CheckBox.setEnabled(False)
-        self.ui.column3CheckBox.setEnabled(False)
-        self.ui.column4CheckBox.setEnabled(False)
-        self.ui.column5CheckBox.setEnabled(False)
-        self.ui.column6CheckBox.setEnabled(False)
-        self.ui.column7CheckBox.setEnabled(False)
-        self.ui.column8CheckBox.setEnabled(False)
+        self.ui.A1B1CheckBox.setEnabled(False)
+        self.ui.A2B2CheckBox.setEnabled(False)
+        self.ui.A3B3CheckBox.setEnabled(False)
+        self.ui.A4B4CheckBox.setEnabled(False)
+        self.ui.A5B5CheckBox.setEnabled(False)
+        self.ui.A6B6CheckBox.setEnabled(False)
+        self.ui.C1D1CheckBox.setEnabled(False)
+        self.ui.C2D2CheckBox.setEnabled(False)
+        self.ui.C3D3CheckBox.setEnabled(False)
+        self.ui.C4D4CheckBox.setEnabled(False)
+        self.ui.C5D5CheckBox.setEnabled(False)
+        self.ui.C6D6CheckBox.setEnabled(False)
 
         # set dispense volume precision (set in mainwindow.*)
         # self.ui.dispenseSpinBox.setSingleStep(0.1)
@@ -466,23 +470,31 @@ class MainWindow(QMainWindow):
     def enableColumnSelect(self):
         """toggles column checkbox enable states based off of "all" checkbox"""
         if(self.ui.allCheckBox.checkState()):
-            self.ui.column1CheckBox.setEnabled(False)
-            self.ui.column2CheckBox.setEnabled(False)
-            self.ui.column3CheckBox.setEnabled(False)
-            self.ui.column4CheckBox.setEnabled(False)
-            self.ui.column5CheckBox.setEnabled(False)
-            self.ui.column6CheckBox.setEnabled(False)
-            self.ui.column7CheckBox.setEnabled(False)
-            self.ui.column8CheckBox.setEnabled(False)
+            self.ui.A1B1CheckBox.setEnabled(False)
+            self.ui.A2B2CheckBox.setEnabled(False)
+            self.ui.A3B3CheckBox.setEnabled(False)
+            self.ui.A4B4CheckBox.setEnabled(False)
+            self.ui.A5B5CheckBox.setEnabled(False)
+            self.ui.A6B6CheckBox.setEnabled(False)
+            self.ui.C1D1CheckBox.setEnabled(False)
+            self.ui.C2D2CheckBox.setEnabled(False)
+            self.ui.C3D3CheckBox.setEnabled(False)
+            self.ui.C4D4CheckBox.setEnabled(False)
+            self.ui.C5D5CheckBox.setEnabled(False)
+            self.ui.C6D6CheckBox.setEnabled(False)
         else:
-            self.ui.column1CheckBox.setEnabled(True)
-            self.ui.column2CheckBox.setEnabled(True)
-            self.ui.column3CheckBox.setEnabled(True)
-            self.ui.column4CheckBox.setEnabled(True)
-            self.ui.column5CheckBox.setEnabled(True)
-            self.ui.column6CheckBox.setEnabled(True)
-            self.ui.column7CheckBox.setEnabled(True)
-            self.ui.column8CheckBox.setEnabled(True)
+            self.ui.A1B1CheckBox.setEnabled(True)
+            self.ui.A2B2CheckBox.setEnabled(True)
+            self.ui.A3B3CheckBox.setEnabled(True)
+            self.ui.A4B4CheckBox.setEnabled(True)
+            self.ui.A5B5CheckBox.setEnabled(True)
+            self.ui.A6B6CheckBox.setEnabled(True)
+            self.ui.C1D1CheckBox.setEnabled(True)
+            self.ui.C2D2CheckBox.setEnabled(True)
+            self.ui.C3D3CheckBox.setEnabled(True)
+            self.ui.C4D4CheckBox.setEnabled(True)
+            self.ui.C5D5CheckBox.setEnabled(True)
+            self.ui.C6D6CheckBox.setEnabled(True)
 
     def dispense(self):
         """dispenses to the columns (all or individually selected)"""
@@ -495,7 +507,7 @@ class MainWindow(QMainWindow):
         # if the "all" check box is selected, dispense to all columns
         if(self.ui.allCheckBox.checkState()):
             print("all columns")
-            columns = [True]*8   # [True, True, True, ...]
+            columns = [True]*12   # [True, True, True, ...]
         # else just the selected columns
         else:
             columns = self.getColumnCheckBoxes()    # [True, False, True, ...]
@@ -554,14 +566,18 @@ class MainWindow(QMainWindow):
         dispense/prime methods
         """
         # boolean array, true = box selected
-        result = [self.ui.column1CheckBox.isChecked(),
-                  self.ui.column2CheckBox.isChecked(),
-                  self.ui.column3CheckBox.isChecked(),
-                  self.ui.column4CheckBox.isChecked(),
-                  self.ui.column5CheckBox.isChecked(),
-                  self.ui.column6CheckBox.isChecked(),
-                  self.ui.column7CheckBox.isChecked(),
-                  self.ui.column8CheckBox.isChecked()]
+        result = [self.ui.A1B1CheckBox.isChecked(),
+                  self.ui.A2B2CheckBox.isChecked(),
+                  self.ui.A3B3CheckBox.isChecked(),
+                  self.ui.A4B4CheckBox.isChecked(),
+                  self.ui.A5B5CheckBox.isChecked(),
+                  self.ui.A6B6CheckBox.isChecked(),
+                  self.ui.C1D1CheckBox.isChecked(),
+                  self.ui.C2D2CheckBox.isChecked(),
+                  self.ui.C3D3CheckBox.isChecked(),
+                  self.ui.C4D4CheckBox.isChecked(),
+                  self.ui.C5D5CheckBox.isChecked(),
+                  self.ui.C6D6CheckBox.isChecked()]
         return result
 
     def stopPump(self):
