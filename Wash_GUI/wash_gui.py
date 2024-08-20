@@ -7,7 +7,7 @@ import atexit
 from PyQt5 import QtTest, QtSerialPort
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QDialog, QMessageBox,
                              QPushButton, qApp)
-from PyQt5.QtCore import QFile, QTimer, QIODevice, pyqtSignal
+from PyQt5.QtCore import QFile, QTimer, QIODevice, pyqtSignal, Qt
 from mainwindow import Ui_MainWindow
 
 # PLUNGER_POSITION = 0
@@ -81,6 +81,19 @@ class MainWindow(QMainWindow):
 
         # default syringe size
         self.ui.syringeComboBox.setCurrentText("5 mL")
+
+        # QLabel formatting
+        col_labels = [
+            self.ui.col1_label,
+            self.ui.col2_label,
+            self.ui.col3_label,
+            self.ui.col4_label,
+            self.ui.col5_label,
+            self.ui.col6_label
+            ]
+        for col_label in col_labels:
+            col_label.setAlignment(Qt.AlignHCenter)
+            # col_label.setAlignment(Qt.AlignBottom)
 
         # column check boxes - if "all" is selected, then individual selection
         # is greyed out
