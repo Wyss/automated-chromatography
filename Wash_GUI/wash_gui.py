@@ -6,7 +6,7 @@ import argparse
 import atexit
 from PyQt5 import QtTest, QtSerialPort
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QDialog, QMessageBox,
-                             QPushButton, qApp)
+                             QPushButton, qApp, QFrame)
 from PyQt5.QtCore import QFile, QTimer, QIODevice, pyqtSignal, Qt
 from mainwindow import Ui_MainWindow
 
@@ -93,23 +93,43 @@ class MainWindow(QMainWindow):
             ]
         for col_label in col_labels:
             col_label.setAlignment(Qt.AlignHCenter)
-            # col_label.setAlignment(Qt.AlignBottom)
+
+        vFrames = [
+            self.ui.A1B1vFrame,
+            self.ui.A2B2vFrame,
+            self.ui.A3B3vFrame,
+            self.ui.A4B4vFrame,
+            self.ui.A5B5vFrame,
+            self.ui.A6B6vFrame,
+            self.ui.C1D1vFrame,
+            self.ui.C2D2vFrame,
+            self.ui.C3D3vFrame,
+            self.ui.C4D4vFrame,
+            self.ui.C5D5vFrame,
+            self.ui.C6D6vFrame,
+            ]
+        for vFrame in vFrames:
+            vFrame.setFrameShape(QFrame.Box)
 
         # column check boxes - if "all" is selected, then individual selection
         # is greyed out
         self.ui.allCheckBox.setChecked(True)
-        self.ui.A1B1CheckBox.setEnabled(False)
-        self.ui.A2B2CheckBox.setEnabled(False)
-        self.ui.A3B3CheckBox.setEnabled(False)
-        self.ui.A4B4CheckBox.setEnabled(False)
-        self.ui.A5B5CheckBox.setEnabled(False)
-        self.ui.A6B6CheckBox.setEnabled(False)
-        self.ui.C1D1CheckBox.setEnabled(False)
-        self.ui.C2D2CheckBox.setEnabled(False)
-        self.ui.C3D3CheckBox.setEnabled(False)
-        self.ui.C4D4CheckBox.setEnabled(False)
-        self.ui.C5D5CheckBox.setEnabled(False)
-        self.ui.C6D6CheckBox.setEnabled(False)
+        checkboxes = [
+            self.ui.A1B1CheckBox,
+            self.ui.A2B2CheckBox,
+            self.ui.A3B3CheckBox,
+            self.ui.A4B4CheckBox,
+            self.ui.A5B5CheckBox,
+            self.ui.A6B6CheckBox,
+            self.ui.C1D1CheckBox,
+            self.ui.C2D2CheckBox,
+            self.ui.C3D3CheckBox,
+            self.ui.C4D4CheckBox,
+            self.ui.C5D5CheckBox,
+            self.ui.C6D6CheckBox,
+        ]
+        for box in checkboxes:
+            box.setEnabled(False)
 
         # set dispense volume precision (set in mainwindow.*)
         # self.ui.dispenseSpinBox.setSingleStep(0.1)
