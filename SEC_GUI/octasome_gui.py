@@ -4,10 +4,11 @@ import time
 import signal
 import argparse
 import atexit
+import threading
 from PyQt5 import QtTest, QtSerialPort
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QDialog, QMessageBox,
                              QPushButton, qApp)
-from PyQt5.QtCore import QFile, QTimer, QIODevice, pyqtSignal
+from PyQt5.QtCore import QFile, QTimer, QIODevice, pyqtSignal, QThread
 from mainwindow import Ui_MainWindow
 
 # PLUNGER_POSITION = 0
@@ -24,7 +25,7 @@ class MainWindow(QMainWindow):
     def __init__(self, debug=False, busy_debug=False, file_name=None):
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
-        self.timer  = QTimer(self)
+        self.timer = QTimer(self)
         self.ui.setupUi(self)
         self.show()
         self.CmdStr = CommandStringBuilder()
@@ -57,7 +58,7 @@ class MainWindow(QMainWindow):
         # Remove all fluid from lines back to reservoir:
         self.ui.emptyLinesButton.clicked.connect(self.emptyPumpLines)
         # dispense specified volumes to specified columns:
-        self.ui.dispenseVolumeButton.clicked.connect(self.dispense)
+        self.ui.dispenseVolumeButton.clicked.connect(self.dispenseThread)
         # toggle column checkbox states:
         self.ui.allCheckBox.stateChanged.connect(self.enableColumnSelect)
         # send halt command to pump:
@@ -131,6 +132,7 @@ class MainWindow(QMainWindow):
             self.serial.setBaudRate(QtSerialPort.QSerialPort.Baud9600)
         if baud == 38400:
             self.serial.setBaudRate(QtSerialPort.QSerialPort.Baud38400)
+        print("baud = {}".format(baud))
 
     def serialConnect(self):
         """attempts to connect to serial com port with assumed settings"""
@@ -243,7 +245,8 @@ class MainWindow(QMainWindow):
         self.ui.comPortComboBox.clear()
         # adds available ports to combobox list
         for info in QtSerialPort.QSerialPortInfo.availablePorts():
-            if "USB" in info.portName():
+            print(info.portName())
+            if "USB" or "COM" in info.portName():
                 self.ui.comPortComboBox.addItem(info.portName())
         if self.ui.comPortComboBox.count() == 0:
             self.ui.comPortComboBox.addItem("<no COM found>")
@@ -484,6 +487,10 @@ class MainWindow(QMainWindow):
             self.ui.column7CheckBox.setEnabled(True)
             self.ui.column8CheckBox.setEnabled(True)
 
+    def dispenseThread(self):
+        thread = threading.Thread(target=self.dispense)
+        thread.start()
+
     def dispense(self):
         """dispenses to the columns (all or individually selected)"""
         # TODO: make sure this deals with all reasonable cases.. may want to query pump status before commands are written
@@ -525,9 +532,9 @@ class MainWindow(QMainWindow):
                       ).expandtabs(4))
 
         steps_remaining = total_steps
-        cmd_str = "/1"
         # do the dispense in a loop
         while steps_remaining > 0:
+            #cmd_str = "/1"
             # if more than 1 stroke req'd, full stroke & reduce steps_remaining
             if steps_remaining > 6000:
                 steps = 6000
@@ -539,15 +546,28 @@ class MainWindow(QMainWindow):
                 sub_steps_per_col = int(steps_remaining/num_cols)
                 steps_remaining = 0
             # draw from reservoir and prepare dispense speed
-            cmd_str += "V" + str(drawspeed) + "I1A" + str(steps) + "V" + str(dispensespeed)
+            cmd_str = "/1V" + str(drawspeed) + "I1A" + str(steps) + "V" + str(dispensespeed)
             # dispense to each selected column
             for idx, col in enumerate(columns):
                 if col:
                     port = idx + 2  # port starts at 2
                     cmd_str += "I" + str(port) + "D" + str(sub_steps_per_col)
                     self.dbprint(cmd_str)
-        cmd_str += "I1A0"
-        self.write(cmd_str)
+            cmd_str += "I1A0"
+            while self.checkBusy(attempts=20, timeout=1, popup=False):
+                # time.sleep(3)
+                self._nonBlockingTime(3)
+                #self._waitReady(delay=3000)
+                print("in while loop")
+            # time.sleep(.5)
+            self._nonBlockingTime(.5)
+            #self._waitReady(delay=500)
+            self.write(cmd_str)
+            sleeplength = steps/drawspeed + steps/dispensespeed + 1.5
+            # print(sleeplength)
+            # time.sleep(sleeplength)
+            self._nonBlockingTime(sleeplength)
+            #self._waitReady(delay=sleeplength*1000)
 
     def getColumnCheckBoxes(self):
         """method to check which column boxes are selected; for use by the
@@ -584,7 +604,7 @@ class MainWindow(QMainWindow):
         steps = volume_ml * (6000/syringe_vol)
         return int(steps)
 
-    def checkBusy(self, attempts=3, timeout=.1, busy_debug=None):
+    def checkBusy(self, attempts=3, timeout=.1, busy_debug=None, popup=True):
         """Test if pump is busy. Retries `attempts` times, waiting `timeout`
         seconds between attempts. If it is busy after that, display a warning
         popup and stop attempting.
@@ -607,30 +627,33 @@ class MainWindow(QMainWindow):
             if busy != bin(0):
                 return False
             else:
-                time.sleep(timeout)
+                self._nonBlockingTime(timeout)
+                #self._waitReady(delay=timeout*1000)
+                # time.sleep(timeout)
         # if it reaches here, it IS busy, display popup
         print("Pump is busy!!!!!")
-        dlg = QMessageBox(self)
-        dlg.setWindowTitle("Warning")
-        dlg.setText("Pump is busy")
-        dlg.setIcon(QMessageBox.Information)
-        button = dlg.exec()
-        if button == QMessageBox.Ok:
-            print("OK!")
-            return True
+        if popup is True:
+            dlg = QMessageBox(self)
+            dlg.setWindowTitle("Warning")
+            dlg.setText("Pump is busy")
+            dlg.setIcon(QMessageBox.Information)
+            button = dlg.exec()
+            if button == QMessageBox.Ok:
+                print("OK!")
+        return True
 
     def _waitReady(self, polling_interval=1, timeout=10, delay=None):
         print("waiting..\n")
         if delay:
             self.timer.setSingleShot(True)
             self.timer.timeout.connect(self.queryPump)
-            self.timer.start(delay*1000)
+            self.timer.start(int(delay*1000))
         else:
             self.queryPump()
 
         start = time.time()
         while (start-time.time()) < (timeout):
-            print(pumpstatus)
+            # print(pumpstatus)
             ready = self.queryPump()
             if not ready:
                 self.timer.setSingleShot(True)
@@ -638,6 +661,10 @@ class MainWindow(QMainWindow):
                 self.timer.start(1000)
             else:
                 return
+
+    def _nonBlockingTime(self, seconds):
+        for x in range(int(seconds*10)):
+            time.sleep(.1)
 
     # def openFile(self, filename):
     #     """Open the file `filename` (and create if needed) for saving serial
@@ -706,6 +733,7 @@ class CommandStringBuilder(object):
     def execute(self):
         """Executes the command string"""
         return "R"
+
 
 def _sigint_handler(*args):
     """Handle ctrl+c sigint cleanly"""
