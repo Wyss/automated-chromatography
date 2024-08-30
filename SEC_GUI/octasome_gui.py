@@ -8,7 +8,7 @@ import threading
 from PyQt5 import QtTest, QtSerialPort
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QDialog, QMessageBox,
                              QPushButton, qApp)
-from PyQt5.QtCore import QFile, QTimer, QIODevice, pyqtSignal, QThread
+from PyQt5.QtCore import QFile, QTimer, QIODevice, pyqtSignal
 from mainwindow import Ui_MainWindow
 
 # PLUNGER_POSITION = 0
@@ -16,7 +16,6 @@ from mainwindow import Ui_MainWindow
 # MINSPEED = 0
 # OPERATING_SPEED = 400
 # DISPENSE_VOLUME = 2
-# PUMPSTATUS = 0b0
 
 # class definition of main window
 class MainWindow(QMainWindow):
@@ -534,7 +533,7 @@ class MainWindow(QMainWindow):
         steps_remaining = total_steps
         # do the dispense in a loop
         while steps_remaining > 0:
-            #cmd_str = "/1"
+            # cmd_str = "/1"
             # if more than 1 stroke req'd, full stroke & reduce steps_remaining
             if steps_remaining > 6000:
                 steps = 6000
@@ -555,19 +554,18 @@ class MainWindow(QMainWindow):
                     self.dbprint(cmd_str)
             cmd_str += "I1A0"
             while self.checkBusy(attempts=20, timeout=1, popup=False):
-                # time.sleep(3)
                 self._nonBlockingTime(3)
-                #self._waitReady(delay=3000)
+                # self._waitReady(delay=3000)
                 print("in while loop")
-            # time.sleep(.5)
             self._nonBlockingTime(.5)
-            #self._waitReady(delay=500)
+            # self._waitReady(delay=500)
             self.write(cmd_str)
             sleeplength = steps/drawspeed + steps/dispensespeed + 1.5
-            # print(sleeplength)
-            # time.sleep(sleeplength)
+            print(sleeplength)
             self._nonBlockingTime(sleeplength)
-            #self._waitReady(delay=sleeplength*1000)
+            # self._waitReady(delay=sleeplength*1000)
+        print("Dispense done")
+        return
 
     def getColumnCheckBoxes(self):
         """method to check which column boxes are selected; for use by the
@@ -616,21 +614,24 @@ class MainWindow(QMainWindow):
             return False
         # Try (attempts) times and wait (timeout) sec between
         for attempt in range(attempts):
-            print("Busy. Retry {}".format(attempt+1))
+            print("Busy check {}".format(attempt))
             # check for debugging busy flag or try for real
             if busy_debug:
+                print("busy_debug = {}".format(busy_debug))
                 self.dbprint("busy")
                 busy = bin(0)
             else:
                 busy = self.queryPump()
+                print("busy = {}".format(busy))
             # return if not busy or sleep if busy
             if busy != bin(0):
+                print("busy return False")
                 return False
             else:
+                print("busy entering _nonBlockingTime({})".format(timeout))
                 self._nonBlockingTime(timeout)
-                #self._waitReady(delay=timeout*1000)
-                # time.sleep(timeout)
-        # if it reaches here, it IS busy, display popup
+                # self._waitReady(delay=timeout*1000)
+        # if it reaches here, it IS busy, display popup if popup is True
         print("Pump is busy!!!!!")
         if popup is True:
             dlg = QMessageBox(self)
@@ -653,7 +654,6 @@ class MainWindow(QMainWindow):
 
         start = time.time()
         while (start-time.time()) < (timeout):
-            # print(pumpstatus)
             ready = self.queryPump()
             if not ready:
                 self.timer.setSingleShot(True)
@@ -663,8 +663,10 @@ class MainWindow(QMainWindow):
                 return
 
     def _nonBlockingTime(self, seconds):
+        print("waiting...\n")
         for x in range(int(seconds*10)):
             time.sleep(.1)
+        print("done waiting")
 
     # def openFile(self, filename):
     #     """Open the file `filename` (and create if needed) for saving serial
