@@ -32,6 +32,8 @@ class MainWindow(QMainWindow):
             self.file = open(self.file_name, "w")
             print("File opened: {}".format(self.file.name))
             # self.openFile(self.write)
+        self.thread_id = 0
+        self.baud = None
         # self.max_steps = 6000
 
         # connect GUI signals to methods
@@ -44,21 +46,23 @@ class MainWindow(QMainWindow):
         # initialize pump and valve select motors:
         self.ui.initializeButton.clicked.connect(self.initializePump)
         # fill the syringe barrel with fluid:
-        self.ui.fillButton.clicked.connect(self.fillPump)
+        self.ui.fillButton.clicked.connect(self.fillPumpThread)
         # empty the syringe barrel into storage reservoir:
-        self.ui.emptyButton.clicked.connect(self.emptyPump)
+        self.ui.emptyButton.clicked.connect(self.emptyPumpThread)
         # auto-prime fluid lines:
-        self.ui.primeButton.clicked.connect(self.primeLines)
+        self.ui.primeButton.clicked.connect(self.primeLinesThread)
         # Remove all fluid from lines back to reservoir:
-        self.ui.emptyLinesButton.clicked.connect(self.emptyPumpLines)
+        self.ui.emptyLinesButton.clicked.connect(self.emptyPumpLinesThread)
         # dispense specified volumes to specified columns:
         self.ui.dispenseVolumeButton.clicked.connect(self.dispenseThread)
         # toggle column checkbox states:
         self.ui.allCheckBox.stateChanged.connect(self.enableColumnSelect)
         # send halt command to pump:
-        self.ui.stopButton.clicked.connect(self.stopPump)
+        self.ui.stopButton.clicked.connect(self.stopPumpThread)
         # quit application
         self.ui.actionQuit.triggered.connect(qApp.quit)
+        # query pump
+        self.ui.actionQueryPump.triggered.connect(self.queryPump)
 
         # Set tooltips
         self.setConnectTooltip()
@@ -82,14 +86,6 @@ class MainWindow(QMainWindow):
         self.ui.allCheckBox.setChecked(True)
         for box in self.dispense_checkboxes:
             box.setEnabled(False)
-        # self.ui.column1CheckBox.setEnabled(False)
-        # self.ui.column2CheckBox.setEnabled(False)
-        # self.ui.column3CheckBox.setEnabled(False)
-        # self.ui.column4CheckBox.setEnabled(False)
-        # self.ui.column5CheckBox.setEnabled(False)
-        # self.ui.column6CheckBox.setEnabled(False)
-        # self.ui.column7CheckBox.setEnabled(False)
-        # self.ui.column8CheckBox.setEnabled(False)
 
         # set dispense volume precision (set in mainwindow.*)
         # self.ui.dispenseSpinBox.setSingleStep(0.1)
@@ -166,6 +162,7 @@ class MainWindow(QMainWindow):
                 self.serial.open(QIODevice.ReadWrite)
                 print("Connection Successful")
                 print("Baud: {}".format(baud))
+                self.baud = baud
                 self.serialInfo = QtSerialPort.QSerialPortInfo(portname)
                 print(self.serialInfo.description())
                 print(self.serialInfo.manufacturer())
@@ -357,12 +354,19 @@ class MainWindow(QMainWindow):
     def queryPump(self):
         """sends query command.. 0 = pump busy executing another command"""
         response = self.write("/1Q")
+        print("{}: queryPump response: {}".format(threading.current_thread().name, response))
         try:
             status_bit = bin(response[3] >> 5 &0b1)
         except:
             status_bit = 0b0
         pumpstatus = status_bit
         return status_bit
+
+    def fillPumpThread(self):
+        thread = threading.Thread(target=self.fillPump)
+        thread.name = "thread-{:03d}".format(self.thread_id)
+        self.thread_id += 1
+        thread.start()
 
     def fillPump(self):
         """fills pump by changing to first valve, moving to position 6000
@@ -371,10 +375,17 @@ class MainWindow(QMainWindow):
         # check if pump is busy
         if self.checkBusy():
             return
+        print("{}: fillPump()".format(threading.current_thread().name))
         # build command string
         speed = int(self.ui.drawSpeedSpinBox.value())  # get speed from GUI
         command_string = "/1I1V" + str(speed) + "A6000"
         self.write(command_string)
+
+    def emptyPumpThread(self):
+        thread = threading.Thread(target=self.emptyPump)
+        thread.name = "thread-{:03d}".format(self.thread_id)
+        self.thread_id += 1
+        thread.start()
 
     def emptyPump(self):
         """empties pump by changing to first valve, moving to position 0
@@ -383,16 +394,24 @@ class MainWindow(QMainWindow):
         # check if pump is busy
         if self.checkBusy():
             return
+        print("{}: emptyPump".format(threading.current_thread().name))
         # build command string
         speed = int(self.ui.dispenseSpeedSpinBox.value())    # get speed from GUI
         command_string = "/1I1V" + str(speed) + "A0"
         self.write(command_string)
+
+    def primeLinesThread(self):
+        thread = threading.Thread(target=self.primeLines)
+        thread.name = "thread-{:03d}".format(self.thread_id)
+        self.thread_id += 1
+        thread.start()
 
     def primeLines(self):
         """primes lines by dispensing a fixed volume through each channel"""
         # check if pump is busy
         if self.checkBusy():
             return
+        print("{}: primeLines".format(threading.current_thread().name))
         drawspeed = int(self.ui.drawSpeedSpinBox.value())    # get speed from GUI
         dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    # get speed from GUI
         command_string = "/1I1V" + str(drawspeed) + "A1200" + "I2V" + str(dispensespeed) + "A0I1V" + str(drawspeed) + "A6000"
@@ -403,12 +422,19 @@ class MainWindow(QMainWindow):
         command_string += "I1V" + str(drawspeed)# + "A6000"
         self.write(command_string)
 
+    def emptyLinesThread(self):
+        thread = threading.Thread(target=self.emptyLines)
+        thread.name = "thread-{:03d}".format(self.thread_id)
+        self.thread_id += 1
+        thread.start()
+
     def emptyLines(self):
         """empties lines"""
         # empty pump
         # self.emptyPump()
         # do not build and send command until pump is no longer busy
         # self._waitReady(1,10,1)
+        print("{}: emptyLines".format(threading.current_thread().name))
         # build command to draw from each line
         speed = int(self.ui.drawSpeedSpinBox.value())    # get speed from GUI
         command_string = "/1I1V" + str(speed)
@@ -419,6 +445,12 @@ class MainWindow(QMainWindow):
         # empty pump
         # self.emptyPump()
         self.write(command_string)
+
+    def emptyPumpLinesThread(self):
+        thread = threading.Thread(target=self.emptyPumpLines)
+        thread.name = "thread-{:03d}".format(self.thread_id)
+        self.thread_id += 1
+        thread.start()
 
     def emptyPumpLines(self):
         """empties pumps and lines"""
@@ -445,6 +477,7 @@ class MainWindow(QMainWindow):
         # check if pump is busy
         if self.checkBusy():
             return
+        print("{}: cleanLines".format(threading.current_thread().name))
         drawspeed = int(self.ui.drawSpeedSpinBox.value())    # get speed from GUI
         dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    # get speed from GUI
         command_string = "/1I1V" + str(drawspeed) + "A6000"
@@ -455,54 +488,36 @@ class MainWindow(QMainWindow):
         command_string += "I1V" + str(drawspeed)# + "A6000"
         self.write(command_string)
 
-    def flushLines(self):
-        """flushes lines a couple of times..."""
-        # check if pump is busy
-        if self.checkBusy():
-            return
-        self.cleanLines()
 
     def enableColumnSelect(self):
         """toggles column checkbox enable states based off of "all" checkbox"""
         if self.ui.allCheckBox.checkState():
             for box in self.dispense_checkboxes:
                 box.setEnabled(False)
-            # self.ui.column1CheckBox.setEnabled(False)
-            # self.ui.column2CheckBox.setEnabled(False)
-            # self.ui.column3CheckBox.setEnabled(False)
-            # self.ui.column4CheckBox.setEnabled(False)
-            # self.ui.column5CheckBox.setEnabled(False)
-            # self.ui.column6CheckBox.setEnabled(False)
-            # self.ui.column7CheckBox.setEnabled(False)
-            # self.ui.column8CheckBox.setEnabled(False)
         else:
             for box in self.dispense_checkboxes:
                 box.setEnabled(True)
-            # self.ui.column1CheckBox.setEnabled(True)
-            # self.ui.column2CheckBox.setEnabled(True)
-            # self.ui.column3CheckBox.setEnabled(True)
-            # self.ui.column4CheckBox.setEnabled(True)
-            # self.ui.column5CheckBox.setEnabled(True)
-            # self.ui.column6CheckBox.setEnabled(True)
-            # self.ui.column7CheckBox.setEnabled(True)
-            # self.ui.column8CheckBox.setEnabled(True)
 
     def dispenseThread(self):
         thread = threading.Thread(target=self.dispense)
+        thread.name = "thread-{:03d}".format(self.thread_id)
+        self.thread_id += 1
         thread.start()
 
     def dispense(self):
         """dispenses to the columns (all or individually selected)"""
         # TODO: make sure this deals with all reasonable cases.. may want to query pump status before commands are written
         # check if pump is busy
+        thread_name = threading.current_thread().name
+        print("{}: dispense() called NOW!!!!".format(thread_name))
         if self.checkBusy():
-            print("immediate return checkBusy")
+            print("{}: immediate return checkBusy".format(thread_name))
             return
         drawspeed = int(self.ui.drawSpeedSpinBox.value())    # get speed from GUI
         dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    # get speed from GUI
         # if the "all" check box is selected, dispense to all columns
         if self.ui.allCheckBox.checkState():
-            print("all columns")
+            print("{}: all columns".format(thread_name))
             columns = [True]*8   # [True, True, True, ...]
         # else just the selected columns
         else:
@@ -558,7 +573,7 @@ class MainWindow(QMainWindow):
             while self.checkBusy(attempts=20, timeout=1, popup=False):
                 self._nonBlockingTime(3)
                 # self._waitReady(delay=3000)
-                print("in while loop")
+                print("{}: in while loop".format(thread_name))
             self._nonBlockingTime(.5)
             # self._waitReady(delay=500)
             self.write(cmd_str)
@@ -566,7 +581,7 @@ class MainWindow(QMainWindow):
             print(sleeplength)
             self._nonBlockingTime(sleeplength)
             # self._waitReady(delay=sleeplength*1000)
-        print("Dispense done")
+        print("{}: Dispense done".format(thread_name))
         return
 
     def getColumnCheckBoxesSelected(self):
@@ -577,19 +592,17 @@ class MainWindow(QMainWindow):
         result = []
         for checkbox in self.dispense_checkboxes:
             result.append(checkbox.isChecked())
-        # result = [self.ui.column1CheckBox.isChecked(),
-        #           self.ui.column2CheckBox.isChecked(),
-        #           self.ui.column3CheckBox.isChecked(),
-        #           self.ui.column4CheckBox.isChecked(),
-        #           self.ui.column5CheckBox.isChecked(),
-        #           self.ui.column6CheckBox.isChecked(),
-        #           self.ui.column7CheckBox.isChecked(),
-        #           self.ui.column8CheckBox.isChecked()]
         return result
+
+    def stopPumpThread(self):
+        thread = threading.Thread(target=self.stopPump)
+        thread.name = "thread-{:03d}".format(self.thread_id)
+        self.thread_id += 1
+        thread.start()
 
     def stopPump(self):
         """interrupts the pump and stops operation"""
-        print("STOP PUMP!!!!")
+        print("{}: STOP PUMP!!!!".format(threading.current_thread().name))
         cmd = "/1TR\r\n"
         if self.debug:
             self.dbprint("stopped")
@@ -597,6 +610,8 @@ class MainWindow(QMainWindow):
             if self.file_name:
                 self.file.write("> {}".format(cmd))
         else:
+            print("serial.write({})".format(cmd.encode()))
+            print("baud: {}".format(self.baud))
             self.serial.write(cmd.encode())
 
     def volumeToSteps(self, volume_ml):
@@ -627,6 +642,7 @@ class MainWindow(QMainWindow):
         seconds between attempts. If it is busy after that, display a warning
         popup and stop attempting.
         """
+        thread_name = threading.current_thread().name
         if busy_debug is None:
             busy_debug = self.busy_debug
         if self.debug and not busy_debug:
@@ -634,25 +650,25 @@ class MainWindow(QMainWindow):
             return False
         # Try (attempts) times and wait (timeout) sec between
         for attempt in range(attempts):
-            print("Busy check {}".format(attempt))
+            print("{}: Busy check {}".format(thread_name, attempt))
             # check for debugging busy flag or try for real
             if busy_debug:
-                print("busy_debug = {}".format(busy_debug))
+                print("{}: busy_debug = {}".format(thread_name, busy_debug))
                 self.dbprint("busy")
                 busy = bin(0)
             else:
                 busy = self.queryPump()
-                print("busy = {}".format(busy))
+                print("{}: queryPump = busy = {}".format(thread_name, busy))
             # return if not busy or sleep if busy
             if busy != bin(0):
-                print("busy return False")
+                print("{}: busy return False".format(thread_name))
                 return False
             else:
-                print("busy entering _nonBlockingTime({})".format(timeout))
+                print("{}: busy entering _nonBlockingTime({})".format(thread_name, timeout))
                 self._nonBlockingTime(timeout)
                 # self._waitReady(delay=timeout*1000)
         # if it reaches here, it IS busy, display popup if popup is True
-        print("Pump is busy!!!!!")
+        print("{}: Pump is busy!!!!!".format(thread_name))
         if popup is True:
             dlg = QMessageBox(self)
             dlg.setWindowTitle("Warning")
@@ -660,7 +676,7 @@ class MainWindow(QMainWindow):
             dlg.setIcon(QMessageBox.Information)
             button = dlg.exec()
             if button == QMessageBox.Ok:
-                print("OK!")
+                print("{}: OK!".format(thread_name))
         return True
 
     def _waitReady(self, polling_interval=1, timeout=10, delay=None):
@@ -683,10 +699,11 @@ class MainWindow(QMainWindow):
                 return
 
     def _nonBlockingTime(self, seconds):
-        print("waiting...\n")
+        thread_name = threading.current_thread().name
+        print("{}: waiting...\n".format(thread_name))
         for x in range(int(seconds*10)):
             time.sleep(.1)
-        print("done waiting")
+        print("{}: done waiting".format(thread_name))
 
     # def openFile(self, filename):
     #     """Open the file `filename` (and create if needed) for saving serial
