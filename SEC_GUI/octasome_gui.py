@@ -11,11 +11,6 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QDialog, QMessageBox,
 from PyQt5.QtCore import QFile, QTimer, QIODevice, pyqtSignal
 from mainwindow import Ui_MainWindow
 
-# PLUNGER_POSITION = 0
-# MAXSPEED = 6000
-# MINSPEED = 0
-# OPERATING_SPEED = 400
-# DISPENSE_VOLUME = 2
 
 # class definition of main window
 class MainWindow(QMainWindow):
@@ -79,20 +74,22 @@ class MainWindow(QMainWindow):
         self.ui.adjustmentBox.setEnabled(False)
         self.ui.emergencyStopBox.setEnabled(False)
 
+        # set variables for collections of gui items
+        self.dispense_checkboxes = self._getDispenseCheckboxes()
+
         # column check boxes - if "all" is selected, then individual selection
         # is greyed out
         self.ui.allCheckBox.setChecked(True)
-        self.ui.column1CheckBox.setEnabled(False)
-        self.ui.column1CheckBox.setEnabled(False)
-        self.ui.column1CheckBox.setEnabled(False)
-        self.ui.column1CheckBox.setEnabled(False)
-        self.ui.column2CheckBox.setEnabled(False)
-        self.ui.column3CheckBox.setEnabled(False)
-        self.ui.column4CheckBox.setEnabled(False)
-        self.ui.column5CheckBox.setEnabled(False)
-        self.ui.column6CheckBox.setEnabled(False)
-        self.ui.column7CheckBox.setEnabled(False)
-        self.ui.column8CheckBox.setEnabled(False)
+        for box in self.dispense_checkboxes:
+            box.setEnabled(False)
+        # self.ui.column1CheckBox.setEnabled(False)
+        # self.ui.column2CheckBox.setEnabled(False)
+        # self.ui.column3CheckBox.setEnabled(False)
+        # self.ui.column4CheckBox.setEnabled(False)
+        # self.ui.column5CheckBox.setEnabled(False)
+        # self.ui.column6CheckBox.setEnabled(False)
+        # self.ui.column7CheckBox.setEnabled(False)
+        # self.ui.column8CheckBox.setEnabled(False)
 
         # set dispense volume precision (set in mainwindow.*)
         # self.ui.dispenseSpinBox.setSingleStep(0.1)
@@ -293,7 +290,7 @@ class MainWindow(QMainWindow):
         # retreive volume from combobox
         syringe_size_ml = self.getSyringeSize_ml()
         # check if milliliters or microliters?
-        if(syringe_size_ml < 1): # microliters
+        if syringe_size_ml < 1: # microliters
             units = "\u03bcL"
             self.ui.dispenseSpinBox.setMaximum(syringe_size_ml*1000)
             self.ui.dispenseSpinBox.setSingleStep(0.100)
@@ -467,24 +464,28 @@ class MainWindow(QMainWindow):
 
     def enableColumnSelect(self):
         """toggles column checkbox enable states based off of "all" checkbox"""
-        if(self.ui.allCheckBox.checkState()):
-            self.ui.column1CheckBox.setEnabled(False)
-            self.ui.column2CheckBox.setEnabled(False)
-            self.ui.column3CheckBox.setEnabled(False)
-            self.ui.column4CheckBox.setEnabled(False)
-            self.ui.column5CheckBox.setEnabled(False)
-            self.ui.column6CheckBox.setEnabled(False)
-            self.ui.column7CheckBox.setEnabled(False)
-            self.ui.column8CheckBox.setEnabled(False)
+        if self.ui.allCheckBox.checkState():
+            for box in self.dispense_checkboxes:
+                box.setEnabled(False)
+            # self.ui.column1CheckBox.setEnabled(False)
+            # self.ui.column2CheckBox.setEnabled(False)
+            # self.ui.column3CheckBox.setEnabled(False)
+            # self.ui.column4CheckBox.setEnabled(False)
+            # self.ui.column5CheckBox.setEnabled(False)
+            # self.ui.column6CheckBox.setEnabled(False)
+            # self.ui.column7CheckBox.setEnabled(False)
+            # self.ui.column8CheckBox.setEnabled(False)
         else:
-            self.ui.column1CheckBox.setEnabled(True)
-            self.ui.column2CheckBox.setEnabled(True)
-            self.ui.column3CheckBox.setEnabled(True)
-            self.ui.column4CheckBox.setEnabled(True)
-            self.ui.column5CheckBox.setEnabled(True)
-            self.ui.column6CheckBox.setEnabled(True)
-            self.ui.column7CheckBox.setEnabled(True)
-            self.ui.column8CheckBox.setEnabled(True)
+            for box in self.dispense_checkboxes:
+                box.setEnabled(True)
+            # self.ui.column1CheckBox.setEnabled(True)
+            # self.ui.column2CheckBox.setEnabled(True)
+            # self.ui.column3CheckBox.setEnabled(True)
+            # self.ui.column4CheckBox.setEnabled(True)
+            # self.ui.column5CheckBox.setEnabled(True)
+            # self.ui.column6CheckBox.setEnabled(True)
+            # self.ui.column7CheckBox.setEnabled(True)
+            # self.ui.column8CheckBox.setEnabled(True)
 
     def dispenseThread(self):
         thread = threading.Thread(target=self.dispense)
@@ -495,16 +496,17 @@ class MainWindow(QMainWindow):
         # TODO: make sure this deals with all reasonable cases.. may want to query pump status before commands are written
         # check if pump is busy
         if self.checkBusy():
+            print("immediate return checkBusy")
             return
         drawspeed = int(self.ui.drawSpeedSpinBox.value())    # get speed from GUI
         dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    # get speed from GUI
         # if the "all" check box is selected, dispense to all columns
-        if(self.ui.allCheckBox.checkState()):
+        if self.ui.allCheckBox.checkState():
             print("all columns")
             columns = [True]*8   # [True, True, True, ...]
         # else just the selected columns
         else:
-            columns = self.getColumnCheckBoxes()    # [True, False, True, ...]
+            columns = self.getColumnCheckBoxesSelected()    # [True, False, True, ...]
         num_cols = columns.count(True)
         # get the number of steps needed based on value of dispense volume
         syringe_size_ml = self.getSyringeSize_ml()
@@ -567,19 +569,22 @@ class MainWindow(QMainWindow):
         print("Dispense done")
         return
 
-    def getColumnCheckBoxes(self):
+    def getColumnCheckBoxesSelected(self):
         """method to check which column boxes are selected; for use by the
         dispense/prime methods
         """
         # boolean array, true = box selected
-        result = [self.ui.column1CheckBox.isChecked(),
-                  self.ui.column2CheckBox.isChecked(),
-                  self.ui.column3CheckBox.isChecked(),
-                  self.ui.column4CheckBox.isChecked(),
-                  self.ui.column5CheckBox.isChecked(),
-                  self.ui.column6CheckBox.isChecked(),
-                  self.ui.column7CheckBox.isChecked(),
-                  self.ui.column8CheckBox.isChecked()]
+        result = []
+        for checkbox in self.dispense_checkboxes:
+            result.append(checkbox.isChecked())
+        # result = [self.ui.column1CheckBox.isChecked(),
+        #           self.ui.column2CheckBox.isChecked(),
+        #           self.ui.column3CheckBox.isChecked(),
+        #           self.ui.column4CheckBox.isChecked(),
+        #           self.ui.column5CheckBox.isChecked(),
+        #           self.ui.column6CheckBox.isChecked(),
+        #           self.ui.column7CheckBox.isChecked(),
+        #           self.ui.column8CheckBox.isChecked()]
         return result
 
     def stopPump(self):
@@ -601,6 +606,21 @@ class MainWindow(QMainWindow):
         # steps = vol*(max_steps/max_vol)
         steps = volume_ml * (6000/syringe_vol)
         return int(steps)
+
+    def _getDispenseCheckboxes(self):
+        """Utility: Return list of channel checkboxes
+        """
+        check_boxes_list = [
+            self.ui.column1CheckBox,
+            self.ui.column2CheckBox,
+            self.ui.column3CheckBox,
+            self.ui.column4CheckBox,
+            self.ui.column5CheckBox,
+            self.ui.column6CheckBox,
+            self.ui.column7CheckBox,
+            self.ui.column8CheckBox
+        ]
+        return check_boxes_list
 
     def checkBusy(self, attempts=3, timeout=.1, busy_debug=None, popup=True):
         """Test if pump is busy. Retries `attempts` times, waiting `timeout`

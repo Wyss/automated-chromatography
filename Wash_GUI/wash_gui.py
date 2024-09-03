@@ -4,18 +4,13 @@ import time
 import signal
 import argparse
 import atexit
+import threading
 from PyQt5 import QtTest, QtSerialPort
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QDialog, QMessageBox,
                              QPushButton, qApp, QFrame)
 from PyQt5.QtCore import QFile, QTimer, QIODevice, pyqtSignal, Qt
 from mainwindow import Ui_MainWindow
 
-# PLUNGER_POSITION = 0
-# MAXSPEED = 6000
-# MINSPEED = 0
-# OPERATING_SPEED = 400
-# DISPENSE_VOLUME = 2
-# PUMPSTATUS = 0b0
 
 # class definition of main window
 class MainWindow(QMainWindow):
@@ -24,7 +19,7 @@ class MainWindow(QMainWindow):
     def __init__(self, debug=False, busy_debug=False, file_name=None):
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
-        self.timer  = QTimer(self)
+        self.timer = QTimer(self)
         self.ui.setupUi(self)
         self.show()
         self.CmdStr = CommandStringBuilder()
@@ -57,7 +52,7 @@ class MainWindow(QMainWindow):
         # Remove all fluid from lines back to reservoir:
         self.ui.emptyLinesButton.clicked.connect(self.emptyPumpLines)
         # dispense specified volumes to specified columns:
-        self.ui.dispenseVolumeButton.clicked.connect(self.dispense)
+        self.ui.dispenseVolumeButton.clicked.connect(self.dispenseThread)
         # toggle column checkbox states:
         self.ui.allCheckBox.stateChanged.connect(self.enableColumnSelect)
         # send halt command to pump:
@@ -82,7 +77,8 @@ class MainWindow(QMainWindow):
         # default syringe size
         self.ui.syringeComboBox.setCurrentText("5 mL")
 
-        # QLabel formatting
+        # set variables for collections of gui items
+        self.dispense_checkboxes = self._getDispenseCheckboxes()
         col_labels = [
             self.ui.col1_label,
             self.ui.col2_label,
@@ -91,10 +87,8 @@ class MainWindow(QMainWindow):
             self.ui.col5_label,
             self.ui.col6_label
             ]
-        for col_label in col_labels:
-            col_label.setAlignment(Qt.AlignHCenter)
 
-        vFrames = [
+        v_frames = [
             self.ui.A1B1vFrame,
             self.ui.A2B2vFrame,
             self.ui.A3B3vFrame,
@@ -108,28 +102,33 @@ class MainWindow(QMainWindow):
             self.ui.C5D5vFrame,
             self.ui.C6D6vFrame,
             ]
-        for vFrame in vFrames:
-            vFrame.setFrameShape(QFrame.Box)
+
+        # QLabel formatting
+        for v_frame in v_frames:
+            v_frame.setFrameShape(QFrame.Box)
+
+        for col_label in col_labels:
+            col_label.setAlignment(Qt.AlignHCenter)
 
         # column check boxes - if "all" is selected, then individual selection
         # is greyed out
         self.ui.allCheckBox.setChecked(True)
-        checkboxes = [
-            self.ui.A1B1CheckBox,
-            self.ui.A2B2CheckBox,
-            self.ui.A3B3CheckBox,
-            self.ui.A4B4CheckBox,
-            self.ui.A5B5CheckBox,
-            self.ui.A6B6CheckBox,
-            self.ui.C1D1CheckBox,
-            self.ui.C2D2CheckBox,
-            self.ui.C3D3CheckBox,
-            self.ui.C4D4CheckBox,
-            self.ui.C5D5CheckBox,
-            self.ui.C6D6CheckBox,
-        ]
-        for box in checkboxes:
+        for box in self.dispense_checkboxes:
             box.setEnabled(False)
+        # checkboxes = [
+        #     self.ui.A1B1CheckBox,
+        #     self.ui.A2B2CheckBox,
+        #     self.ui.A3B3CheckBox,
+        #     self.ui.A4B4CheckBox,
+        #     self.ui.A5B5CheckBox,
+        #     self.ui.A6B6CheckBox,
+        #     self.ui.C1D1CheckBox,
+        #     self.ui.C2D2CheckBox,
+        #     self.ui.C3D3CheckBox,
+        #     self.ui.C4D4CheckBox,
+        #     self.ui.C5D5CheckBox,
+        #     self.ui.C6D6CheckBox,
+        # ]
 
         # set dispense volume precision (set in mainwindow.*)
         # self.ui.dispenseSpinBox.setSingleStep(0.1)
@@ -168,6 +167,7 @@ class MainWindow(QMainWindow):
             self.serial.setBaudRate(QtSerialPort.QSerialPort.Baud9600)
         if baud == 38400:
             self.serial.setBaudRate(QtSerialPort.QSerialPort.Baud38400)
+        print("baud = {}".format(baud))
 
     def serialConnect(self):
         """attempts to connect to serial com port with assumed settings"""
@@ -280,7 +280,8 @@ class MainWindow(QMainWindow):
         self.ui.comPortComboBox.clear()
         # adds available ports to combobox list
         for info in QtSerialPort.QSerialPortInfo.availablePorts():
-            if "USB" in info.portName():
+            print(info.portName())
+            if "USB" or "COM" in info.portName():
                 self.ui.comPortComboBox.addItem(info.portName())
         if self.ui.comPortComboBox.count() == 0:
             self.ui.comPortComboBox.addItem("<no COM found>")
@@ -328,7 +329,7 @@ class MainWindow(QMainWindow):
         # retreive volume from combobox
         syringe_size_ml = self.getSyringeSize_ml()
         # check if milliliters or microliters?
-        if(syringe_size_ml < 1): # microliters
+        if syringe_size_ml < 1: # microliters
             units = "\u03bcL"
             self.ui.dispenseSpinBox.setMaximum(syringe_size_ml*1000)
             self.ui.dispenseSpinBox.setSingleStep(0.100)
@@ -502,48 +503,48 @@ class MainWindow(QMainWindow):
 
     def enableColumnSelect(self):
         """toggles column checkbox enable states based off of "all" checkbox"""
-        if(self.ui.allCheckBox.checkState()):
-            self.ui.A1B1CheckBox.setEnabled(False)
-            self.ui.A2B2CheckBox.setEnabled(False)
-            self.ui.A3B3CheckBox.setEnabled(False)
-            self.ui.A4B4CheckBox.setEnabled(False)
-            self.ui.A5B5CheckBox.setEnabled(False)
-            self.ui.A6B6CheckBox.setEnabled(False)
-            self.ui.C1D1CheckBox.setEnabled(False)
-            self.ui.C2D2CheckBox.setEnabled(False)
-            self.ui.C3D3CheckBox.setEnabled(False)
-            self.ui.C4D4CheckBox.setEnabled(False)
-            self.ui.C5D5CheckBox.setEnabled(False)
-            self.ui.C6D6CheckBox.setEnabled(False)
+        # check_boxes_list = [
+        #     self.ui.A1B1CheckBox,
+        #     self.ui.A2B2CheckBox,
+        #     self.ui.A3B3CheckBox,
+        #     self.ui.A4B4CheckBox,
+        #     self.ui.A5B5CheckBox,
+        #     self.ui.A6B6CheckBox,
+        #     self.ui.C1D1CheckBox,
+        #     self.ui.C2D2CheckBox,
+        #     self.ui.C3D3CheckBox,
+        #     self.ui.C4D4CheckBox,
+        #     self.ui.C5D5CheckBox,
+        #     self.ui.C6D6CheckBox
+        # ]
+        checkboxes = self.dispense_checkboxes
+        if self.ui.allCheckBox.checkState():
+            for checkbox in checkboxes:
+                checkbox.setEnabled(False)
         else:
-            self.ui.A1B1CheckBox.setEnabled(True)
-            self.ui.A2B2CheckBox.setEnabled(True)
-            self.ui.A3B3CheckBox.setEnabled(True)
-            self.ui.A4B4CheckBox.setEnabled(True)
-            self.ui.A5B5CheckBox.setEnabled(True)
-            self.ui.A6B6CheckBox.setEnabled(True)
-            self.ui.C1D1CheckBox.setEnabled(True)
-            self.ui.C2D2CheckBox.setEnabled(True)
-            self.ui.C3D3CheckBox.setEnabled(True)
-            self.ui.C4D4CheckBox.setEnabled(True)
-            self.ui.C5D5CheckBox.setEnabled(True)
-            self.ui.C6D6CheckBox.setEnabled(True)
+            for checkbox in checkboxes:
+                checkbox.setEnabled(True)
+
+    def dispenseThread(self):
+        thread = threading.Thread(target=self.dispense)
+        thread.start()
 
     def dispense(self):
         """dispenses to the columns (all or individually selected)"""
         # TODO: make sure this deals with all reasonable cases.. may want to query pump status before commands are written
         # check if pump is busy
         if self.checkBusy():
+            print("immediate return checkBusy")
             return
         drawspeed = int(self.ui.drawSpeedSpinBox.value())    # get speed from GUI
         dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    # get speed from GUI
         # if the "all" check box is selected, dispense to all columns
-        if(self.ui.allCheckBox.checkState()):
+        if self.ui.allCheckBox.checkState():
             print("all columns")
             columns = [True]*12   # [True, True, True, ...]
         # else just the selected columns
         else:
-            columns = self.getColumnCheckBoxes()    # [True, False, True, ...]
+            columns = self.getColumnCheckBoxesSelected()    # [True, False, True, ...]
         num_cols = columns.count(True)
         # get the number of steps needed based on value of dispense volume
         syringe_size_ml = self.getSyringeSize_ml()
@@ -570,9 +571,9 @@ class MainWindow(QMainWindow):
                       ).expandtabs(4))
 
         steps_remaining = total_steps
-        cmd_str = "/1"
         # do the dispense in a loop
         while steps_remaining > 0:
+            # cmd_str = "/1"
             # if more than 1 stroke req'd, full stroke & reduce steps_remaining
             if steps_remaining > 6000:
                 steps = 6000
@@ -584,33 +585,48 @@ class MainWindow(QMainWindow):
                 sub_steps_per_col = int(steps_remaining/num_cols)
                 steps_remaining = 0
             # draw from reservoir and prepare dispense speed
-            cmd_str += "V" + str(drawspeed) + "I1A" + str(steps) + "V" + str(dispensespeed)
+            cmd_str = "/1V" + str(drawspeed) + "I1A" + str(steps) + "V" + str(dispensespeed)
             # dispense to each selected column
             for idx, col in enumerate(columns):
                 if col:
                     port = idx + 2  # port starts at 2
                     cmd_str += "I" + str(port) + "D" + str(sub_steps_per_col)
                     self.dbprint(cmd_str)
-        cmd_str += "I1A0"
-        self.write(cmd_str)
+            cmd_str += "I1A0"
+            while self.checkBusy(attempts=20, timeout=1, popup=False):
+                self._nonBlockingTime(3)
+                # self._waitReady(delay=3000)
+                print("in while loop")
+            self._nonBlockingTime(.5)
+            # self._waitReady(delay=500)
+            self.write(cmd_str)
+            sleeplength = steps/drawspeed + steps/dispensespeed + 1.5
+            print(sleeplength)
+            self._nonBlockingTime(sleeplength)
+            # self._waitReady(delay=sleeplength*1000)
+        print("Dispense done")
+        return
 
-    def getColumnCheckBoxes(self):
+    def getColumnCheckBoxesSelected(self):
         """method to check which column boxes are selected; for use by the
         dispense/prime methods
         """
         # boolean array, true = box selected
-        result = [self.ui.A1B1CheckBox.isChecked(),
-                  self.ui.A2B2CheckBox.isChecked(),
-                  self.ui.A3B3CheckBox.isChecked(),
-                  self.ui.A4B4CheckBox.isChecked(),
-                  self.ui.A5B5CheckBox.isChecked(),
-                  self.ui.A6B6CheckBox.isChecked(),
-                  self.ui.C1D1CheckBox.isChecked(),
-                  self.ui.C2D2CheckBox.isChecked(),
-                  self.ui.C3D3CheckBox.isChecked(),
-                  self.ui.C4D4CheckBox.isChecked(),
-                  self.ui.C5D5CheckBox.isChecked(),
-                  self.ui.C6D6CheckBox.isChecked()]
+        result = []
+        for checkbox in self.dispense_checkboxes:
+            result.append(checkbox.isChecked())
+        # result = [self.ui.A1B1CheckBox.isChecked(),
+        #           self.ui.A2B2CheckBox.isChecked(),
+        #           self.ui.A3B3CheckBox.isChecked(),
+        #           self.ui.A4B4CheckBox.isChecked(),
+        #           self.ui.A5B5CheckBox.isChecked(),
+        #           self.ui.A6B6CheckBox.isChecked(),
+        #           self.ui.C1D1CheckBox.isChecked(),
+        #           self.ui.C2D2CheckBox.isChecked(),
+        #           self.ui.C3D3CheckBox.isChecked(),
+        #           self.ui.C4D4CheckBox.isChecked(),
+        #           self.ui.C5D5CheckBox.isChecked(),
+        #           self.ui.C6D6CheckBox.isChecked()]
         return result
 
     def stopPump(self):
@@ -633,7 +649,26 @@ class MainWindow(QMainWindow):
         steps = volume_ml * (6000/syringe_vol)
         return int(steps)
 
-    def checkBusy(self, attempts=3, timeout=.1, busy_debug=None):
+    def _getDispenseCheckboxes(self):
+        """Utility: Return list of channel checkboxes
+        """
+        check_boxes_list = [
+            self.ui.A1B1CheckBox,
+            self.ui.A2B2CheckBox,
+            self.ui.A3B3CheckBox,
+            self.ui.A4B4CheckBox,
+            self.ui.A5B5CheckBox,
+            self.ui.A6B6CheckBox,
+            self.ui.C1D1CheckBox,
+            self.ui.C2D2CheckBox,
+            self.ui.C3D3CheckBox,
+            self.ui.C4D4CheckBox,
+            self.ui.C5D5CheckBox,
+            self.ui.C6D6CheckBox
+        ]
+        return check_boxes_list
+
+    def checkBusy(self, attempts=3, timeout=.1, busy_debug=None, popup=True):
         """Test if pump is busy. Retries `attempts` times, waiting `timeout`
         seconds between attempts. If it is busy after that, display a warning
         popup and stop attempting.
@@ -645,35 +680,42 @@ class MainWindow(QMainWindow):
             return False
         # Try (attempts) times and wait (timeout) sec between
         for attempt in range(attempts):
-            print("Busy. Retry {}".format(attempt+1))
+            print("Busy check {}".format(attempt))
             # check for debugging busy flag or try for real
             if busy_debug:
+                print("busy_debug = {}".format(busy_debug))
                 self.dbprint("busy")
                 busy = bin(0)
             else:
                 busy = self.queryPump()
+                print("busy = {}".format(busy))
             # return if not busy or sleep if busy
             if busy != bin(0):
+                print("busy return False")
                 return False
             else:
-                time.sleep(timeout)
-        # if it reaches here, it IS busy, display popup
+                print("busy entering _nonBlockingTime({})".format(timeout))
+                self._nonBlockingTime(timeout)
+                # self._waitReady(delay=timeout*1000)
+        # if it reaches here, it IS busy, display popup if popup is True
+
         print("Pump is busy!!!!!")
-        dlg = QMessageBox(self)
-        dlg.setWindowTitle("Warning")
-        dlg.setText("Pump is busy")
-        dlg.setIcon(QMessageBox.Information)
-        button = dlg.exec()
-        if button == QMessageBox.Ok:
-            print("OK!")
-            return True
+        if popup is True:
+            dlg = QMessageBox(self)
+            dlg.setWindowTitle("Warning")
+            dlg.setText("Pump is busy")
+            dlg.setIcon(QMessageBox.Information)
+            button = dlg.exec()
+            if button == QMessageBox.Ok:
+                print("OK!")
+        return True
 
     def _waitReady(self, polling_interval=1, timeout=10, delay=None):
         print("waiting..\n")
         if delay:
             self.timer.setSingleShot(True)
             self.timer.timeout.connect(self.queryPump)
-            self.timer.start(delay*1000)
+            self.timer.start(int(delay*1000))
         else:
             self.queryPump()
 
@@ -687,6 +729,12 @@ class MainWindow(QMainWindow):
                 self.timer.start(1000)
             else:
                 return
+
+    def _nonBlockingTime(self, seconds):
+        print("waiting...\n")
+        for x in range(int(seconds*10)):
+            time.sleep(.1)
+        print("done waiting")
 
     # def openFile(self, filename):
     #     """Open the file `filename` (and create if needed) for saving serial
@@ -755,6 +803,7 @@ class CommandStringBuilder(object):
     def execute(self):
         """Executes the command string"""
         return "R"
+
 
 def _sigint_handler(*args):
     """Handle ctrl+c sigint cleanly"""
