@@ -622,8 +622,11 @@ class Ui_MainWindow(object):
         self.actionConsole.setObjectName("actionConsole")
         self.actionQueryPump = QtWidgets.QAction(MainWindow)
         self.actionQueryPump.setObjectName("actionQueryPump")
+        self.actionTerminate = QtWidgets.QAction(MainWindow)
+        self.actionTerminate.setObjectName("actionTerminate")
         self.menuFile.addAction(self.actionConsole)
         self.menuFile.addAction(self.actionQueryPump)
+        self.menuFile.addAction(self.actionTerminate)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionQuit)
         self.menubar.addAction(self.menuFile.menuAction())
@@ -718,6 +721,8 @@ class Ui_MainWindow(object):
         self.actionConsole.setStatusTip(_translate("MainWindow", "Open a console for manual serial commands. Connection must be open."))
         self.actionQueryPump.setText(_translate("MainWindow", "queryPump"))
         self.actionQueryPump.setShortcut(_translate("MainWindow", "Ctrl+U"))
+        self.actionTerminate.setText(_translate("MainWindow", "Terminate action"))
+        self.actionTerminate.setShortcut(_translate("MainWindow", "Ctrl+T"))
 
 
 if __name__ == "__main__":

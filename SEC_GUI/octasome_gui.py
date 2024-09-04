@@ -58,7 +58,9 @@ class MainWindow(QMainWindow):
         # toggle column checkbox states:
         self.ui.allCheckBox.stateChanged.connect(self.enableColumnSelect)
         # send halt command to pump:
-        self.ui.stopButton.clicked.connect(self.stopPumpThread)
+        self.ui.stopButton.clicked.connect(self.stopPump)
+        # send halt command to pump via menu:
+        self.ui.actionTerminate.triggered.connect(self.stopPump)
         # quit application
         self.ui.actionQuit.triggered.connect(qApp.quit)
         # query pump
@@ -357,9 +359,11 @@ class MainWindow(QMainWindow):
         print("{}: queryPump response: {}".format(threading.current_thread().name, response))
         try:
             status_bit = bin(response[3] >> 5 &0b1)
+            print("in 'try'")
         except:
             status_bit = 0b0
-        pumpstatus = status_bit
+            print("in 'except'")
+        print("{}: queryPump status_bit: {}".format(threading.current_thread().name, status_bit))
         return status_bit
 
     def fillPumpThread(self):
@@ -380,6 +384,7 @@ class MainWindow(QMainWindow):
         speed = int(self.ui.drawSpeedSpinBox.value())  # get speed from GUI
         command_string = "/1I1V" + str(speed) + "A6000"
         self.write(command_string)
+        return
 
     def emptyPumpThread(self):
         thread = threading.Thread(target=self.emptyPump)
@@ -399,6 +404,7 @@ class MainWindow(QMainWindow):
         speed = int(self.ui.dispenseSpeedSpinBox.value())    # get speed from GUI
         command_string = "/1I1V" + str(speed) + "A0"
         self.write(command_string)
+        return
 
     def primeLinesThread(self):
         thread = threading.Thread(target=self.primeLines)
@@ -421,6 +427,7 @@ class MainWindow(QMainWindow):
             command_string += "I" + str(column+2) + "D" + str(750)
         command_string += "I1V" + str(drawspeed)# + "A6000"
         self.write(command_string)
+        return
 
     def emptyLinesThread(self):
         thread = threading.Thread(target=self.emptyLines)
@@ -433,7 +440,7 @@ class MainWindow(QMainWindow):
         # empty pump
         # self.emptyPump()
         # do not build and send command until pump is no longer busy
-        # self._waitReady(1,10,1)
+        # self._waitReady(10,1)
         print("{}: emptyLines".format(threading.current_thread().name))
         # build command to draw from each line
         speed = int(self.ui.drawSpeedSpinBox.value())    # get speed from GUI
@@ -445,6 +452,7 @@ class MainWindow(QMainWindow):
         # empty pump
         # self.emptyPump()
         self.write(command_string)
+        return
 
     def emptyPumpLinesThread(self):
         thread = threading.Thread(target=self.emptyPumpLines)
@@ -467,10 +475,11 @@ class MainWindow(QMainWindow):
         self.write(command_string)
         # self.emptyPump()
         # # do not build and send command until pump is no longer busy
-        # self._waitReady(1, 10, 1)
+        # self._waitReady(10, 1)
         # self.emptyLines()
-        # self._waitReady(1, 10, 1)
+        # self._waitReady(10, 1)
         # self.emptyPump()
+        return
 
     def cleanLines(self):
         """clean lines by dispensing a fixed volume through each channel"""
@@ -487,6 +496,7 @@ class MainWindow(QMainWindow):
             command_string += "I" + str(column+2) + "D" + str(750)
         command_string += "I1V" + str(drawspeed)# + "A6000"
         self.write(command_string)
+        return
 
 
     def enableColumnSelect(self):
@@ -572,15 +582,15 @@ class MainWindow(QMainWindow):
             cmd_str += "I1A0"
             while self.checkBusy(attempts=20, timeout=1, popup=False):
                 self._nonBlockingTime(3)
-                # self._waitReady(delay=3000)
+                # self._waitReady(delay=3)
                 print("{}: in while loop".format(thread_name))
             self._nonBlockingTime(.5)
-            # self._waitReady(delay=500)
+            # self._waitReady(delay=.5)
             self.write(cmd_str)
             sleeplength = steps/drawspeed + steps/dispensespeed + 1.5
-            print(sleeplength)
+            # print(sleeplength)
             self._nonBlockingTime(sleeplength)
-            # self._waitReady(delay=sleeplength*1000)
+            # self._waitReady(delay=sleeplength)
         print("{}: Dispense done".format(thread_name))
         return
 
@@ -613,6 +623,7 @@ class MainWindow(QMainWindow):
             print("serial.write({})".format(cmd.encode()))
             print("baud: {}".format(self.baud))
             self.serial.write(cmd.encode())
+        return
 
     def volumeToSteps(self, volume_ml):
         """Convert given volume in ml to a number of steps
@@ -666,7 +677,7 @@ class MainWindow(QMainWindow):
             else:
                 print("{}: busy entering _nonBlockingTime({})".format(thread_name, timeout))
                 self._nonBlockingTime(timeout)
-                # self._waitReady(delay=timeout*1000)
+                # self._waitReady(delay=timeout)
         # if it reaches here, it IS busy, display popup if popup is True
         print("{}: Pump is busy!!!!!".format(thread_name))
         if popup is True:
@@ -679,8 +690,12 @@ class MainWindow(QMainWindow):
                 print("{}: OK!".format(thread_name))
         return True
 
-    def _waitReady(self, polling_interval=1, timeout=10, delay=None):
-        print("waiting..\n")
+    def _waitReady(self, timeout=1, delay=None):
+        '''
+        timeout (seconds)
+        delay (seconds)
+        '''
+        print("_waitReady() waiting...\n")
         if delay:
             self.timer.setSingleShot(True)
             self.timer.timeout.connect(self.queryPump)
@@ -699,11 +714,13 @@ class MainWindow(QMainWindow):
                 return
 
     def _nonBlockingTime(self, seconds):
+        granularity = 5
         thread_name = threading.current_thread().name
-        print("{}: waiting...\n".format(thread_name))
-        for x in range(int(seconds*10)):
-            time.sleep(.1)
-        print("{}: done waiting".format(thread_name))
+        print("{}: _nonBlockingTime waiting {} sec...\n".format(thread_name, seconds))
+        for x in range(int(seconds*granularity)):
+            time.sleep(1.0/granularity)
+        print("{}: _nonBlockingTime done waiting".format(thread_name))
+        return
 
     # def openFile(self, filename):
     #     """Open the file `filename` (and create if needed) for saving serial

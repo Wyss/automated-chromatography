@@ -1005,6 +1005,7 @@ QCheckBox::indicator:unchecked:disabled
     </property>
     <addaction name="actionConsole"/>
     <addaction name="actionQueryPump"/>
+    <addaction name="actionTerminate"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -1039,6 +1040,14 @@ QCheckBox::indicator:unchecked:disabled
    </property>
    <property name="shortcut">
     <string>Ctrl+U</string>
+   </property>
+  </action>
+  <action name="actionTerminate">
+   <property name="text">
+    <string>Terminate action</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
    </property>
   </action>
  </widget>
