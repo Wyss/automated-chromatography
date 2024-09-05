@@ -34,6 +34,7 @@ class MainWindow(QMainWindow):
             # self.openFile(self.write)
         self.thread_id = 0
         self.baud = None
+        self.halted = threading.Event()
         # self.max_steps = 6000
 
         # connect GUI signals to methods
@@ -58,9 +59,9 @@ class MainWindow(QMainWindow):
         # toggle column checkbox states:
         self.ui.allCheckBox.stateChanged.connect(self.enableColumnSelect)
         # send halt command to pump:
-        self.ui.stopButton.clicked.connect(self.stopPump)
+        self.ui.stopButton.clicked.connect(self.haltPumpThread)
         # send halt command to pump via menu:
-        self.ui.actionTerminate.triggered.connect(self.stopPump)
+        self.ui.actionTerminate.triggered.connect(self.haltPumpThread)
         # quit application
         self.ui.actionQuit.triggered.connect(qApp.quit)
         # query pump
@@ -367,6 +368,7 @@ class MainWindow(QMainWindow):
         return status_bit
 
     def fillPumpThread(self):
+        self.halted.clear()
         thread = threading.Thread(target=self.fillPump)
         thread.name = "thread-{:03d}".format(self.thread_id)
         self.thread_id += 1
@@ -387,6 +389,7 @@ class MainWindow(QMainWindow):
         return
 
     def emptyPumpThread(self):
+        self.halted.clear()
         thread = threading.Thread(target=self.emptyPump)
         thread.name = "thread-{:03d}".format(self.thread_id)
         self.thread_id += 1
@@ -407,6 +410,7 @@ class MainWindow(QMainWindow):
         return
 
     def primeLinesThread(self):
+        self.halted.clear()
         thread = threading.Thread(target=self.primeLines)
         thread.name = "thread-{:03d}".format(self.thread_id)
         self.thread_id += 1
@@ -430,6 +434,7 @@ class MainWindow(QMainWindow):
         return
 
     def emptyLinesThread(self):
+        self.halted.clear()
         thread = threading.Thread(target=self.emptyLines)
         thread.name = "thread-{:03d}".format(self.thread_id)
         self.thread_id += 1
@@ -455,6 +460,7 @@ class MainWindow(QMainWindow):
         return
 
     def emptyPumpLinesThread(self):
+        self.halted.clear()
         thread = threading.Thread(target=self.emptyPumpLines)
         thread.name = "thread-{:03d}".format(self.thread_id)
         self.thread_id += 1
@@ -473,31 +479,7 @@ class MainWindow(QMainWindow):
             command_string += "I" + str(column+2) + "P" + str(750)
         command_string += "I1V" + str(dispensespeed) + "A0"
         self.write(command_string)
-        # self.emptyPump()
-        # # do not build and send command until pump is no longer busy
-        # self._waitReady(10, 1)
-        # self.emptyLines()
-        # self._waitReady(10, 1)
-        # self.emptyPump()
         return
-
-    def cleanLines(self):
-        """clean lines by dispensing a fixed volume through each channel"""
-        # check if pump is busy
-        if self.checkBusy():
-            return
-        print("{}: cleanLines".format(threading.current_thread().name))
-        drawspeed = int(self.ui.drawSpeedSpinBox.value())    # get speed from GUI
-        dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    # get speed from GUI
-        command_string = "/1I1V" + str(drawspeed) + "A6000"
-        # build command string
-        command_string += "V" + str(dispensespeed)
-        for column in range(8):
-            command_string += "I" + str(column+2) + "D" + str(750)
-        command_string += "I1V" + str(drawspeed)# + "A6000"
-        self.write(command_string)
-        return
-
 
     def enableColumnSelect(self):
         """toggles column checkbox enable states based off of "all" checkbox"""
@@ -509,6 +491,7 @@ class MainWindow(QMainWindow):
                 box.setEnabled(True)
 
     def dispenseThread(self):
+        self.halted.clear()
         thread = threading.Thread(target=self.dispense)
         thread.name = "thread-{:03d}".format(self.thread_id)
         self.thread_id += 1
@@ -516,7 +499,6 @@ class MainWindow(QMainWindow):
 
     def dispense(self):
         """dispenses to the columns (all or individually selected)"""
-        # TODO: make sure this deals with all reasonable cases.. may want to query pump status before commands are written
         # check if pump is busy
         thread_name = threading.current_thread().name
         print("{}: dispense() called NOW!!!!".format(thread_name))
@@ -560,7 +542,9 @@ class MainWindow(QMainWindow):
         steps_remaining = total_steps
         # do the dispense in a loop
         while steps_remaining > 0:
-            # cmd_str = "/1"
+            if self.halted.is_set():
+                print("{}: dispense() halted {}".format(thread_name, self.halted.is_set()))
+                return
             # if more than 1 stroke req'd, full stroke & reduce steps_remaining
             if steps_remaining > 6000:
                 steps = 6000
@@ -584,12 +568,21 @@ class MainWindow(QMainWindow):
                 self._nonBlockingTime(3)
                 # self._waitReady(delay=3)
                 print("{}: in while loop".format(thread_name))
+                if self.halted.is_set():
+                    print("{}: dispense() halted {}".format(thread_name, self.halted.is_set()))
+                    return
             self._nonBlockingTime(.5)
+            if self.halted.is_set():
+                print("{}: dispense() halted {}".format(thread_name, self.halted.is_set()))
+                return
             # self._waitReady(delay=.5)
             self.write(cmd_str)
-            sleeplength = steps/drawspeed + steps/dispensespeed + 1.5
+            sleeplength = steps/drawspeed + steps/dispensespeed + 1
             # print(sleeplength)
             self._nonBlockingTime(sleeplength)
+            if self.halted.is_set():
+                print("{}: dispense() halted {}".format(thread_name, self.halted.is_set()))
+                return
             # self._waitReady(delay=sleeplength)
         print("{}: Dispense done".format(thread_name))
         return
@@ -604,25 +597,27 @@ class MainWindow(QMainWindow):
             result.append(checkbox.isChecked())
         return result
 
-    def stopPumpThread(self):
-        thread = threading.Thread(target=self.stopPump)
+    def haltPumpThread(self):
+        self.halted.set()
+        thread = threading.Thread(target=self.haltPump)
         thread.name = "thread-{:03d}".format(self.thread_id)
         self.thread_id += 1
         thread.start()
 
-    def stopPump(self):
+    def haltPump(self):
         """interrupts the pump and stops operation"""
-        print("{}: STOP PUMP!!!!".format(threading.current_thread().name))
-        cmd = "/1TR\r\n"
+        print("{}: STOP PUMP!!!! halted = {}".format(threading.current_thread().name, self.halted.is_set()))
+        cmd = "/1T"
+        # cmd = "/1TR\r\n"
         if self.debug:
             self.dbprint("stopped")
             print(cmd)
             if self.file_name:
                 self.file.write("> {}".format(cmd))
         else:
-            print("serial.write({})".format(cmd.encode()))
+            # print("serial.write({})".format(cmd.encode()))
             print("baud: {}".format(self.baud))
-            self.serial.write(cmd.encode())
+            self.write(cmd)
         return
 
     def volumeToSteps(self, volume_ml):
@@ -661,6 +656,9 @@ class MainWindow(QMainWindow):
             return False
         # Try (attempts) times and wait (timeout) sec between
         for attempt in range(attempts):
+            if self.halted.is_set():
+                print("{}: checkBusy halted {}".format(thread_name, self.halted.is_set()))
+                return
             print("{}: Busy check {}".format(thread_name, attempt))
             # check for debugging busy flag or try for real
             if busy_debug:
@@ -718,15 +716,13 @@ class MainWindow(QMainWindow):
         thread_name = threading.current_thread().name
         print("{}: _nonBlockingTime waiting {} sec...\n".format(thread_name, seconds))
         for x in range(int(seconds*granularity)):
+            self.dbprint("halted = {}".format(self.halted.is_set()))
             time.sleep(1.0/granularity)
+            if self.halted.is_set():
+                print("{}: _nonBlockingTime halted {}".format(thread_name, self.halted.is_set()))
+                return
         print("{}: _nonBlockingTime done waiting".format(thread_name))
         return
-
-    # def openFile(self, filename):
-    #     """Open the file `filename` (and create if needed) for saving serial
-    #     commands sent and received
-    #     """
-    #     self.file = open(filename, "w")
 
     # def closeEvent(self, event):
     def exitCommands(self):
