@@ -47,21 +47,21 @@ class MainWindow(QMainWindow):
         # initialize pump and valve select motors:
         self.ui.initializeButton.clicked.connect(self.initializePump)
         # fill the syringe barrel with fluid:
-        self.ui.fillButton.clicked.connect(self.fillPumpThread)
+        self.ui.fillButton.clicked.connect(self.fillPump)
         # empty the syringe barrel into storage reservoir:
-        self.ui.emptyButton.clicked.connect(self.emptyPumpThread)
+        self.ui.emptyButton.clicked.connect(self.emptyPump)
         # auto-prime fluid lines:
-        self.ui.primeButton.clicked.connect(self.primeLinesThread)
+        self.ui.primeButton.clicked.connect(self.primeLines)
         # Remove all fluid from lines back to reservoir:
-        self.ui.emptyLinesButton.clicked.connect(self.emptyPumpLinesThread)
+        self.ui.emptyLinesButton.clicked.connect(self.emptyPumpLines)
         # dispense specified volumes to specified columns:
         self.ui.dispenseVolumeButton.clicked.connect(self.dispenseThread)
         # toggle column checkbox states:
         self.ui.allCheckBox.stateChanged.connect(self.enableColumnSelect)
         # send halt command to pump:
-        self.ui.stopButton.clicked.connect(self.haltPumpThread)
+        self.ui.stopButton.clicked.connect(self.haltPump)
         # send halt command to pump via menu:
-        self.ui.actionTerminate.triggered.connect(self.haltPumpThread)
+        self.ui.actionTerminate.triggered.connect(self.haltPump)
         # quit application
         self.ui.actionQuit.triggered.connect(qApp.quit)
         # query pump
@@ -247,38 +247,65 @@ class MainWindow(QMainWindow):
         if self.ui.comPortComboBox.count() == 0:
             self.ui.comPortComboBox.addItem("<no COM found>")
 
-    def write(self, cmd):
+    def write(self, cmd, append_r=True):
         """sends a command through the serial port (appends the R to indicate
         execution), returns pump response
         """
-        cmd += "R\r\n"
-        print(cmd)
+        if append_r:
+            cmd += "R"
+        cmd += "\r\n"
+        print(cmd.encode())
         if self.file_name:
             self.file.write("> {}".format(cmd))
         if self.debug:
             self.dbprint("command sent")
+            return 
         else:
-            self.serial.write(cmd.encode())
-            # may not need this portion of the code
-            self.serial.waitForBytesWritten(100)
-            if self.serial.waitForReadyRead(100):
+            for x in range(2):
+                self.serial.write(cmd.encode())
+                # may not need this portion of the code
+                self.serial.waitForBytesWritten(100)
+                print("after: waitForBytesWritten")
+                # self.serial.waitForReadyRead(100)
+                
+                #print("after: waitForReadyRead")
                 response = self.receive()
-                return response
+                print("looping...")
+                if response:
+                    print("done looping")
+                    break
+                time.sleep(.1)
+            print("response: {}".format(response))
+            return response
+            # if self.serial.waitForReadyRead(200):
+            #     print("if waitForReadyRead = True")
+            #     response = self.receive()
+            #     return response
+            # else:
+            #     print("if waitForReadyRead = False")
+
 
     def receive(self):
         """receives data from the serial port (while data is available in the
         input)
         """
         # read byte by byte until no bytes available
+        self.serial.waitForReadyRead(110)
         raw_data = b''
         raw_byte = self.serial.read(1)
+        print("raw byte outside: {}".format(raw_byte))
+        x = 0
         while raw_byte != b'':
+            x += 1
+            print("raw byte inside: {}".format(raw_byte))
             raw_data += raw_byte
+            self.serial.waitForReadyRead(10)
             raw_byte = self.serial.read(1)
+            if x > 10: break
         raw_frame = bytearray(raw_data)
         frame_list = [byte for byte in raw_frame]
         str_data = str(raw_data)[2:-1]
-        print(raw_data)
+        print("receive: {}".format(raw_data))
         if self.file_name:
             self.file.write("< {}\n\n".format(str_data))
         return frame_list
@@ -356,7 +383,8 @@ class MainWindow(QMainWindow):
 
     def queryPump(self):
         """sends query command.. 0 = pump busy executing another command"""
-        response = self.write("/1Q")
+        response = self.write("/1Q", False)
+        # response = self.serial.write("/1Q\r\n".encode())
         print("{}: queryPump response: {}".format(threading.current_thread().name, response))
         try:
             status_bit = bin(response[3] >> 5 &0b1)
@@ -615,9 +643,8 @@ class MainWindow(QMainWindow):
             if self.file_name:
                 self.file.write("> {}".format(cmd))
         else:
-            # print("serial.write({})".format(cmd.encode()))
             print("baud: {}".format(self.baud))
-            self.write(cmd)
+            self.write(cmd, False)
         return
 
     def volumeToSteps(self, volume_ml):
@@ -722,6 +749,7 @@ class MainWindow(QMainWindow):
                 print("{}: _nonBlockingTime halted {}".format(thread_name, self.halted.is_set()))
                 return
         print("{}: _nonBlockingTime done waiting".format(thread_name))
+        busy = self.checkBusy(attempts=10)
         return
 
     # def closeEvent(self, event):
@@ -831,6 +859,7 @@ if __name__ == "__main__":
     sigint_timer = QTimer()
     sigint_timer.start(250)
     sigint_timer.timeout.connect(lambda: None)
+    # sigint_timer.timeout.connect(lambda: print(threading.enumerate()))
 
     # instance of MainWindow class
     window = MainWindow(args.debug, args.busy_debug, file_name)
