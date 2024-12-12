@@ -243,7 +243,7 @@ class MainWindow(QMainWindow):
         self.ui.comPortComboBox.clear()
         # adds available ports to combobox list
         for info in QtSerialPort.QSerialPortInfo.availablePorts():
-            if "USB" in info.portName():
+            if "USB" or "COM" in info.portName():
                 self.ui.comPortComboBox.addItem(info.portName())
         if self.ui.comPortComboBox.count() == 0:
             self.ui.comPortComboBox.addItem("<no COM found>")
