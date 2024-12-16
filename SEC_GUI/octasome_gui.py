@@ -260,6 +260,7 @@ class MainWindow(QMainWindow):
             self.dbprint("command sent")
         else:
             self.serial.write(cmd.encode())
+            time.sleep(0.01)
             # may not need this portion of the code
             self.serial.waitForBytesWritten(100)
             if self.serial.waitForReadyRead(100):

@@ -248,10 +248,10 @@
                  </font>
                 </property>
                 <property name="decimals">
-                 <number>0</number>
+                 <number>1</number>
                 </property>
                 <property name="singleStep">
-                 <double>100.000000000000000</double>
+                 <double>0.100000000000000</double>
                 </property>
                </widget>
               </item>
@@ -264,7 +264,7 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>steps/s</string>
+                 <string>mL/s</string>
                 </property>
                </widget>
               </item>
@@ -300,10 +300,10 @@
                  </font>
                 </property>
                 <property name="decimals">
-                 <number>0</number>
+                 <number>1</number>
                 </property>
                 <property name="singleStep">
-                 <double>100.000000000000000</double>
+                 <double>0.100000000000000</double>
                 </property>
                </widget>
               </item>
@@ -316,7 +316,7 @@
                  </font>
                 </property>
                 <property name="text">
-                 <string>steps/s</string>
+                 <string>mL/s</string>
                 </property>
                </widget>
               </item>
@@ -435,10 +435,13 @@
               </font>
              </property>
              <property name="decimals">
-              <number>2</number>
+              <number>1</number>
+             </property>
+             <property name="minimum">
+              <double>0.100000000000000</double>
              </property>
              <property name="singleStep">
-              <double>0.100000000000000</double>
+              <double>0.500000000000000</double>
              </property>
             </widget>
            </item>
@@ -539,7 +542,7 @@
               <item row="2" column="1">
                <spacer name="horizontalSpacer">
                 <property name="orientation">
-                 <enum>Qt::Orientation::Horizontal</enum>
+                 <enum>Qt::Horizontal</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
