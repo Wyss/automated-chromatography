@@ -39,7 +39,6 @@ class MainWindow(QMainWindow):
             self.file = open(self.file_name, "w")
             print("File opened: {}".format(self.file.name))
             # self.openFile(self.write)
-        # self.max_steps = 6000
 
         # connect GUI signals to methods
         # connect/disconnect from serial port:
@@ -301,7 +300,7 @@ class MainWindow(QMainWindow):
         else:
             self.serial.write(cmd.encode())
             # may not need this portion of the code
-            time.sleep(0.01)
+            time.sleep(0.02)
             self.serial.waitForBytesWritten(100)
             if self.serial.waitForReadyRead(100):
                 response = self.receive()
@@ -457,7 +456,8 @@ class MainWindow(QMainWindow):
                    self.CmdStr.fullPickup() +
                    self.CmdStr.setValvesOut() +
                    self.CmdStr.setTopSpeed(dispense_speed_count) +
-                   self.CmdStr.fullDispense())
+                   self.CmdStr.fullDispense() +
+                   self.CmdStr.setValvesIn())
         self.write(cmd_str)
 
     # def emptyLines(self):
@@ -498,12 +498,6 @@ class MainWindow(QMainWindow):
                    self.CmdStr.setTopSpeed(dispense_speed_count) +
                    self.CmdStr.fullDispense())
         self.write(cmd_str)
-        # self.emptyPump()
-        # # do not build and send command until pump is no longer busy
-        # self._waitReady(1, 10, 1)
-        # self.emptyLines()
-        # self._waitReady(1, 10, 1)
-        # self.emptyPump()
 
     # def cleanLines(self):
     #     """clean lines by dispensing a fixed volume through each channel"""
@@ -564,13 +558,9 @@ class MainWindow(QMainWindow):
         if self.checkBusy():
             return
         draw_speed_ml = self.ui.drawSpeedSpinBox.value()    # get speed from GUI
-        print("draw_speed_ml: {}".format(draw_speed_ml))
         dispense_speed_ml = self.ui.dispenseSpeedSpinBox.value()    # get speed from GUI
-        print("dispense_speed_ml: {}".format(dispense_speed_ml))
         draw_speed_count = self.speedMLToStepPerSec(draw_speed_ml)
-        print("draw_speed_count: {}".format(draw_speed_count))
         dispense_speed_count = self.speedMLToStepPerSec(dispense_speed_ml)
-        print("dispense_speed_count: {}".format(dispense_speed_count))
         # if the "all" check box is selected, dispense to all columns
         all_columns = False
         if self.ui.allCheckBox.checkState():
@@ -657,7 +647,8 @@ class MainWindow(QMainWindow):
     def stopPump(self):
         """interrupts the pump and stops operation"""
         print("STOP PUMP!!!!")
-        cmd = "/1TR\r\n"
+        cmd = self.CmdStr.terminate(1)
+        # cmd = "/1TR\r\n"
         if self.debug:
             self.dbprint("stopped")
             print(cmd)
@@ -784,6 +775,11 @@ class CommandStringBuilder(object):
     def initPump(self, id):
         """Initialize the pump"""
         return "{}W".format(self.pumpID(id))
+
+    def terminate(self, id):
+        """Terminate the pump's actions. Includes Run cmd and EOL chars
+        /1TR\\r\\n"""
+        return "{}TR\r\n".format(self.pumpID(id))
 
     def queryPump(self, id):
         """Query the pump"""
