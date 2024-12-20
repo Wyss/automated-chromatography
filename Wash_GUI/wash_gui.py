@@ -16,8 +16,8 @@ from mainwindow import Ui_MainWindow
 # OPERATING_SPEED = 400
 # DISPENSE_VOLUME = 2
 # PUMPSTATUS = 0b0
-STEPS_PER_STROKE = 48000
-ONE_SECOND_STROKE_SPEED = 48000
+STEPS_PER_STROKE = 48000            # Microstep mode
+ONE_SECOND_STROKE_SPEED = 48000     # Microstep mode
 
 # class definition of main window
 class MainWindow(QMainWindow):
@@ -192,7 +192,8 @@ class MainWindow(QMainWindow):
             opened = self.serial.open(QIODevice.ReadWrite)
             baud = 38400
             # queryPump() on a failed open yields an int instead of a string
-            if isinstance(self.queryPump(), int):
+            query_pump = self.queryPump()
+            if isinstance(query_pump[0], int) or isinstance(query_pump[1], int):
                 self.serialDisconnect()
                 self.setBaud(9600)
                 self.stateChanged.emit("Open")
@@ -379,9 +380,9 @@ class MainWindow(QMainWindow):
         # check if pump is busy
         if self.checkBusy(busy_debug=False):
             return
-        cmd_str = self.CmdStr.initPump(1)
-        self.write(cmd_str)
-        # self.write("/1W")
+        for pump_id in range(1, 3):
+            cmd_str = self.CmdStr.initPump(pump_id)
+            self.write(cmd_str)
         # after initialization, enable the rest of the GUI
         self.ui.fillButton.setEnabled(True)
         self.ui.emptyButton.setEnabled(True)
@@ -396,13 +397,15 @@ class MainWindow(QMainWindow):
 
     def queryPump(self):
         """sends query command.. 0 = pump busy executing another command"""
-        response = self.write(self.CmdStr.queryPump(1))
-        try:
-            status_bit = bin(response[3] >> 5 &0b1)
-        except:
-            status_bit = 0b0
-        pump_status = status_bit
-        return status_bit
+        pump_status = []
+        for pump_id in range(1,3):
+            response = self.write(self.CmdStr.queryPump(pump_id))
+            try:
+                status_bit = bin(response[3] >> 5 &0b1)
+            except:
+                status_bit = 0b0
+            pump_status.append(status_bit)
+        return pump_status
 
     def fillPump(self):
         """fills pump by opening all valves, moving to position
@@ -414,11 +417,12 @@ class MainWindow(QMainWindow):
         # build command string
         speed_ml = self.ui.drawSpeedSpinBox.value()  # get speed from GUI
         speed_count = self.speedMLToStepPerSec(speed_ml)
-        cmd_str = (self.CmdStr.pumpID(1) +
-                   self.CmdStr.setValvesIn() +
-                   self.CmdStr.setTopSpeed(speed_count) +
-                   self.CmdStr.fullPickup())
-        self.write(cmd_str)
+        for pump_id in range(1,3):
+            cmd_str = (self.CmdStr.pumpID(pump_id) +
+                       self.CmdStr.setValvesIn() +
+                       self.CmdStr.setTopSpeed(speed_count) +
+                       self.CmdStr.fullPickup())
+            self.write(cmd_str)
 
     def emptyPump(self):
         """empties pump back into input source, moving to position 0
@@ -429,12 +433,12 @@ class MainWindow(QMainWindow):
         # build command string
         speed_ml = self.ui.dispenseSpeedSpinBox.value()    # get speed from GUI
         speed_count = self.speedMLToStepPerSec(speed_ml)
-        cmd_str = (self.CmdStr.pumpID(1) +
-                   self.CmdStr.setValvesIn() +
-                   self.CmdStr.setTopSpeed(speed_count) +
-                   self.CmdStr.fullDispense())
-        # cmd_str = "/1I1V" + str(speed) + "A0"
-        self.write(cmd_str)
+        for pump_id in range(1,3):
+            cmd_str = (self.CmdStr.pumpID(pump_id) +
+                       self.CmdStr.setValvesIn() +
+                       self.CmdStr.setTopSpeed(speed_count) +
+                       self.CmdStr.fullDispense())
+            self.write(cmd_str)
 
     def primeLines(self):
         """primes lines by dispensing a fixed volume through each channel"""
@@ -445,20 +449,20 @@ class MainWindow(QMainWindow):
         dispense_speed_ml = self.ui.dispenseSpeedSpinBox.value()    # get speed from GUI
         draw_speed_count = self.speedMLToStepPerSec(draw_speed_ml)
         dispense_speed_count = self.speedMLToStepPerSec(dispense_speed_ml)
-
-        cmd_str = (self.CmdStr.pumpID(1) +
-                   self.CmdStr.setValvesIn() +
-                   self.CmdStr.setTopSpeed(draw_speed_count) +
-                   self.CmdStr.relativePickup(int(STEPS_PER_STROKE/4)) +
-                   self.CmdStr.setTopSpeed(dispense_speed_count) +
-                   self.CmdStr.fullDispense() +
-                   self.CmdStr.setTopSpeed(draw_speed_count) +
-                   self.CmdStr.fullPickup() +
-                   self.CmdStr.setValvesOut() +
-                   self.CmdStr.setTopSpeed(dispense_speed_count) +
-                   self.CmdStr.fullDispense() +
-                   self.CmdStr.setValvesIn())
-        self.write(cmd_str)
+        for pump_id in range(1,3):
+            cmd_str = (self.CmdStr.pumpID(pump_id) +
+                       self.CmdStr.setValvesIn() +
+                       self.CmdStr.setTopSpeed(draw_speed_count) +
+                       self.CmdStr.relativePickup(int(STEPS_PER_STROKE/4)) +
+                       self.CmdStr.setTopSpeed(dispense_speed_count) +
+                       self.CmdStr.fullDispense() +
+                       self.CmdStr.setTopSpeed(draw_speed_count) +
+                       self.CmdStr.fullPickup() +
+                       self.CmdStr.setValvesOut() +
+                       self.CmdStr.setTopSpeed(dispense_speed_count) +
+                       self.CmdStr.fullDispense() +
+                       self.CmdStr.setValvesIn())
+            self.write(cmd_str)
 
     # def emptyLines(self):
     #     """empties lines"""
@@ -487,17 +491,18 @@ class MainWindow(QMainWindow):
         dispense_speed_ml = self.ui.dispenseSpeedSpinBox.value()    # get speed from GUI
         draw_speed_count = self.speedMLToStepPerSec(draw_speed_ml)
         dispense_speed_count = self.speedMLToStepPerSec(dispense_speed_ml)
-        cmd_str = (self.CmdStr.pumpID(1) +
-                   self.CmdStr.setValvesIn() +
-                   self.CmdStr.setTopSpeed(dispense_speed_count) +
-                   self.CmdStr.fullDispense() +
-                   self.CmdStr.setValvesOut() +
-                   self.CmdStr.setTopSpeed(draw_speed_count) +
-                   self.CmdStr.fullPickup() +
-                   self.CmdStr.setValvesIn() +
-                   self.CmdStr.setTopSpeed(dispense_speed_count) +
-                   self.CmdStr.fullDispense())
-        self.write(cmd_str)
+        for pump_id in range(1,3):
+            cmd_str = (self.CmdStr.pumpID(pump_id) +
+                       self.CmdStr.setValvesIn() +
+                       self.CmdStr.setTopSpeed(dispense_speed_count) +
+                       self.CmdStr.fullDispense() +
+                       self.CmdStr.setValvesOut() +
+                       self.CmdStr.setTopSpeed(draw_speed_count) +
+                       self.CmdStr.fullPickup() +
+                       self.CmdStr.setValvesIn() +
+                       self.CmdStr.setTopSpeed(dispense_speed_count) +
+                       self.CmdStr.fullDispense())
+            self.write(cmd_str)
 
     # def cleanLines(self):
     #     """clean lines by dispensing a fixed volume through each channel"""
@@ -565,16 +570,13 @@ class MainWindow(QMainWindow):
         all_columns = False
         if self.ui.allCheckBox.checkState():
             print("all columns")
-            columns = [True]*8
+            columns = [True] * 12
         # else just the selected columns
         else:
             columns = self.getColumnCheckBoxes()    # [True, False, True, ...]
-            # TODO: THIS ONLY WORKS FOR 1 PUMP FOR NOW!!
-            columns = columns[0:6] # FIX THIS!!!!!
-            columns.extend([False, False])
 
         num_cols = columns.count(True)
-        if num_cols == 6:   # FIX THIS!!!!!
+        if num_cols == 12:
             all_columns = True
 
         # get the number of steps needed based on value of dispense volume
@@ -602,28 +604,33 @@ class MainWindow(QMainWindow):
                       total_steps=total_steps, num_of_strokes=num_of_strokes
                       ).expandtabs(4))
 
+        # separate the valves for the two pumps
+        columns_split = [columns[0:6], columns[6:12]]
+
         steps_remaining = total_steps
-        cmd_str = self.CmdStr.pumpID(1)
-        # do the dispense in a loop
-        for stroke in range(math.ceil(num_of_strokes)):
-            # if more than 1 stroke req'd, full stroke
-            if num_of_strokes > 1:
-                steps = STEPS_PER_STROKE
-            # if less than 1 stroke req'd, just do that many steps
-            else:
-                steps = int(num_of_strokes * STEPS_PER_STROKE)
-            # draw from reservoir and prepare dispense speed
-            cmd_str = (cmd_str +
-                       self.CmdStr.setValvesIn() +
-                       self.CmdStr.setTopSpeed(draw_speed_count) +
-                       self.CmdStr.absolutePosition(steps) +
-                       self.CmdStr.setValves(columns) +
-                       self.CmdStr.setTopSpeed(dispense_speed_count) + 
-                       self.CmdStr.fullDispense())
-            self.dbprint(cmd_str)
-            num_of_strokes -= 1
-        cmd_str += self.CmdStr.setValvesIn()
-        self.write(cmd_str)
+        for pump_id in range(1,3):
+            valve_list = columns_split[pump_id]
+            cmd_str = self.CmdStr.pumpID(pump_id)
+            # do the dispense in a loop
+            for stroke in range(math.ceil(num_of_strokes)):
+                # if more than 1 stroke req'd, full stroke
+                if num_of_strokes > 1:
+                    steps = STEPS_PER_STROKE
+                # if less than 1 stroke req'd, just do that many steps
+                else:
+                    steps = int(num_of_strokes * STEPS_PER_STROKE)
+                # draw from reservoir and prepare dispense speed
+                cmd_str = (cmd_str +
+                           self.CmdStr.setValvesIn() +
+                           self.CmdStr.setTopSpeed(draw_speed_count) +
+                           self.CmdStr.absolutePosition(steps) +
+                           self.CmdStr.setValves(valve_list) +
+                           self.CmdStr.setTopSpeed(dispense_speed_count) +
+                           self.CmdStr.fullDispense())
+                self.dbprint(cmd_str)
+                num_of_strokes -= 1
+            cmd_str += self.CmdStr.setValvesIn()
+            self.write(cmd_str)
 
     def getColumnCheckBoxes(self):
         """method to check which column boxes are selected; for use by the
@@ -647,15 +654,16 @@ class MainWindow(QMainWindow):
     def stopPump(self):
         """interrupts the pump and stops operation"""
         print("STOP PUMP!!!!")
-        cmd = self.CmdStr.terminate(1)
-        # cmd = "/1TR\r\n"
-        if self.debug:
-            self.dbprint("stopped")
-            print(cmd)
-            if self.file_name:
-                self.file.write("> {}".format(cmd))
-        else:
-            self.serial.write(cmd.encode())
+        for pump_id in range(1,3):
+            cmd = self.CmdStr.terminate(pump_id)
+            if self.debug:
+                self.dbprint("pump {} stopped".format(pump_id))
+                print(cmd)
+                if self.file_name:
+                    self.file.write("> {}".format(cmd))
+            else:
+                self.serial.write(cmd.encode())
+                time.sleep(0.02)
 
     def volumeToSteps(self, volume_ml):
         """Convert given volume in ml to a number of steps
@@ -701,7 +709,7 @@ class MainWindow(QMainWindow):
             else:
                 busy = self.queryPump()
             # return if not busy or sleep if busy
-            if busy != bin(0):
+            if busy[0] != bin(0) or busy[1] != bin(0):
                 return False
             else:
                 time.sleep(timeout)
@@ -716,25 +724,25 @@ class MainWindow(QMainWindow):
             print("OK!")
             return True
 
-    def _waitReady(self, polling_interval=1, timeout=10, delay=None):
-        print("waiting..\n")
-        if delay:
-            self.timer.setSingleShot(True)
-            self.timer.timeout.connect(self.queryPump)
-            self.timer.start(delay*1000)
-        else:
-            self.queryPump()
+    # def _waitReady(self, polling_interval=1, timeout=10, delay=None):
+    #     print("waiting..\n")
+    #     if delay:
+    #         self.timer.setSingleShot(True)
+    #         self.timer.timeout.connect(self.queryPump)
+    #         self.timer.start(delay*1000)
+    #     else:
+    #         self.queryPump()
 
-        start = time.time()
-        while (start-time.time()) < (timeout):
-            print(pumpstatus)
-            ready = self.queryPump()
-            if not ready:
-                self.timer.setSingleShot(True)
-                self.timer.timeout.connect(self.queryPump)
-                self.timer.start(1000)
-            else:
-                return
+    #     start = time.time()
+    #     while (start-time.time()) < (timeout):
+    #         print(pumpstatus)
+    #         ready = self.queryPump()
+    #         if not ready:
+    #             self.timer.setSingleShot(True)
+    #             self.timer.timeout.connect(self.queryPump)
+    #             self.timer.start(1000)
+    #         else:
+    #             return
 
     # def openFile(self, filename):
     #     """Open the file `filename` (and create if needed) for saving serial
@@ -805,14 +813,15 @@ class CommandStringBuilder(object):
         """Set all valves to Output position"""
         return "O"
 
-    def setValves(self, valve_list=[0]*8):
+    def setValves(self, valve_list=[False] * 6):
         """Set valves individually"""
         print("valve_list = {}".format(valve_list))
-        if valve_list.count(0) == 8:
+        if valve_list.count(False) == 6:
             return self.setValvesIn()
-        elif valve_list.count(1) == 8:
+        elif valve_list.count(True) == 6:
             return self.setValvesOut()
         else:
+            valve_list.extend([False, False])
             cmd_str = "B"
             for v in valve_list:
                 cmd_str += str(int(v))
