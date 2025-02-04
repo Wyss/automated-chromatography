@@ -6,8 +6,8 @@ import argparse
 import atexit
 from PyQt5 import QtTest, QtSerialPort
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QDialog, QMessageBox,
-                             QPushButton, qApp)
-from PyQt5.QtCore import QFile, QTimer, QIODevice, pyqtSignal
+                             QPushButton, qApp, QFrame)
+from PyQt5.QtCore import QFile, QTimer, QIODevice, pyqtSignal, Qt
 from mainwindow import Ui_MainWindow
 
 # PLUNGER_POSITION = 0
@@ -16,8 +16,8 @@ from mainwindow import Ui_MainWindow
 # OPERATING_SPEED = 400
 # DISPENSE_VOLUME = 2
 # PUMPSTATUS = 0b0
-STEPS_PER_STROKE = 6000
-ONE_SECOND_STROKE_SPEED = 6000
+STEPS_PER_STROKE = 48000
+ONE_SECOND_STROKE_SPEED = 48000
 
 # class definition of main window
 class MainWindow(QMainWindow):
@@ -80,37 +80,75 @@ class MainWindow(QMainWindow):
         self.ui.adjustmentBox.setEnabled(False)
         self.ui.emergencyStopBox.setEnabled(False)
 
+        # default syringe size
+        self.ui.syringeComboBox.setCurrentText("5 mL")
+
+        # QLabel formatting
+        col_labels = [
+            self.ui.col1_label,
+            self.ui.col2_label,
+            self.ui.col3_label,
+            self.ui.col4_label,
+            self.ui.col5_label,
+            self.ui.col6_label
+            ]
+        for col_label in col_labels:
+            col_label.setAlignment(Qt.AlignHCenter)
+
+        vFrames = [
+            self.ui.A1B1vFrame,
+            self.ui.A2B2vFrame,
+            self.ui.A3B3vFrame,
+            self.ui.A4B4vFrame,
+            self.ui.A5B5vFrame,
+            self.ui.A6B6vFrame,
+            self.ui.C1D1vFrame,
+            self.ui.C2D2vFrame,
+            self.ui.C3D3vFrame,
+            self.ui.C4D4vFrame,
+            self.ui.C5D5vFrame,
+            self.ui.C6D6vFrame,
+            ]
+        for vFrame in vFrames:
+            vFrame.setFrameShape(QFrame.Box)
+
         # column check boxes - if "all" is selected, then individual selection
         # is greyed out
         self.ui.allCheckBox.setChecked(True)
-        self.ui.column1CheckBox.setEnabled(False)
-        self.ui.column1CheckBox.setEnabled(False)
-        self.ui.column1CheckBox.setEnabled(False)
-        self.ui.column1CheckBox.setEnabled(False)
-        self.ui.column2CheckBox.setEnabled(False)
-        self.ui.column3CheckBox.setEnabled(False)
-        self.ui.column4CheckBox.setEnabled(False)
-        self.ui.column5CheckBox.setEnabled(False)
-        self.ui.column6CheckBox.setEnabled(False)
-        self.ui.column7CheckBox.setEnabled(False)
-        self.ui.column8CheckBox.setEnabled(False)
+        checkboxes = [
+            self.ui.A1B1CheckBox,
+            self.ui.A2B2CheckBox,
+            self.ui.A3B3CheckBox,
+            self.ui.A4B4CheckBox,
+            self.ui.A5B5CheckBox,
+            self.ui.A6B6CheckBox,
+            self.ui.C1D1CheckBox,
+            self.ui.C2D2CheckBox,
+            self.ui.C3D3CheckBox,
+            self.ui.C4D4CheckBox,
+            self.ui.C5D5CheckBox,
+            self.ui.C6D6CheckBox,
+        ]
+        for box in checkboxes:
+            box.setEnabled(False)
 
         # set dispense volume precision (set in mainwindow.*)
         # self.ui.dispenseSpinBox.setSingleStep(0.1)
 
         # maximum and minimum values for pump speeds
-        # self.ui.drawSpeedSpinBox.setMaximum(3.3)
-        # self.ui.drawSpeedSpinBox.setMinimum(0.1)
-        # self.ui.dispenseSpeedSpinBox.setMaximum(3.3)
-        # self.ui.dispenseSpeedSpinBox.setMinimum(0.1)
+        max_speed = self.speedStepToMLPerSec(ONE_SECOND_STROKE_SPEED/4)
+        self.ui.drawSpeedSpinBox.setMaximum(max_speed)
+        self.ui.drawSpeedSpinBox.setMinimum(0.1)
+        self.ui.dispenseSpeedSpinBox.setMaximum(max_speed)
+        self.ui.dispenseSpeedSpinBox.setMinimum(0.1)
 
         # steps
-        # self.ui.drawSpeedSpinBox.setSingleStep(0.1)
-        # self.ui.dispenseSpeedSpinBox.setSingleStep(0.1)
+        # self.ui.drawSpeedSpinBox.setSingleStep(100)
+        # self.ui.dispenseSpeedSpinBox.setSingleStep(100)
 
         # initial, default speed
-        self.ui.drawSpeedSpinBox.setValue(1.7)
-        self.ui.dispenseSpeedSpinBox.setValue(1.7)
+        self.ui.drawSpeedSpinBox.setValue(1)
+        self.ui.dispenseSpeedSpinBox.setValue(1)
 
         # serial port
         self.serial = QtSerialPort.QSerialPort(self)
@@ -261,8 +299,8 @@ class MainWindow(QMainWindow):
             self.dbprint("command sent")
         else:
             self.serial.write(cmd.encode())
-            time.sleep(0.02)
             # may not need this portion of the code
+            time.sleep(0.02)
             self.serial.waitForBytesWritten(100)
             if self.serial.waitForReadyRead(100):
                 response = self.receive()
@@ -298,17 +336,16 @@ class MainWindow(QMainWindow):
             self.ui.dispenseSpinBox.setMaximum(syringe_size_ml*1000)
             self.ui.dispenseSpinBox.setSingleStep(0.100)
             self.ui.dispenseSpinBox.setValue(syringe_size_ml*1000)
-            self.ui.dispenseUnits.setText(units)
             self.ui.volRangeLabel.setText(
                     "(0-{}{})".format(syringe_size_ml*1000, units))
         else: # milliliters
             units = "mL"
-            self.ui.dispenseSpinBox.setMaximum((syringe_size_ml))
-            self.ui.dispenseSpinBox.setSingleStep(0.100)
-            self.ui.dispenseSpinBox.setValue(2)
-            self.ui.dispenseUnits.setText(units)
+            self.ui.dispenseSpinBox.setMaximum((10))
+            # self.ui.dispenseSpinBox.setSingleStep(0.100)
+            self.ui.dispenseSpinBox.setValue(2.5)
             self.ui.volRangeLabel.setText(
                     "(0-{}{})".format(syringe_size_ml, units))
+        self.ui.dispenseUnits.setText(units)
         # display pop-up confirmation that the syringe size has been set
         size = self.ui.syringeComboBox.currentText()
         print("Syringe size set to " + size)
@@ -344,6 +381,7 @@ class MainWindow(QMainWindow):
             return
         cmd_str = self.CmdStr.initPump(1)
         self.write(cmd_str)
+        # self.write("/1W")
         # after initialization, enable the rest of the GUI
         self.ui.fillButton.setEnabled(True)
         self.ui.emptyButton.setEnabled(True)
@@ -363,11 +401,12 @@ class MainWindow(QMainWindow):
             status_bit = bin(response[3] >> 5 &0b1)
         except:
             status_bit = 0b0
-        pumpstatus = status_bit
+        pump_status = status_bit
         return status_bit
 
     def fillPump(self):
-        """fills pump by changing to first valve, moving to max position
+        """fills pump by opening all valves, moving to position
+        STEPS_PER_STROKE
         """
         # check if pump is busy
         if self.checkBusy():
@@ -376,14 +415,13 @@ class MainWindow(QMainWindow):
         speed_ml = self.ui.drawSpeedSpinBox.value()  # get speed from GUI
         speed_count = self.speedMLToStepPerSec(speed_ml)
         cmd_str = (self.CmdStr.pumpID(1) +
-                   self.CmdStr.setValve(1) +
+                   self.CmdStr.setValvesIn() +
                    self.CmdStr.setTopSpeed(speed_count) +
                    self.CmdStr.fullPickup())
-        # command_string = "/1I1V" + str(speed) + "A6000"
         self.write(cmd_str)
 
     def emptyPump(self):
-        """empties pump by changing to first valve, moving to position 0
+        """empties pump back into input source, moving to position 0
         """
         # check if pump is busy
         if self.checkBusy():
@@ -392,10 +430,10 @@ class MainWindow(QMainWindow):
         speed_ml = self.ui.dispenseSpeedSpinBox.value()    # get speed from GUI
         speed_count = self.speedMLToStepPerSec(speed_ml)
         cmd_str = (self.CmdStr.pumpID(1) +
-                   self.CmdStr.setValve(1) +
+                   self.CmdStr.setValvesIn() +
                    self.CmdStr.setTopSpeed(speed_count) +
                    self.CmdStr.fullDispense())
-        # command_string = "/1I1V" + str(speed) + "A0"
+        # cmd_str = "/1I1V" + str(speed) + "A0"
         self.write(cmd_str)
 
     def primeLines(self):
@@ -409,25 +447,17 @@ class MainWindow(QMainWindow):
         dispense_speed_count = self.speedMLToStepPerSec(dispense_speed_ml)
 
         cmd_str = (self.CmdStr.pumpID(1) +
-                   self.CmdStr.setValve(1) +
+                   self.CmdStr.setValvesIn() +
                    self.CmdStr.setTopSpeed(draw_speed_count) +
-                   self.CmdStr.relativePickup(int(STEPS_PER_STROKE / 4)) +
+                   self.CmdStr.relativePickup(int(STEPS_PER_STROKE/4)) +
                    self.CmdStr.setTopSpeed(dispense_speed_count) +
                    self.CmdStr.fullDispense() +
                    self.CmdStr.setTopSpeed(draw_speed_count) +
                    self.CmdStr.fullPickup() +
-                   self.CmdStr.setTopSpeed(dispense_speed_count))
-        for valve in range(2, 10):
-            cmd_str += (self.CmdStr.setValve(valve) +
-                        self.CmdStr.relativeDispense(int(STEPS_PER_STROKE / 8)))
-        cmd_str += (self.CmdStr.setValve(1) +
-                    self.CmdStr.fullDispense())
-        # command_string = "/1I1V" + str(drawspeed) + "A1200" + "I2V" + str(dispensespeed) + "A0I1V" + str(drawspeed) + "A6000"
-        # # build command string
-        # command_string += "V" + str(dispensespeed)
-        # for column in range(8):
-        #     command_string += "I" + str(column+2) + "D" + str(750)
-        # command_string += "I1V" + str(drawspeed)# + "A6000"
+                   self.CmdStr.setValvesOut() +
+                   self.CmdStr.setTopSpeed(dispense_speed_count) +
+                   self.CmdStr.fullDispense() +
+                   self.CmdStr.setValvesIn())
         self.write(cmd_str)
 
     # def emptyLines(self):
@@ -448,7 +478,7 @@ class MainWindow(QMainWindow):
     #     self.write(command_string)
 
     def emptyPumpLines(self):
-        """empties pumps and lines"""
+        """Pickup from all lines, dispense back to source reservoir"""
         # check if pump is busy
         if self.checkBusy():
             return
@@ -458,25 +488,21 @@ class MainWindow(QMainWindow):
         draw_speed_count = self.speedMLToStepPerSec(draw_speed_ml)
         dispense_speed_count = self.speedMLToStepPerSec(dispense_speed_ml)
         cmd_str = (self.CmdStr.pumpID(1) +
-                   self.CmdStr.setValve(1) +
+                   self.CmdStr.setValvesIn() +
                    self.CmdStr.setTopSpeed(dispense_speed_count) +
                    self.CmdStr.fullDispense() +
-                   self.CmdStr.setTopSpeed(draw_speed_count))
-        for valve in range(2, 10):
-            cmd_str += (self.CmdStr.setValve(valve) +
-                        self.CmdStr.relativePickup(int(STEPS_PER_STROKE/8)))
-        cmd_str += (self.CmdStr.setValve(1) +
-                    self.CmdStr.setTopSpeed(dispense_speed_count) +
-                    self.CmdStr.fullDispense())
-        # command_string = "/1I1V"+ str(dispensespeed)+ "A0" +"V" + str(drawspeed)
-        # for column in range(8):
-        #     command_string += "I" + str(column+2) + "P" + str(750)
-        # command_string += "I1V" + str(dispensespeed) + "A0"
+                   self.CmdStr.setValvesOut() +
+                   self.CmdStr.setTopSpeed(draw_speed_count) +
+                   self.CmdStr.fullPickup() +
+                   self.CmdStr.setValvesIn() +
+                   self.CmdStr.setTopSpeed(dispense_speed_count) +
+                   self.CmdStr.fullDispense())
         self.write(cmd_str)
 
     # def cleanLines(self):
     #     """clean lines by dispensing a fixed volume through each channel"""
     #     # check if pump is busy
+    #     print("cleanLines()")
     #     if self.checkBusy():
     #         return
     #     drawspeed = int(self.ui.drawSpeedSpinBox.value())    # get speed from GUI
@@ -499,23 +525,31 @@ class MainWindow(QMainWindow):
     def enableColumnSelect(self):
         """toggles column checkbox enable states based off of "all" checkbox"""
         if(self.ui.allCheckBox.checkState()):
-            self.ui.column1CheckBox.setEnabled(False)
-            self.ui.column2CheckBox.setEnabled(False)
-            self.ui.column3CheckBox.setEnabled(False)
-            self.ui.column4CheckBox.setEnabled(False)
-            self.ui.column5CheckBox.setEnabled(False)
-            self.ui.column6CheckBox.setEnabled(False)
-            self.ui.column7CheckBox.setEnabled(False)
-            self.ui.column8CheckBox.setEnabled(False)
+            self.ui.A1B1CheckBox.setEnabled(False)
+            self.ui.A2B2CheckBox.setEnabled(False)
+            self.ui.A3B3CheckBox.setEnabled(False)
+            self.ui.A4B4CheckBox.setEnabled(False)
+            self.ui.A5B5CheckBox.setEnabled(False)
+            self.ui.A6B6CheckBox.setEnabled(False)
+            self.ui.C1D1CheckBox.setEnabled(False)
+            self.ui.C2D2CheckBox.setEnabled(False)
+            self.ui.C3D3CheckBox.setEnabled(False)
+            self.ui.C4D4CheckBox.setEnabled(False)
+            self.ui.C5D5CheckBox.setEnabled(False)
+            self.ui.C6D6CheckBox.setEnabled(False)
         else:
-            self.ui.column1CheckBox.setEnabled(True)
-            self.ui.column2CheckBox.setEnabled(True)
-            self.ui.column3CheckBox.setEnabled(True)
-            self.ui.column4CheckBox.setEnabled(True)
-            self.ui.column5CheckBox.setEnabled(True)
-            self.ui.column6CheckBox.setEnabled(True)
-            self.ui.column7CheckBox.setEnabled(True)
-            self.ui.column8CheckBox.setEnabled(True)
+            self.ui.A1B1CheckBox.setEnabled(True)
+            self.ui.A2B2CheckBox.setEnabled(True)
+            self.ui.A3B3CheckBox.setEnabled(True)
+            self.ui.A4B4CheckBox.setEnabled(True)
+            self.ui.A5B5CheckBox.setEnabled(True)
+            self.ui.A6B6CheckBox.setEnabled(True)
+            self.ui.C1D1CheckBox.setEnabled(True)
+            self.ui.C2D2CheckBox.setEnabled(True)
+            self.ui.C3D3CheckBox.setEnabled(True)
+            self.ui.C4D4CheckBox.setEnabled(True)
+            self.ui.C5D5CheckBox.setEnabled(True)
+            self.ui.C6D6CheckBox.setEnabled(True)
 
     def dispense(self):
         """dispenses to the columns (all or individually selected)"""
@@ -528,80 +562,67 @@ class MainWindow(QMainWindow):
         draw_speed_count = self.speedMLToStepPerSec(draw_speed_ml)
         dispense_speed_count = self.speedMLToStepPerSec(dispense_speed_ml)
         # if the "all" check box is selected, dispense to all columns
-        if(self.ui.allCheckBox.checkState()):
+        all_columns = False
+        if self.ui.allCheckBox.checkState():
             print("all columns")
-            columns = [True]*8   # [True, True, True, ...]
+            columns = [True]*8
         # else just the selected columns
         else:
             columns = self.getColumnCheckBoxes()    # [True, False, True, ...]
+            # TODO: THIS ONLY WORKS FOR 1 PUMP FOR NOW!!
+            columns = columns[0:6] # FIX THIS!!!!!
+            columns.extend([False, False])
+
         num_cols = columns.count(True)
+        if num_cols == 6:   # FIX THIS!!!!!
+            all_columns = True
+
         # get the number of steps needed based on value of dispense volume
         syringe_size_ml = self.getSyringeSize_ml()
         if syringe_size_ml < 1:
             ml_per_column = self.ui.dispenseSpinBox.value()/1000
         else:
             ml_per_column = self.ui.dispenseSpinBox.value()
-        total_ml = ml_per_column*num_cols
-        steps_per_column = self.volumeToSteps(ml_per_column)
-        total_steps = self.volumeToSteps(ml_per_column*num_cols)
-        num_of_strokes = total_ml/syringe_size_ml
+        ml_to_dispense = ml_per_column * 2  # syringes divided to 2 cols, so vol/syringe = 2*col_vol
+        total_steps = self.volumeToSteps(ml_to_dispense)
+        num_of_strokes = total_steps / STEPS_PER_STROKE
+        total_ml = ml_per_column * num_cols
+
         # builds command string.
         self.dbprint(
             "\n\tDISPENSE:\n"
             "\t\t# of columns: {num_cols}\n"
+            "\t\tall columns?  {all_columns}\n"
             "\t\tml/column:    {ml_per_column}\n"
             "\t\ttotal ml:     {total_ml}\n"
-            "\t\tsteps/column: {steps_per_column}\n"
             "\t\ttotal steps:  {total_steps}\n"
             "\t\t# of strokes: {num_of_strokes}"
-            "".format(num_cols=num_cols, ml_per_column=ml_per_column,
-                      total_ml=total_ml, steps_per_column=steps_per_column,
+            "".format(num_cols=num_cols, all_columns=all_columns,
+                      ml_per_column=ml_per_column, total_ml=total_ml,
                       total_steps=total_steps, num_of_strokes=num_of_strokes
                       ).expandtabs(4))
 
         steps_remaining = total_steps
         cmd_str = self.CmdStr.pumpID(1)
         # do the dispense in a loop
-        # while steps_remaining > 0:
-        #     # if more than 1 stroke req'd, full stroke & reduce steps_remaining
-        #     if steps_remaining > 6000:
-        #         steps = 6000
-        #         sub_steps_per_col = int(6000/num_cols)
-        #         steps_remaining -= 6000
-        #     # if less than 1 stroke req'd, just do that many steps
-        #     else:
-        #         steps = int(steps_remaining)
-        #         sub_steps_per_col = int(steps_remaining/num_cols)
-        #         steps_remaining = 0
-
-        # do the dispense in a loop
         for stroke in range(math.ceil(num_of_strokes)):
+            # if more than 1 stroke req'd, full stroke
             if num_of_strokes > 1:
                 steps = STEPS_PER_STROKE
-                sub_steps_per_col = int(STEPS_PER_STROKE/num_cols)
-                self.dbprint("sub_steps_per_col: {}".format(sub_steps_per_col))
+            # if less than 1 stroke req'd, just do that many steps
             else:
                 steps = int(num_of_strokes * STEPS_PER_STROKE)
-                sub_steps_per_col = int((num_of_strokes * STEPS_PER_STROKE)/num_cols)
-                self.dbprint("sub_steps_per_col: {}".format(sub_steps_per_col))
             # draw from reservoir and prepare dispense speed
-            cmd_str += (self.CmdStr.setValve(1) +
-                        self.CmdStr.setTopSpeed(draw_speed_count) +
-                        self.CmdStr.absolutePosition(steps) +
-                        self.CmdStr.setTopSpeed(dispense_speed_count))
-            # cmd_str += "V" + str(drawspeed) + "I1A" + str(steps) + "V" + str(dispensespeed)
-            # dispense to each selected column
-            for idx, col in enumerate(columns):
-                if col:
-                    port = idx + 2  # port starts at 2
-                    cmd_str += (self.CmdStr.setValve(port) +
-                                self.CmdStr.relativeDispense(sub_steps_per_col))
-                    # cmd_str += "I" + str(port) + "D" + str(sub_steps_per_col)
-                    self.dbprint(cmd_str)
+            cmd_str = (cmd_str +
+                       self.CmdStr.setValvesIn() +
+                       self.CmdStr.setTopSpeed(draw_speed_count) +
+                       self.CmdStr.absolutePosition(steps) +
+                       self.CmdStr.setValves(columns) +
+                       self.CmdStr.setTopSpeed(dispense_speed_count) + 
+                       self.CmdStr.fullDispense())
+            self.dbprint(cmd_str)
             num_of_strokes -= 1
-        cmd_str += (self.CmdStr.setValve(1) +
-                    self.CmdStr.fullDispense())
-        # cmd_str += "I1A0"
+        cmd_str += self.CmdStr.setValvesIn()
         self.write(cmd_str)
 
     def getColumnCheckBoxes(self):
@@ -609,14 +630,18 @@ class MainWindow(QMainWindow):
         dispense/prime methods
         """
         # boolean array, true = box selected
-        result = [self.ui.column1CheckBox.isChecked(),
-                  self.ui.column2CheckBox.isChecked(),
-                  self.ui.column3CheckBox.isChecked(),
-                  self.ui.column4CheckBox.isChecked(),
-                  self.ui.column5CheckBox.isChecked(),
-                  self.ui.column6CheckBox.isChecked(),
-                  self.ui.column7CheckBox.isChecked(),
-                  self.ui.column8CheckBox.isChecked()]
+        result = [self.ui.A1B1CheckBox.isChecked(),
+                  self.ui.A2B2CheckBox.isChecked(),
+                  self.ui.A3B3CheckBox.isChecked(),
+                  self.ui.A4B4CheckBox.isChecked(),
+                  self.ui.A5B5CheckBox.isChecked(),
+                  self.ui.A6B6CheckBox.isChecked(),
+                  self.ui.C1D1CheckBox.isChecked(),
+                  self.ui.C2D2CheckBox.isChecked(),
+                  self.ui.C3D3CheckBox.isChecked(),
+                  self.ui.C4D4CheckBox.isChecked(),
+                  self.ui.C5D5CheckBox.isChecked(),
+                  self.ui.C6D6CheckBox.isChecked()]
         return result
 
     def stopPump(self):
@@ -772,9 +797,27 @@ class CommandStringBuilder(object):
         """Set the speed slope for subsequent movements"""
         return "L{}".format(slope)
 
-    def setValve(self, valve):
-        """Change the valve to the specified number valve (1-9)"""
-        return "I{}".format(valve)
+    def setValvesIn(self):
+        """Set all valves to Input position"""
+        return "I"
+
+    def setValvesOut(self):
+        """Set all valves to Output position"""
+        return "O"
+
+    def setValves(self, valve_list=[0]*8):
+        """Set valves individually"""
+        print("valve_list = {}".format(valve_list))
+        if valve_list.count(0) == 8:
+            return self.setValvesIn()
+        elif valve_list.count(1) == 8:
+            return self.setValvesOut()
+        else:
+            cmd_str = "B"
+            for v in valve_list:
+                cmd_str += str(int(v))
+            print("SetValves str: {}".format(cmd_str))
+            return cmd_str
 
     def fullPickup(self):
         """Move the plunger to the absolute position given"""
