@@ -288,12 +288,19 @@ class MainWindow(QMainWindow):
         if self.ui.comPortComboBox.count() == 0:
             self.ui.comPortComboBox.addItem("<no COM found>")
 
-    def write(self, cmd):
+    def write(self, cmd_list):
         """sends a command through the serial port (appends the R to indicate
         execution), returns pump response
         """
-        cmd += self.CmdStr.execute()
-        print(cmd)
+        if type(cmd_list) is not list:
+            self.dbprint("CMD IS NOT LIST!!!!")
+            return
+        cmd = ""
+        for item in cmd_list:
+            item += self.CmdStr.execute()
+            cmd += item
+        print(cmd_list)
+        print(cmd.encode())
         if self.file_name:
             self.file.write("> {}".format(cmd))
         if self.debug:
@@ -380,10 +387,11 @@ class MainWindow(QMainWindow):
         # check if pump is busy
         if self.checkBusy(busy_debug=False):
             return
+        cmd_list = []
         for pump_id in range(1, 3):
-            cmd_str = self.CmdStr.initPump(pump_id)
-            self.write(cmd_str)
+            cmd_list.append(self.CmdStr.initPump(pump_id))
         # after initialization, enable the rest of the GUI
+        self.write(cmd_list)
         self.ui.fillButton.setEnabled(True)
         self.ui.emptyButton.setEnabled(True)
         self.enableAllBoxes()
