@@ -624,7 +624,11 @@ class Ui_MainWindow(object):
         self.actionConsole = QtWidgets.QAction(MainWindow)
         self.actionConsole.setEnabled(False)
         self.actionConsole.setObjectName("actionConsole")
+        self.actionEmergStop = QtWidgets.QAction(MainWindow)
+        self.actionEmergStop.setObjectName("actionEmergStop")
+        self.menuFile.addAction(self.actionEmergStop)
         self.menuFile.addAction(self.actionConsole)
+        self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionQuit)
         self.menubar.addAction(self.menuFile.menuAction())
 
@@ -716,6 +720,9 @@ class Ui_MainWindow(object):
         self.actionQuit.setShortcut(_translate("MainWindow", "Ctrl+Q"))
         self.actionConsole.setText(_translate("MainWindow", "Console"))
         self.actionConsole.setStatusTip(_translate("MainWindow", "Open a console for manual serial commands. Connection must be open."))
+        self.actionEmergStop.setText(_translate("MainWindow", "Emergency Stop"))
+        self.actionEmergStop.setStatusTip(_translate("MainWindow", "Force stop the pump."))
+        self.actionEmergStop.setShortcut(_translate("MainWindow", "Ctrl+X"))
 
 
 if __name__ == "__main__":
