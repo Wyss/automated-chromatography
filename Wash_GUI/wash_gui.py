@@ -98,18 +98,12 @@ class MainWindow(QMainWindow):
             col_label.setAlignment(Qt.AlignHCenter)
 
         vFrames = [
-            self.ui.A1B1vFrame,
-            self.ui.A2B2vFrame,
-            self.ui.A3B3vFrame,
-            self.ui.A4B4vFrame,
-            self.ui.A5B5vFrame,
-            self.ui.A6B6vFrame,
-            self.ui.C1D1vFrame,
-            self.ui.C2D2vFrame,
-            self.ui.C3D3vFrame,
-            self.ui.C4D4vFrame,
-            self.ui.C5D5vFrame,
-            self.ui.C6D6vFrame,
+            self.ui.col1vFrame,
+            self.ui.col2vFrame,
+            self.ui.col3vFrame,
+            self.ui.col4vFrame,
+            self.ui.col5vFrame,
+            self.ui.col6vFrame
             ]
         for vFrame in vFrames:
             vFrame.setFrameShape(QFrame.Box)
@@ -118,18 +112,12 @@ class MainWindow(QMainWindow):
         # is greyed out
         self.ui.allCheckBox.setChecked(True)
         checkboxes = [
-            self.ui.A1B1CheckBox,
-            self.ui.A2B2CheckBox,
-            self.ui.A3B3CheckBox,
-            self.ui.A4B4CheckBox,
-            self.ui.A5B5CheckBox,
-            self.ui.A6B6CheckBox,
-            self.ui.C1D1CheckBox,
-            self.ui.C2D2CheckBox,
-            self.ui.C3D3CheckBox,
-            self.ui.C4D4CheckBox,
-            self.ui.C5D5CheckBox,
-            self.ui.C6D6CheckBox,
+            self.ui.col1CheckBox,
+            self.ui.col2CheckBox,
+            self.ui.col3CheckBox,
+            self.ui.col4CheckBox,
+            self.ui.col5CheckBox,
+            self.ui.col6CheckBox
         ]
         for box in checkboxes:
             box.setEnabled(False)
@@ -513,34 +501,23 @@ class MainWindow(QMainWindow):
     def enableColumnSelect(self):
         """toggles column checkbox enable states based off of "all" checkbox"""
         if(self.ui.allCheckBox.checkState()):
-            self.ui.A1B1CheckBox.setEnabled(False)
-            self.ui.A2B2CheckBox.setEnabled(False)
-            self.ui.A3B3CheckBox.setEnabled(False)
-            self.ui.A4B4CheckBox.setEnabled(False)
-            self.ui.A5B5CheckBox.setEnabled(False)
-            self.ui.A6B6CheckBox.setEnabled(False)
-            self.ui.C1D1CheckBox.setEnabled(False)
-            self.ui.C2D2CheckBox.setEnabled(False)
-            self.ui.C3D3CheckBox.setEnabled(False)
-            self.ui.C4D4CheckBox.setEnabled(False)
-            self.ui.C5D5CheckBox.setEnabled(False)
-            self.ui.C6D6CheckBox.setEnabled(False)
+            self.ui.col1CheckBox.setEnabled(False)
+            self.ui.col2CheckBox.setEnabled(False)
+            self.ui.col3CheckBox.setEnabled(False)
+            self.ui.col4CheckBox.setEnabled(False)
+            self.ui.col5CheckBox.setEnabled(False)
+            self.ui.col6CheckBox.setEnabled(False)
         else:
-            self.ui.A1B1CheckBox.setEnabled(True)
-            self.ui.A2B2CheckBox.setEnabled(True)
-            self.ui.A3B3CheckBox.setEnabled(True)
-            self.ui.A4B4CheckBox.setEnabled(True)
-            self.ui.A5B5CheckBox.setEnabled(True)
-            self.ui.A6B6CheckBox.setEnabled(True)
-            self.ui.C1D1CheckBox.setEnabled(True)
-            self.ui.C2D2CheckBox.setEnabled(True)
-            self.ui.C3D3CheckBox.setEnabled(True)
-            self.ui.C4D4CheckBox.setEnabled(True)
-            self.ui.C5D5CheckBox.setEnabled(True)
-            self.ui.C6D6CheckBox.setEnabled(True)
+            self.ui.col1CheckBox.setEnabled(True)
+            self.ui.col2CheckBox.setEnabled(True)
+            self.ui.col3CheckBox.setEnabled(True)
+            self.ui.col4CheckBox.setEnabled(True)
+            self.ui.col5CheckBox.setEnabled(True)
+            self.ui.col6CheckBox.setEnabled(True)
 
     def dispense(self):
-        """dispenses to the columns (all or individually selected)"""
+        """dispenses to the columns (all or selected columns [wellplate columns])"""
+        cmd_dict = {}
         # TODO: make sure this deals with all reasonable cases.. may want to query pump status before commands are written
         # check if pump is busy
         if self.checkBusy():
@@ -553,13 +530,14 @@ class MainWindow(QMainWindow):
         all_columns = False
         if self.ui.allCheckBox.checkState():
             print("all columns")
-            columns = [True] * 12
+            columns = [True] * 6
         # else just the selected columns
         else:
             columns = self.getColumnCheckBoxes()    # [True, False, True, ...]
-
+        # need to add 2 False columns to match pump channels
+        columns.extend([False] * 2)
         num_cols = columns.count(True)
-        if num_cols == 12:
+        if num_cols == 6:
             all_columns = True
 
         # get the number of steps needed based on value of dispense volume
@@ -587,66 +565,112 @@ class MainWindow(QMainWindow):
                       total_steps=total_steps, num_of_strokes=num_of_strokes
                       ).expandtabs(4))
 
-        # separate the valves for the two pumps
-        columns_split = [columns[0:6], columns[6:12]]
-
         steps_remaining = total_steps
-        for pump_id in range(1,3):
-            valve_list = columns_split[pump_id]
-            cmd_str = self.CmdStr.pumpID(pump_id)
-            # do the dispense in a loop
-            for stroke in range(math.ceil(num_of_strokes)):
-                # if more than 1 stroke req'd, full stroke
-                if num_of_strokes > 1:
-                    steps = STEPS_PER_STROKE
-                # if less than 1 stroke req'd, just do that many steps
-                else:
-                    steps = int(num_of_strokes * STEPS_PER_STROKE)
-                # draw from reservoir and prepare dispense speed
-                cmd_str = (cmd_str +
-                           self.CmdStr.setValvesIn() +
-                           self.CmdStr.setTopSpeed(draw_speed_count) +
-                           self.CmdStr.absolutePosition(steps) +
-                           self.CmdStr.setValves(valve_list) +
-                           self.CmdStr.setTopSpeed(dispense_speed_count) +
-                           self.CmdStr.fullDispense())
-                self.dbprint(cmd_str)
-                num_of_strokes -= 1
-            cmd_str += self.CmdStr.setValvesIn()
-            self.write(cmd_str)
+        for pump_id in DUAL_ID:
+            cmd_dict[pump_id] = self.CmdStr.pumpID(pump_id)
+        # do the dispense in a loop
+        for stroke in range(math.ceil(num_of_strokes)):
+            # if more than 1 stroke req'd, full stroke
+            if num_of_strokes > 1:
+                steps = STEPS_PER_STROKE
+            # if less than 1 stroke req'd, just do that many steps
+            else:
+                steps = int(num_of_strokes * STEPS_PER_STROKE)
+            # draw from reservoir and prepare dispense speed
+            for pump_id in DUAL_ID:
+                print("columns (sent to setValves): {}".format(columns))
+                cmd_dict[pump_id] += (
+                        self.CmdStr.setValvesIn() +
+                        self.CmdStr.setTopSpeed(draw_speed_count) +
+                        self.CmdStr.absolutePosition(steps) +
+                        self.CmdStr.setValves(columns) +
+                        self.CmdStr.setTopSpeed(dispense_speed_count) +
+                        self.CmdStr.fullDispense()
+                )
+            self.dbprint(cmd_dict)
+            num_of_strokes -= 1
+        for pump_id in DUAL_ID:
+            cmd_dict[pump_id] += self.CmdStr.setValvesIn()
+        self.write(cmd_dict)
+
+
+        # # separate the valves for the two pumps
+        # columns_split = [columns[0:6], columns[6:12]]
+        # for i, pump_id in enumerate(range(1,3)):
+        #     valve_list = columns_split[i]
+        #     cmd_str = self.CmdStr.pumpID(pump_id)
+        #     # do the dispense in a loop
+        #     for stroke in range(math.ceil(num_of_strokes)):
+        #         # if more than 1 stroke req'd, full stroke
+        #         if num_of_strokes > 1:
+        #             steps = STEPS_PER_STROKE
+        #         # if less than 1 stroke req'd, just do that many steps
+        #         else:
+        #             steps = int(num_of_strokes * STEPS_PER_STROKE)
+        #         # draw from reservoir and prepare dispense speed
+        #         cmd_str = (cmd_str +
+        #                    self.CmdStr.setValvesIn() +
+        #                    self.CmdStr.setTopSpeed(draw_speed_count) +
+        #                    self.CmdStr.absolutePosition(steps) +
+        #                    self.CmdStr.setValves(valve_list) +
+        #                    self.CmdStr.setTopSpeed(dispense_speed_count) +
+        #                    self.CmdStr.fullDispense())
+        #         self.dbprint(cmd_str)
+        #         num_of_strokes -= 1
+        #     cmd_str += self.CmdStr.setValvesIn()
+        #     cmd_list.append(cmd_str)
+        # self.write(cmd_dict)
 
     def getColumnCheckBoxes(self):
         """method to check which column boxes are selected; for use by the
         dispense/prime methods
         """
         # boolean array, true = box selected
-        result = [self.ui.A1B1CheckBox.isChecked(),
-                  self.ui.A2B2CheckBox.isChecked(),
-                  self.ui.A3B3CheckBox.isChecked(),
-                  self.ui.A4B4CheckBox.isChecked(),
-                  self.ui.A5B5CheckBox.isChecked(),
-                  self.ui.A6B6CheckBox.isChecked(),
-                  self.ui.C1D1CheckBox.isChecked(),
-                  self.ui.C2D2CheckBox.isChecked(),
-                  self.ui.C3D3CheckBox.isChecked(),
-                  self.ui.C4D4CheckBox.isChecked(),
-                  self.ui.C5D5CheckBox.isChecked(),
-                  self.ui.C6D6CheckBox.isChecked()]
+        result = [self.ui.col1CheckBox.isChecked(),
+                  self.ui.col2CheckBox.isChecked(),
+                  self.ui.col3CheckBox.isChecked(),
+                  self.ui.col4CheckBox.isChecked(),
+                  self.ui.col5CheckBox.isChecked(),
+                  self.ui.col6CheckBox.isChecked()]
         return result
 
     def stopPump(self):
         """interrupts the pump and stops operation"""
+        cmd_dict = {}
+        cmd = ""
         print("STOP PUMP!!!!")
-        for pump_id in range(1,3):
-            cmd = self.CmdStr.terminate(pump_id)
+        for pump_id in DUAL_ID:
+            cmd_dict[pump_id] = self.CmdStr.terminate(pump_id)
             if self.debug:
                 self.dbprint("pump {} stopped".format(pump_id))
-                print(cmd)
-                if self.file_name:
-                    self.file.write("> {}".format(cmd))
-            else:
-                self.serial.write(cmd.encode())
-                time.sleep(0.02)
+        for i in cmd_dict:
+            cmd += cmd_dict[i]
+        print(cmd_dict)
+        print(cmd.encode())
+        if self.debug:
+            if self.file_name:
+                self.file.write("> {}".format(cmd))
+        else:
+            self.serial.write(cmd.encode())
+            time.sleep(0.02)
+
+    # def stopPump(self):
+    #     """interrupts the pump and stops operations, to each pump separately
+    #     """
+    #     cmd = ""
+    #     print("STOP PUMP!!!!")
+    #     for pump_id in range(1,3):
+    #         cmd += self.CmdStr.terminate(pump_id)
+
+    #         if self.debug:
+    #             self.dbprint("pump {} stopped".format(pump_id))
+    #     print(cmd)
+    #     if self.debug:
+    #         if self.file_name:
+    #             self.file.write("> {}".format(cmd))
+    #     else:
+    #         self.serial.write(cmd.encode())
+    #         time.sleep(0.02)
 
     def volumeToSteps(self, volume_ml):
         """Convert given volume in ml to a number of steps
@@ -770,15 +794,20 @@ class CommandStringBuilder(object):
         """Set all valves to Output position"""
         return "O"
 
-    def setValves(self, valve_list=[False] * 6):
+    def setValves(self, valve_list=[False] * 8):
         """Set valves individually"""
+        if len(valve_list) < 8:
+            ext_by = 8 - len(valve_list)
+            valve_list.extend([False] * ext_by)
         print("valve_list = {}".format(valve_list))
-        if valve_list.count(False) == 6:
+        
+        # final 2 valves should always be False, so 
+        # False count = 8 & True count = 6
+        if valve_list.count(False) == 8:
             return self.setValvesIn()
         elif valve_list.count(True) == 6:
             return self.setValvesOut()
         else:
-            valve_list.extend([False, False])
             cmd_str = "B"
             for v in valve_list:
                 cmd_str += str(int(v))
