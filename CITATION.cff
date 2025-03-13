@@ -1,0 +1,43 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Automated Chromatography
+message: Development of the automated chromatography rack
+type: software
+authors:
+  - given-names: David
+    family-names: Kalish
+    email: david.kalish@wyss.harvard.edu
+    affiliation: Wyss Institute for Biologically Inspired Engineering
+  - given-names: Allen
+    family-names: Tat
+    affiliation: Wyss Institute for Biologically Inspired Engineering
+identifiers:
+  - type: doi
+    value: 10.7554/eLife.86394
+    description: >-
+      Improved isolation of extracellular vesicles by
+      removal of both free proteins and lipoproteins
+  - type: doi
+    value: 10.7554/eLife.70725
+    description: >-
+      Framework for rapid comparison of extracellular
+      vesicle isolation methods
+repository-code: 'https://github.com/Wyss/automated-chromatography'
+abstract: Development of the automated chromatography rack.
+keywords:
+  - SEC
+  - size exclusion chromatography
+  - EV
+  - extracellular vessicle
+  - python
+  - Qt
+  - PyQt
+  - Tecan
+  - Tecan Cavro
+  - Cavro
+  - raspberry pi
+license: MIT
+commit: c84e5a3
+date-released: '2023-04-04'
