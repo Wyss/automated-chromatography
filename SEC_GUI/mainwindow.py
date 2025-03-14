@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'mainwindow.ui'
+# Form implementation generated from reading ui file 'SEC_GUI\mainwindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.11
 #
@@ -18,7 +18,7 @@ class Ui_MainWindow(object):
         MainWindow.setMinimumSize(QtCore.QSize(480, 800))
         MainWindow.setMaximumSize(QtCore.QSize(480, 800))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("../../../Desktop/unnamed.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("SEC_GUI\\../../../Desktop/unnamed.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")

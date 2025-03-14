@@ -50,7 +50,7 @@ class MainWindow(QMainWindow):
             print("File opened: {}".format(self.file.name))
             # self.openFile(self.write)
 
-        # connect GUI signals to methods
+        # BUTTONS
         # connect/disconnect from serial port:
         self.ui.connectButton.clicked.connect(self.serialConnect)
         # refresh available ports in COM spinbox:
@@ -73,10 +73,16 @@ class MainWindow(QMainWindow):
         self.ui.allCheckBox.stateChanged.connect(self.enableColumnSelect)
         # send halt command to pump:
         self.ui.stopButton.clicked.connect(self.stopPump)
+        # FILE MENU
         # quit application
         self.ui.actionQuit.triggered.connect(self.quitExit)
         # open console
         self.ui.actionConsole.triggered.connect(self.openConsole)
+        # ACTION MENU
+        # reconnect & init:
+        self.ui.actionReconnectInit.triggered.connect(self.reconnectAndInit)
+        # send halt command to pump:
+        self.ui.actionEmergStop.triggered.connect(self.stopPump)
 
         # Set tooltips
         self.setConnectTooltip()
@@ -144,6 +150,13 @@ class MainWindow(QMainWindow):
             self.serial.setBaudRate(QtSerialPort.QSerialPort.Baud9600)
         if baud == 38400:
             self.serial.setBaudRate(QtSerialPort.QSerialPort.Baud38400)
+
+    def reconnectAndInit(self):
+        if self.serial.isOpen():
+            self.serialDisconnect()
+        self.serialConnect()
+        self.setSyringeSize()
+        self.initializePump()
 
     def serialConnect(self):
         """attempts to connect to serial com port with assumed settings"""
@@ -389,7 +402,6 @@ class MainWindow(QMainWindow):
                    self.CmdStr.setValve(1) +
                    self.CmdStr.setTopSpeed(speed_count) +
                    self.CmdStr.fullPickup())
-        # command_string = "/1I1V" + str(speed) + "A6000"
         self.write(cmd_str)
 
     def emptyPump(self):
@@ -405,7 +417,6 @@ class MainWindow(QMainWindow):
                    self.CmdStr.setValve(1) +
                    self.CmdStr.setTopSpeed(speed_count) +
                    self.CmdStr.fullDispense())
-        # command_string = "/1I1V" + str(speed) + "A0"
         self.write(cmd_str)
 
     def primeLines(self):
@@ -432,30 +443,7 @@ class MainWindow(QMainWindow):
                         self.CmdStr.relativeDispense(int(STEPS_PER_STROKE / 8)))
         cmd_str += (self.CmdStr.setValve(1) +
                     self.CmdStr.fullDispense())
-        # command_string = "/1I1V" + str(drawspeed) + "A1200" + "I2V" + str(dispensespeed) + "A0I1V" + str(drawspeed) + "A6000"
-        # # build command string
-        # command_string += "V" + str(dispensespeed)
-        # for column in range(8):
-        #     command_string += "I" + str(column+2) + "D" + str(750)
-        # command_string += "I1V" + str(drawspeed)# + "A6000"
         self.write(cmd_str)
-
-    # def emptyLines(self):
-    #     """empties lines"""
-    #     # empty pump
-    #     # self.emptyPump()
-    #     # do not build and send command until pump is no longer busy
-    #     # self._waitReady(1,10,1)
-    #     # build command to draw from each line
-    #     speed = int(self.ui.drawSpeedSpinBox.value())    # get speed from GUI
-    #     command_string = "/1I1V" + str(speed)
-    #     for column in range(8):
-    #         command_string += "I" + str(column+2) + "P" + str(750)
-    #     # do not send another command until pump is no longer busy
-    #     # self._waitReady()
-    #     # empty pump
-    #     # self.emptyPump()
-    #     self.write(command_string)
 
     def emptyPumpLines(self):
         """empties pumps and lines"""
@@ -478,33 +466,7 @@ class MainWindow(QMainWindow):
         cmd_str += (self.CmdStr.setValve(1) +
                     self.CmdStr.setTopSpeed(dispense_speed_count) +
                     self.CmdStr.fullDispense())
-        # command_string = "/1I1V"+ str(dispensespeed)+ "A0" +"V" + str(drawspeed)
-        # for column in range(8):
-        #     command_string += "I" + str(column+2) + "P" + str(750)
-        # command_string += "I1V" + str(dispensespeed) + "A0"
         self.write(cmd_str)
-
-    # def cleanLines(self):
-    #     """clean lines by dispensing a fixed volume through each channel"""
-    #     # check if pump is busy
-    #     if self.checkBusy():
-    #         return
-    #     drawspeed = int(self.ui.drawSpeedSpinBox.value())    # get speed from GUI
-    #     dispensespeed = int(self.ui.dispenseSpeedSpinBox.value())    # get speed from GUI
-    #     command_string = "/1I1V" + str(drawspeed) + "A6000"
-    #     # build command string
-    #     command_string += "V" + str(dispensespeed)
-    #     for column in range(8):
-    #         command_string += "I" + str(column+2) + "D" + str(750)
-    #     command_string += "I1V" + str(drawspeed)# + "A6000"
-    #     self.write(command_string)
-
-    # def flushLines(self):
-    #     """flushes lines a couple of times..."""
-    #     # check if pump is busy
-    #     if self.checkBusy():
-    #         return
-    #     self.cleanLines()
 
     def enableColumnSelect(self):
         """toggles column checkbox enable states based off of "all" checkbox"""
@@ -571,18 +533,6 @@ class MainWindow(QMainWindow):
 
         steps_remaining = total_steps
         cmd_str = self.CmdStr.pumpID(1)
-        # do the dispense in a loop
-        # while steps_remaining > 0:
-        #     # if more than 1 stroke req'd, full stroke & reduce steps_remaining
-        #     if steps_remaining > 6000:
-        #         steps = 6000
-        #         sub_steps_per_col = int(6000/num_cols)
-        #         steps_remaining -= 6000
-        #     # if less than 1 stroke req'd, just do that many steps
-        #     else:
-        #         steps = int(steps_remaining)
-        #         sub_steps_per_col = int(steps_remaining/num_cols)
-        #         steps_remaining = 0
 
         # do the dispense in a loop
         for stroke in range(math.ceil(num_of_strokes)):
@@ -599,19 +549,16 @@ class MainWindow(QMainWindow):
                         self.CmdStr.setTopSpeed(draw_speed_count) +
                         self.CmdStr.absolutePosition(steps) +
                         self.CmdStr.setTopSpeed(dispense_speed_count))
-            # cmd_str += "V" + str(drawspeed) + "I1A" + str(steps) + "V" + str(dispensespeed)
             # dispense to each selected column
             for idx, col in enumerate(columns):
                 if col:
                     port = idx + 2  # port starts at 2
                     cmd_str += (self.CmdStr.setValve(port) +
                                 self.CmdStr.relativeDispense(sub_steps_per_col))
-                    # cmd_str += "I" + str(port) + "D" + str(sub_steps_per_col)
                     self.dbprint(cmd_str)
             num_of_strokes -= 1
         cmd_str += (self.CmdStr.setValve(1) +
                     self.CmdStr.fullDispense())
-        # cmd_str += "I1A0"
         self.write(cmd_str)
 
     def getColumnCheckBoxes(self):
@@ -723,12 +670,6 @@ class MainWindow(QMainWindow):
                 self.timer.start(1000)
             else:
                 return
-
-    # def openFile(self, filename):
-    #     """Open the file `filename` (and create if needed) for saving serial
-    #     commands sent and received
-    #     """
-    #     self.file = open(filename, "w")
 
     # def closeEvent(self, event):
     def exitCommands(self):
