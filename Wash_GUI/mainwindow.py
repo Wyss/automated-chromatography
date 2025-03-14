@@ -411,6 +411,8 @@ class Ui_MainWindow(object):
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
+        self.menuActions = QtWidgets.QMenu(self.menubar)
+        self.menuActions.setObjectName("menuActions")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -422,11 +424,15 @@ class Ui_MainWindow(object):
         self.actionConsole.setObjectName("actionConsole")
         self.actionEmergStop = QtWidgets.QAction(MainWindow)
         self.actionEmergStop.setObjectName("actionEmergStop")
-        self.menuFile.addAction(self.actionEmergStop)
+        self.actionReconnectInit = QtWidgets.QAction(MainWindow)
+        self.actionReconnectInit.setObjectName("actionReconnectInit")
         self.menuFile.addAction(self.actionConsole)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionQuit)
+        self.menuActions.addAction(self.actionEmergStop)
+        self.menuActions.addAction(self.actionReconnectInit)
         self.menubar.addAction(self.menuFile.menuAction())
+        self.menubar.addAction(self.menuActions.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -517,6 +523,7 @@ class Ui_MainWindow(object):
         self.stopButton.setToolTip(_translate("MainWindow", "Interrupt pump and stop all actions."))
         self.stopButton.setText(_translate("MainWindow", "STOP PUMP"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
+        self.menuActions.setTitle(_translate("MainWindow", "Action"))
         self.actionQuit.setText(_translate("MainWindow", "Quit"))
         self.actionQuit.setStatusTip(_translate("MainWindow", "Quit the application"))
         self.actionQuit.setShortcut(_translate("MainWindow", "Ctrl+Q"))
@@ -525,6 +532,9 @@ class Ui_MainWindow(object):
         self.actionEmergStop.setText(_translate("MainWindow", "Emergency Stop"))
         self.actionEmergStop.setStatusTip(_translate("MainWindow", "Force stop the pump."))
         self.actionEmergStop.setShortcut(_translate("MainWindow", "Ctrl+X"))
+        self.actionReconnectInit.setText(_translate("MainWindow", "Reconnect and Initialize"))
+        self.actionReconnectInit.setStatusTip(_translate("MainWindow", "Disconnect, set syringe size, and initialize pump."))
+        self.actionReconnectInit.setShortcut(_translate("MainWindow", "Ctrl+R"))
 
 
 if __name__ == "__main__":

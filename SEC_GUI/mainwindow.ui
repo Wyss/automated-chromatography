@@ -1015,12 +1015,19 @@ QCheckBox::indicator:unchecked:disabled
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionEmergStop"/>
     <addaction name="actionConsole"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
+   <widget class="QMenu" name="menuActions">
+    <property name="title">
+     <string>Action</string>
+    </property>
+    <addaction name="actionEmergStop"/>
+    <addaction name="actionReconnectInit"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuActions"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionQuit">
@@ -1054,6 +1061,17 @@ QCheckBox::indicator:unchecked:disabled
    </property>
    <property name="shortcut">
     <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="actionReconnectInit">
+   <property name="text">
+    <string>Reconnect and Initialize</string>
+   </property>
+   <property name="statusTip">
+    <string>Disconnect, set syringe size, and initialize pump.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
    </property>
   </action>
  </widget>
