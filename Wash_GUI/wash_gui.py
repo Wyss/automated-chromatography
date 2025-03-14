@@ -42,7 +42,7 @@ class MainWindow(QMainWindow):
             print("File opened: {}".format(self.file.name))
             # self.openFile(self.write)
 
-        # connect GUI signals to methods
+        # BUTTONS
         # connect/disconnect from serial port:
         self.ui.connectButton.clicked.connect(self.serialConnect)
         # refresh available ports in COM spinbox:
@@ -65,8 +65,14 @@ class MainWindow(QMainWindow):
         self.ui.allCheckBox.stateChanged.connect(self.enableColumnSelect)
         # send halt command to pump:
         self.ui.stopButton.clicked.connect(self.stopPump)
-        # quit application
+        # FILE MENU
+        # quit application:
         self.ui.actionQuit.triggered.connect(qApp.quit)
+        # ACTION MENU
+        # reconnect & init:
+        self.ui.actionReconnectInit.triggered.connect(self.reconnectAndInit)
+        # send halt command to pump:
+        self.ui.actionEmergStop.triggered.connect(self.stopPump)
 
         # Set tooltips
         self.setConnectTooltip()
@@ -160,6 +166,13 @@ class MainWindow(QMainWindow):
             self.serial.setBaudRate(QtSerialPort.QSerialPort.Baud9600)
         if baud == 38400:
             self.serial.setBaudRate(QtSerialPort.QSerialPort.Baud38400)
+
+    def reconnectAndInit(self):
+        if self.serial.isOpen():
+            self.serialDisconnect()
+        self.serialConnect()
+        self.setSyringeSize()
+        self.initializePump()
 
     def serialConnect(self):
         """attempts to connect to serial com port with assumed settings"""
@@ -593,7 +606,6 @@ class MainWindow(QMainWindow):
             cmd_dict[pump_id] += self.CmdStr.setValvesIn()
         self.write(cmd_dict)
 
-
         # # separate the valves for the two pumps
         # columns_split = [columns[0:6], columns[6:12]]
         # for i, pump_id in enumerate(range(1,3)):
@@ -653,24 +665,6 @@ class MainWindow(QMainWindow):
         else:
             self.serial.write(cmd.encode())
             time.sleep(0.02)
-
-    # def stopPump(self):
-    #     """interrupts the pump and stops operations, to each pump separately
-    #     """
-    #     cmd = ""
-    #     print("STOP PUMP!!!!")
-    #     for pump_id in range(1,3):
-    #         cmd += self.CmdStr.terminate(pump_id)
-
-    #         if self.debug:
-    #             self.dbprint("pump {} stopped".format(pump_id))
-    #     print(cmd)
-    #     if self.debug:
-    #         if self.file_name:
-    #             self.file.write("> {}".format(cmd))
-    #     else:
-    #         self.serial.write(cmd.encode())
-    #         time.sleep(0.02)
 
     def volumeToSteps(self, volume_ml):
         """Convert given volume in ml to a number of steps
