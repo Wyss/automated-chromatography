@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'mainwindow.ui'
+# Form implementation generated from reading ui file 'Wash_GUI\mainwindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.11
 #
@@ -14,10 +14,10 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(480, 800)
+        MainWindow.resize(480, 817)
         MainWindow.setMinimumSize(QtCore.QSize(0, 0))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("../../../Desktop/unnamed.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("Wash_GUI\\../../../Desktop/unnamed.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -407,12 +407,10 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addWidget(self.emergencyStopBox, 4, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 480, 19))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 480, 21))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
-        self.menuActions = QtWidgets.QMenu(self.menubar)
-        self.menuActions.setObjectName("menuActions")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -420,19 +418,14 @@ class Ui_MainWindow(object):
         self.actionQuit = QtWidgets.QAction(MainWindow)
         self.actionQuit.setObjectName("actionQuit")
         self.actionConsole = QtWidgets.QAction(MainWindow)
-        self.actionConsole.setEnabled(False)
         self.actionConsole.setObjectName("actionConsole")
         self.actionEmergStop = QtWidgets.QAction(MainWindow)
         self.actionEmergStop.setObjectName("actionEmergStop")
-        self.actionReconnectInit = QtWidgets.QAction(MainWindow)
-        self.actionReconnectInit.setObjectName("actionReconnectInit")
+        self.menuFile.addAction(self.actionEmergStop)
         self.menuFile.addAction(self.actionConsole)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionQuit)
-        self.menuActions.addAction(self.actionEmergStop)
-        self.menuActions.addAction(self.actionReconnectInit)
         self.menubar.addAction(self.menuFile.menuAction())
-        self.menubar.addAction(self.menuActions.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -523,18 +516,15 @@ class Ui_MainWindow(object):
         self.stopButton.setToolTip(_translate("MainWindow", "Interrupt pump and stop all actions."))
         self.stopButton.setText(_translate("MainWindow", "STOP PUMP"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
-        self.menuActions.setTitle(_translate("MainWindow", "Action"))
         self.actionQuit.setText(_translate("MainWindow", "Quit"))
         self.actionQuit.setStatusTip(_translate("MainWindow", "Quit the application"))
         self.actionQuit.setShortcut(_translate("MainWindow", "Ctrl+Q"))
         self.actionConsole.setText(_translate("MainWindow", "Console"))
         self.actionConsole.setStatusTip(_translate("MainWindow", "Open a console for manual serial commands. Connection must be open."))
+        self.actionConsole.setShortcut(_translate("MainWindow", "Ctrl+C"))
         self.actionEmergStop.setText(_translate("MainWindow", "Emergency Stop"))
         self.actionEmergStop.setStatusTip(_translate("MainWindow", "Force stop the pump."))
         self.actionEmergStop.setShortcut(_translate("MainWindow", "Ctrl+X"))
-        self.actionReconnectInit.setText(_translate("MainWindow", "Reconnect and Initialize"))
-        self.actionReconnectInit.setStatusTip(_translate("MainWindow", "Disconnect, set syringe size, and initialize pump."))
-        self.actionReconnectInit.setShortcut(_translate("MainWindow", "Ctrl+R"))
 
 
 if __name__ == "__main__":

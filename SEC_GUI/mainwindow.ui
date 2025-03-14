@@ -1015,6 +1015,7 @@ QCheckBox::indicator:unchecked:disabled
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionEmergStop"/>
     <addaction name="actionConsole"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
@@ -1042,14 +1043,25 @@ QCheckBox::indicator:unchecked:disabled
    </property>
   </action>
   <action name="actionConsole">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
    <property name="text">
     <string>Console</string>
    </property>
    <property name="statusTip">
     <string>Open a console for manual serial commands. Connection must be open.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionEmergStop">
+   <property name="text">
+    <string>Emergency Stop</string>
+   </property>
+   <property name="statusTip">
+    <string>Force stop the pump.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
    </property>
   </action>
   <action name="actionEmergStop">

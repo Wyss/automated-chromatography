@@ -4,11 +4,16 @@ import time
 import signal
 import argparse
 import atexit
+import ast
 from PyQt5 import QtTest, QtSerialPort
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QDialog, QMessageBox,
-                             QPushButton, qApp, QFrame)
+                             QPushButton, qApp, QFrame, QWidget)
 from PyQt5.QtCore import QFile, QTimer, QIODevice, pyqtSignal, Qt
 from mainwindow import Ui_MainWindow
+
+# to import consolewindow from parent dir
+sys.path.append("..")
+from consolewindow import Ui_ConsoleWindow
 
 # PLUNGER_POSITION = 0
 # MAXSPEED = 6000
@@ -32,6 +37,11 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
         self.show()
         self.CmdStr = CommandStringBuilder()
+        self.console_window = None
+        self.ui_console = None
+
+        # close window with X
+        self.closeEvent = self.quitExit
 
         # set constants/configs
         self.debug = debug
@@ -66,8 +76,10 @@ class MainWindow(QMainWindow):
         # send halt command to pump:
         self.ui.stopButton.clicked.connect(self.stopPump)
         # FILE MENU
-        # quit application:
-        self.ui.actionQuit.triggered.connect(qApp.quit)
+        # quit application
+        self.ui.actionQuit.triggered.connect(self.quitExit)
+        # open console
+        self.ui.actionConsole.triggered.connect(self.openConsole)
         # ACTION MENU
         # reconnect & init:
         self.ui.actionReconnectInit.triggered.connect(self.reconnectAndInit)
@@ -233,7 +245,6 @@ class MainWindow(QMainWindow):
             self.ui.initializeButton.setEnabled(False)
             self.ui.fillButton.setEnabled(False)
             self.ui.emptyButton.setEnabled(False)
-            self.ui.actionConsole.setEnabled(True)
             # change the method that the the connect button is linked to
             # (serialDisconnect)
             self.ui.connectButton.clicked.disconnect()
@@ -275,7 +286,6 @@ class MainWindow(QMainWindow):
         self.ui.syringeButton.setEnabled(True)
         self.ui.syringeButton.setText("Set Syringe Size")
         self.ui.syringeComboBox.setEnabled(True)
-        self.ui.actionConsole.setEnabled(False)
         self.setConnectTooltip()
         self.ui.connectButton.clicked.disconnect()
         self.ui.connectButton.clicked.connect(self.serialConnect)
@@ -666,6 +676,9 @@ class MainWindow(QMainWindow):
             self.serial.write(cmd.encode())
             time.sleep(0.02)
 
+    def quitExit(self, event):
+        qApp.quit()
+
     def volumeToSteps(self, volume_ml):
         """Convert given volume in ml to a number of steps
         """
@@ -745,6 +758,45 @@ class MainWindow(QMainWindow):
             print("DEBUG MODE: {}".format(msg))
         return
 
+    def openConsole(self):
+        """Open the console window to send manual commands
+        """
+        self.ui_console = None
+        if self.console_window is None:
+            self.console_window = QMainWindow()
+            self.ui_console = Ui_ConsoleWindow()
+            self.ui_console.setupUi(self.console_window)
+            # connect signals
+            self.ui_console.actionClose.triggered.connect(self.closeConsole)
+            self.ui_console.sendButton.clicked.connect(self.sendConsoleCmd)
+            self.ui_console.cmdLineEdit.returnPressed.connect(self.sendConsoleCmd)
+            # override closeEvent because X-ing out breaks it for next time
+            self.console_window.closeEvent = self.closeConsole
+        self.console_window.show()
+
+    def closeConsole(self, event):
+        """Close the console window
+        """
+        self.console_window.close()
+        self.console_window = None
+
+    def sendConsoleCmd(self):
+        """Send the command entered in the lineEdit
+        """
+        raw_cmd = self.ui_console.cmdLineEdit.text()
+        cmd = ast.literal_eval(F'"{raw_cmd}"')
+        self.ui_console.consoleTextEdit.append(raw_cmd)
+        print(cmd.encode())
+
+        self.serial.write(cmd.encode())
+        # may not need this portion of the code
+        time.sleep(0.02)
+        self.serial.waitForBytesWritten(100)
+        if self.serial.waitForReadyRead(100):
+            response = self.receive()
+            self.ui_console.consoleTextEdit.append(str(response))
+            return response
+
 
 class CommandStringBuilder(object):
     """Generates strings for pump commands"""
@@ -794,8 +846,8 @@ class CommandStringBuilder(object):
             ext_by = 8 - len(valve_list)
             valve_list.extend([False] * ext_by)
         print("valve_list = {}".format(valve_list))
-        
-        # final 2 valves should always be False, so 
+
+        # final 2 valves should always be False, so
         # False count = 8 & True count = 6
         if valve_list.count(False) == 8:
             return self.setValvesIn()
