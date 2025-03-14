@@ -4,6 +4,7 @@ import time
 import signal
 import argparse
 import atexit
+import ast
 from PyQt5 import QtTest, QtSerialPort
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QDialog, QMessageBox,
                              QPushButton, qApp, QFrame, QWidget)
@@ -788,8 +789,9 @@ class MainWindow(QMainWindow):
     def sendConsoleCmd(self):
         """Send the command entered in the lineEdit
         """
-        cmd = self.ui_console.cmdLineEdit.text()
-        self.ui_console.consoleTextEdit.append(cmd)
+        raw_cmd = self.ui_console.cmdLineEdit.text()
+        cmd = ast.literal_eval(F'"{raw_cmd}"')
+        self.ui_console.consoleTextEdit.append(raw_cmd)
         print(cmd.encode())
 
         self.serial.write(cmd.encode())
@@ -798,7 +800,7 @@ class MainWindow(QMainWindow):
         self.serial.waitForBytesWritten(100)
         if self.serial.waitForReadyRead(100):
             response = self.receive()
-            self.ui_console.cmdLineEdit.append(response)
+            self.ui_console.consoleTextEdit.append(str(response))
             return response
 
 
