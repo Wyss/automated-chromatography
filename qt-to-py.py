@@ -1,9 +1,5 @@
 # convert *.ui (Qt file) to *.py (PyQt file)
 
-import sys
-# allow imports from parent directory
-sys.path.append("..")
-
 import glob
 import argparse
 import subprocess
@@ -17,7 +13,6 @@ args = parser.parse_args()
 
 # gather files
 files = glob.glob("**/*.ui", recursive=True)
-# files.append(glob.glob("../*.ui"))
 print(files)
 # do the pyuic5 stuff
 for file in files:
