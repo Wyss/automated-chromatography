@@ -483,7 +483,7 @@ class MainWindow(QMainWindow):
                     self.CmdStr.pumpID(pump_id) +
                     self.CmdStr.setValvesIn() +
                     self.CmdStr.setTopSpeed(draw_speed_count) +
-                    self.CmdStr.relativePickup(int(STEPS_PER_STROKE/4)) +
+                    self.CmdStr.relativePickup(int(STEPS_PER_STROKE*0.75)) +
                     self.CmdStr.setTopSpeed(dispense_speed_count) +
                     self.CmdStr.fullDispense() +
                     self.CmdStr.setTopSpeed(draw_speed_count) +
