@@ -15,42 +15,33 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(480, 800)
-        MainWindow.setMinimumSize(QtCore.QSize(480, 800))
-        MainWindow.setMaximumSize(QtCore.QSize(480, 800))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("SEC_GUI\\../../../Desktop/unnamed.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
+        self.mainLayout = QtWidgets.QVBoxLayout(self.centralwidget)
+        self.mainLayout.setObjectName("mainLayout")
         self.commsBox = QtWidgets.QGroupBox(self.centralwidget)
-        self.commsBox.setGeometry(QtCore.QRect(10, 0, 461, 71))
         self.commsBox.setObjectName("commsBox")
-        self.layoutWidget = QtWidgets.QWidget(self.commsBox)
-        self.layoutWidget.setGeometry(QtCore.QRect(10, 31, 441, 32))
-        self.layoutWidget.setObjectName("layoutWidget")
-        self.horizontalLayout = QtWidgets.QHBoxLayout(self.layoutWidget)
-        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.commsBox)
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.comPortComboBox = QtWidgets.QComboBox(self.layoutWidget)
+        self.comPortComboBox = QtWidgets.QComboBox(self.commsBox)
         self.comPortComboBox.setObjectName("comPortComboBox")
         self.comPortComboBox.addItem("")
         self.horizontalLayout.addWidget(self.comPortComboBox)
-        self.connectButton = QtWidgets.QPushButton(self.layoutWidget)
+        self.connectButton = QtWidgets.QPushButton(self.commsBox)
         self.connectButton.setObjectName("connectButton")
         self.horizontalLayout.addWidget(self.connectButton)
-        self.refreshButton = QtWidgets.QPushButton(self.layoutWidget)
+        self.refreshButton = QtWidgets.QPushButton(self.commsBox)
         self.refreshButton.setObjectName("refreshButton")
         self.horizontalLayout.addWidget(self.refreshButton)
+        self.mainLayout.addWidget(self.commsBox)
         self.setUpBox = QtWidgets.QGroupBox(self.centralwidget)
-        self.setUpBox.setGeometry(QtCore.QRect(10, 70, 461, 71))
         self.setUpBox.setObjectName("setUpBox")
-        self.layoutWidget1 = QtWidgets.QWidget(self.setUpBox)
-        self.layoutWidget1.setGeometry(QtCore.QRect(12, 31, 441, 32))
-        self.layoutWidget1.setObjectName("layoutWidget1")
-        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.layoutWidget1)
-        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.setUpBox)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.syringeComboBox = QtWidgets.QComboBox(self.layoutWidget1)
+        self.syringeComboBox = QtWidgets.QComboBox(self.setUpBox)
         self.syringeComboBox.setObjectName("syringeComboBox")
         self.syringeComboBox.addItem("")
         self.syringeComboBox.addItem("")
@@ -61,479 +52,24 @@ class Ui_MainWindow(object):
         self.syringeComboBox.addItem("")
         self.syringeComboBox.addItem("")
         self.horizontalLayout_2.addWidget(self.syringeComboBox)
-        self.syringeButton = QtWidgets.QPushButton(self.layoutWidget1)
+        self.syringeButton = QtWidgets.QPushButton(self.setUpBox)
         self.syringeButton.setObjectName("syringeButton")
         self.horizontalLayout_2.addWidget(self.syringeButton)
-        self.initializeButton = QtWidgets.QPushButton(self.layoutWidget1)
+        self.initializeButton = QtWidgets.QPushButton(self.setUpBox)
         self.initializeButton.setObjectName("initializeButton")
         self.horizontalLayout_2.addWidget(self.initializeButton)
-        self.emergencyStopBox = QtWidgets.QGroupBox(self.centralwidget)
-        self.emergencyStopBox.setGeometry(QtCore.QRect(10, 690, 461, 61))
-        self.emergencyStopBox.setObjectName("emergencyStopBox")
-        self.stopButton = QtWidgets.QPushButton(self.emergencyStopBox)
-        self.stopButton.setGeometry(QtCore.QRect(10, 30, 441, 21))
-        self.stopButton.setObjectName("stopButton")
-        self.dispenseBox = QtWidgets.QGroupBox(self.centralwidget)
-        self.dispenseBox.setGeometry(QtCore.QRect(10, 330, 461, 361))
-        self.dispenseBox.setObjectName("dispenseBox")
-        self.columnSelectBox = QtWidgets.QGroupBox(self.dispenseBox)
-        self.columnSelectBox.setGeometry(QtCore.QRect(10, 90, 441, 261))
-        font = QtGui.QFont()
-        font.setBold(False)
-        self.columnSelectBox.setFont(font)
-        self.columnSelectBox.setObjectName("columnSelectBox")
-        self.layoutWidget2 = QtWidgets.QWidget(self.columnSelectBox)
-        self.layoutWidget2.setGeometry(QtCore.QRect(10, 30, 421, 221))
-        self.layoutWidget2.setObjectName("layoutWidget2")
-        self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.layoutWidget2)
-        self.verticalLayout_4.setContentsMargins(0, 0, 0, 0)
-        self.verticalLayout_4.setObjectName("verticalLayout_4")
-        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
-        self.allCheckBox = QtWidgets.QCheckBox(self.layoutWidget2)
-        self.allCheckBox.setEnabled(True)
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(False)
-        self.allCheckBox.setFont(font)
-        self.allCheckBox.setStyleSheet("QCheckBox::indicator {\n"
-"    width: 40px;\n"
-"    height: 40px;\n"
-"}\n"
-"QCheckBox::indicator:unchecked {\n"
-"     image: url(./CheckBoxIcons/BlankCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:unchecked:hover {\n"
-"    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:unchecked:pressed {\n"
-"    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked {\n"
-"     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked:hover {\n"
-"    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked:pressed {\n"
-"     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
-"}\n"
-"QCheckBox::indicator:checked:disabled\n"
-"{\n"
-"    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);\n"
-"}\n"
-"QCheckBox::indicator:unchecked:disabled\n"
-"{\n"
-"    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);\n"
-"}")
-        self.allCheckBox.setObjectName("allCheckBox")
-        self.horizontalLayout_3.addWidget(self.allCheckBox)
-        self.verticalLayout_3 = QtWidgets.QVBoxLayout()
-        self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.column1CheckBox = QtWidgets.QCheckBox(self.layoutWidget2)
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(False)
-        self.column1CheckBox.setFont(font)
-        self.column1CheckBox.setStyleSheet("QCheckBox::indicator {\n"
-"    width: 40px;\n"
-"    height: 40px;\n"
-"}\n"
-"QCheckBox::indicator:unchecked {\n"
-"     image: url(./CheckBoxIcons/BlankCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:unchecked:hover {\n"
-"    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:unchecked:pressed {\n"
-"    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked {\n"
-"     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked:hover {\n"
-"    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked:pressed {\n"
-"     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
-"}\n"
-"QCheckBox::indicator:checked:disabled\n"
-"{\n"
-"    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);\n"
-"}\n"
-"QCheckBox::indicator:unchecked:disabled\n"
-"{\n"
-"    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);\n"
-"}")
-        self.column1CheckBox.setObjectName("column1CheckBox")
-        self.verticalLayout_3.addWidget(self.column1CheckBox)
-        self.column2CheckBox = QtWidgets.QCheckBox(self.layoutWidget2)
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(False)
-        self.column2CheckBox.setFont(font)
-        self.column2CheckBox.setStyleSheet("QCheckBox::indicator {\n"
-"    width: 40px;\n"
-"    height: 40px;\n"
-"}\n"
-"QCheckBox::indicator:unchecked {\n"
-"     image: url(./CheckBoxIcons/BlankCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:unchecked:hover {\n"
-"    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:unchecked:pressed {\n"
-"    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked {\n"
-"     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked:hover {\n"
-"    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked:pressed {\n"
-"     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
-"}\n"
-"QCheckBox::indicator:checked:disabled\n"
-"{\n"
-"    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);\n"
-"}\n"
-"QCheckBox::indicator:unchecked:disabled\n"
-"{\n"
-"    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);\n"
-"}")
-        self.column2CheckBox.setObjectName("column2CheckBox")
-        self.verticalLayout_3.addWidget(self.column2CheckBox)
-        self.column3CheckBox = QtWidgets.QCheckBox(self.layoutWidget2)
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(False)
-        self.column3CheckBox.setFont(font)
-        self.column3CheckBox.setStyleSheet("QCheckBox::indicator {\n"
-"    width: 40px;\n"
-"    height: 40px;\n"
-"}\n"
-"QCheckBox::indicator:unchecked {\n"
-"     image: url(./CheckBoxIcons/BlankCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:unchecked:hover {\n"
-"    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:unchecked:pressed {\n"
-"    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked {\n"
-"     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked:hover {\n"
-"    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked:pressed {\n"
-"     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
-"}\n"
-"QCheckBox::indicator:checked:disabled\n"
-"{\n"
-"    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);\n"
-"}\n"
-"QCheckBox::indicator:unchecked:disabled\n"
-"{\n"
-"    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);\n"
-"}")
-        self.column3CheckBox.setObjectName("column3CheckBox")
-        self.verticalLayout_3.addWidget(self.column3CheckBox)
-        self.column4CheckBox = QtWidgets.QCheckBox(self.layoutWidget2)
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(False)
-        self.column4CheckBox.setFont(font)
-        self.column4CheckBox.setStyleSheet("QCheckBox::indicator {\n"
-"    width: 40px;\n"
-"    height: 40px;\n"
-"}\n"
-"QCheckBox::indicator:unchecked {\n"
-"     image: url(./CheckBoxIcons/BlankCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:unchecked:hover {\n"
-"    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:unchecked:pressed {\n"
-"    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked {\n"
-"     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked:hover {\n"
-"    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked:pressed {\n"
-"     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
-"}\n"
-"QCheckBox::indicator:checked:disabled\n"
-"{\n"
-"    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);\n"
-"}\n"
-"QCheckBox::indicator:unchecked:disabled\n"
-"{\n"
-"    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);\n"
-"}")
-        self.column4CheckBox.setObjectName("column4CheckBox")
-        self.verticalLayout_3.addWidget(self.column4CheckBox)
-        self.horizontalLayout_3.addLayout(self.verticalLayout_3)
-        self.verticalLayout_2 = QtWidgets.QVBoxLayout()
-        self.verticalLayout_2.setObjectName("verticalLayout_2")
-        self.column5CheckBox = QtWidgets.QCheckBox(self.layoutWidget2)
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(False)
-        self.column5CheckBox.setFont(font)
-        self.column5CheckBox.setStyleSheet("QCheckBox::indicator {\n"
-"    width: 40px;\n"
-"    height: 40px;\n"
-"}\n"
-"QCheckBox::indicator:unchecked {\n"
-"     image: url(./CheckBoxIcons/BlankCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:unchecked:hover {\n"
-"    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:unchecked:pressed {\n"
-"    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked {\n"
-"     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked:hover {\n"
-"    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked:pressed {\n"
-"     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
-"}\n"
-"QCheckBox::indicator:checked:disabled\n"
-"{\n"
-"    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);\n"
-"}\n"
-"QCheckBox::indicator:unchecked:disabled\n"
-"{\n"
-"    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);\n"
-"}")
-        self.column5CheckBox.setObjectName("column5CheckBox")
-        self.verticalLayout_2.addWidget(self.column5CheckBox)
-        self.column6CheckBox = QtWidgets.QCheckBox(self.layoutWidget2)
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(False)
-        self.column6CheckBox.setFont(font)
-        self.column6CheckBox.setStyleSheet("QCheckBox::indicator {\n"
-"    width: 40px;\n"
-"    height: 40px;\n"
-"}\n"
-"QCheckBox::indicator:unchecked {\n"
-"     image: url(./CheckBoxIcons/BlankCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:unchecked:hover {\n"
-"    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:unchecked:pressed {\n"
-"    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked {\n"
-"     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked:hover {\n"
-"    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked:pressed {\n"
-"     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
-"}\n"
-"QCheckBox::indicator:checked:disabled\n"
-"{\n"
-"    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);\n"
-"}\n"
-"QCheckBox::indicator:unchecked:disabled\n"
-"{\n"
-"    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);\n"
-"}")
-        self.column6CheckBox.setObjectName("column6CheckBox")
-        self.verticalLayout_2.addWidget(self.column6CheckBox)
-        self.column7CheckBox = QtWidgets.QCheckBox(self.layoutWidget2)
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(False)
-        self.column7CheckBox.setFont(font)
-        self.column7CheckBox.setStyleSheet("QCheckBox::indicator {\n"
-"    width: 40px;\n"
-"    height: 40px;\n"
-"}\n"
-"QCheckBox::indicator:unchecked {\n"
-"     image: url(./CheckBoxIcons/BlankCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:unchecked:hover {\n"
-"    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:unchecked:pressed {\n"
-"    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked {\n"
-"     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked:hover {\n"
-"    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked:pressed {\n"
-"     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
-"}\n"
-"QCheckBox::indicator:checked:disabled\n"
-"{\n"
-"    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);\n"
-"}\n"
-"QCheckBox::indicator:unchecked:disabled\n"
-"{\n"
-"    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);\n"
-"}")
-        self.column7CheckBox.setObjectName("column7CheckBox")
-        self.verticalLayout_2.addWidget(self.column7CheckBox)
-        self.column8CheckBox = QtWidgets.QCheckBox(self.layoutWidget2)
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(False)
-        self.column8CheckBox.setFont(font)
-        self.column8CheckBox.setStyleSheet("QCheckBox::indicator {\n"
-"    width: 40px;\n"
-"    height: 40px;\n"
-"}\n"
-"QCheckBox::indicator:unchecked {\n"
-"     image: url(./CheckBoxIcons/BlankCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:unchecked:hover {\n"
-"    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:unchecked:pressed {\n"
-"    image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked {\n"
-"     image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked:hover {\n"
-"    image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
-"}\n"
-"\n"
-"QCheckBox::indicator:checked:pressed {\n"
-"     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
-"}\n"
-"QCheckBox::indicator:checked:disabled\n"
-"{\n"
-"    image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);\n"
-"}\n"
-"QCheckBox::indicator:unchecked:disabled\n"
-"{\n"
-"    image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);\n"
-"}")
-        self.column8CheckBox.setIconSize(QtCore.QSize(16, 16))
-        self.column8CheckBox.setObjectName("column8CheckBox")
-        self.verticalLayout_2.addWidget(self.column8CheckBox)
-        self.horizontalLayout_3.addLayout(self.verticalLayout_2)
-        self.verticalLayout_4.addLayout(self.horizontalLayout_3)
-        self.dispenseVolumeButton = QtWidgets.QPushButton(self.layoutWidget2)
-        self.dispenseVolumeButton.setObjectName("dispenseVolumeButton")
-        self.verticalLayout_4.addWidget(self.dispenseVolumeButton)
-        self.dispenseVolumeBox = QtWidgets.QGroupBox(self.dispenseBox)
-        self.dispenseVolumeBox.setGeometry(QtCore.QRect(10, 20, 441, 71))
-        self.dispenseVolumeBox.setObjectName("dispenseVolumeBox")
-        self.layoutWidget3 = QtWidgets.QWidget(self.dispenseVolumeBox)
-        self.layoutWidget3.setGeometry(QtCore.QRect(11, 31, 421, 37))
-        self.layoutWidget3.setObjectName("layoutWidget3")
-        self.horizontalLayout_4 = QtWidgets.QHBoxLayout(self.layoutWidget3)
-        self.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
-        self.dispenseSpinBox = QtWidgets.QDoubleSpinBox(self.layoutWidget3)
-        font = QtGui.QFont()
-        font.setPointSize(14)
-        font.setBold(True)
-        self.dispenseSpinBox.setFont(font)
-        self.dispenseSpinBox.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.dispenseSpinBox.setDecimals(2)
-        self.dispenseSpinBox.setSingleStep(0.1)
-        self.dispenseSpinBox.setObjectName("dispenseSpinBox")
-        self.horizontalLayout_4.addWidget(self.dispenseSpinBox)
-        self.dispenseUnits = QtWidgets.QLabel(self.layoutWidget3)
-        font = QtGui.QFont()
-        font.setPointSize(14)
-        font.setBold(True)
-        self.dispenseUnits.setFont(font)
-        self.dispenseUnits.setObjectName("dispenseUnits")
-        self.horizontalLayout_4.addWidget(self.dispenseUnits)
-        self.volRangeLabel = QtWidgets.QLabel(self.layoutWidget3)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.volRangeLabel.sizePolicy().hasHeightForWidth())
-        self.volRangeLabel.setSizePolicy(sizePolicy)
-        self.volRangeLabel.setObjectName("volRangeLabel")
-        self.horizontalLayout_4.addWidget(self.volRangeLabel)
+        self.mainLayout.addWidget(self.setUpBox)
         self.adjustmentBox = QtWidgets.QGroupBox(self.centralwidget)
-        self.adjustmentBox.setGeometry(QtCore.QRect(10, 140, 461, 191))
         self.adjustmentBox.setObjectName("adjustmentBox")
-        self.layoutWidget4 = QtWidgets.QWidget(self.adjustmentBox)
-        self.layoutWidget4.setGeometry(QtCore.QRect(10, 90, 441, 101))
-        self.layoutWidget4.setObjectName("layoutWidget4")
-        self.horizontalLayout_5 = QtWidgets.QHBoxLayout(self.layoutWidget4)
-        self.horizontalLayout_5.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_5 = QtWidgets.QHBoxLayout(self.adjustmentBox)
         self.horizontalLayout_5.setObjectName("horizontalLayout_5")
-        self.speedGroupBox = QtWidgets.QGroupBox(self.layoutWidget4)
+        self.speedGroupBox = QtWidgets.QGroupBox(self.adjustmentBox)
         self.speedGroupBox.setObjectName("speedGroupBox")
-        self.layoutWidget5 = QtWidgets.QWidget(self.speedGroupBox)
-        self.layoutWidget5.setGeometry(QtCore.QRect(10, 35, 201, 61))
-        self.layoutWidget5.setObjectName("layoutWidget5")
-        self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.layoutWidget5)
-        self.verticalLayout_5.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.speedGroupBox)
         self.verticalLayout_5.setObjectName("verticalLayout_5")
         self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_6.setObjectName("horizontalLayout_6")
-        self.drawSpeedSpinBox = QtWidgets.QDoubleSpinBox(self.layoutWidget5)
+        self.drawSpeedSpinBox = QtWidgets.QDoubleSpinBox(self.speedGroupBox)
         font = QtGui.QFont()
         font.setPointSize(14)
         font.setBold(True)
@@ -545,7 +81,7 @@ class Ui_MainWindow(object):
         self.drawSpeedSpinBox.setSingleStep(0.1)
         self.drawSpeedSpinBox.setObjectName("drawSpeedSpinBox")
         self.horizontalLayout_6.addWidget(self.drawSpeedSpinBox)
-        self.drawSpeedUnits = QtWidgets.QLabel(self.layoutWidget5)
+        self.drawSpeedUnits = QtWidgets.QLabel(self.speedGroupBox)
         font = QtGui.QFont()
         font.setPointSize(14)
         font.setBold(True)
@@ -554,17 +90,13 @@ class Ui_MainWindow(object):
         self.horizontalLayout_6.addWidget(self.drawSpeedUnits)
         self.verticalLayout_5.addLayout(self.horizontalLayout_6)
         self.horizontalLayout_5.addWidget(self.speedGroupBox)
-        self.groupBox = QtWidgets.QGroupBox(self.layoutWidget4)
+        self.groupBox = QtWidgets.QGroupBox(self.adjustmentBox)
         self.groupBox.setObjectName("groupBox")
-        self.layoutWidget6 = QtWidgets.QWidget(self.groupBox)
-        self.layoutWidget6.setGeometry(QtCore.QRect(10, 33, 201, 61))
-        self.layoutWidget6.setObjectName("layoutWidget6")
-        self.verticalLayout_6 = QtWidgets.QVBoxLayout(self.layoutWidget6)
-        self.verticalLayout_6.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_6 = QtWidgets.QVBoxLayout(self.groupBox)
         self.verticalLayout_6.setObjectName("verticalLayout_6")
         self.horizontalLayout_7 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_7.setObjectName("horizontalLayout_7")
-        self.dispenseSpeedSpinBox = QtWidgets.QDoubleSpinBox(self.layoutWidget6)
+        self.dispenseSpeedSpinBox = QtWidgets.QDoubleSpinBox(self.groupBox)
         font = QtGui.QFont()
         font.setPointSize(14)
         font.setBold(True)
@@ -576,7 +108,7 @@ class Ui_MainWindow(object):
         self.dispenseSpeedSpinBox.setSingleStep(0.1)
         self.dispenseSpeedSpinBox.setObjectName("dispenseSpeedSpinBox")
         self.horizontalLayout_7.addWidget(self.dispenseSpeedSpinBox)
-        self.dispenseSpeedUnits = QtWidgets.QLabel(self.layoutWidget6)
+        self.dispenseSpeedUnits = QtWidgets.QLabel(self.groupBox)
         font = QtGui.QFont()
         font.setPointSize(14)
         font.setBold(True)
@@ -585,33 +117,463 @@ class Ui_MainWindow(object):
         self.horizontalLayout_7.addWidget(self.dispenseSpeedUnits)
         self.verticalLayout_6.addLayout(self.horizontalLayout_7)
         self.horizontalLayout_5.addWidget(self.groupBox)
-        self.layoutWidget7 = QtWidgets.QWidget(self.adjustmentBox)
-        self.layoutWidget7.setGeometry(QtCore.QRect(10, 30, 441, 56))
-        self.layoutWidget7.setObjectName("layoutWidget7")
-        self.horizontalLayout_8 = QtWidgets.QHBoxLayout(self.layoutWidget7)
-        self.horizontalLayout_8.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout_8.setObjectName("horizontalLayout_8")
         self.verticalLayout_7 = QtWidgets.QVBoxLayout()
         self.verticalLayout_7.setObjectName("verticalLayout_7")
-        self.fillButton = QtWidgets.QPushButton(self.layoutWidget7)
+        self.fillButton = QtWidgets.QPushButton(self.adjustmentBox)
         self.fillButton.setObjectName("fillButton")
         self.verticalLayout_7.addWidget(self.fillButton)
-        self.primeButton = QtWidgets.QPushButton(self.layoutWidget7)
+        self.primeButton = QtWidgets.QPushButton(self.adjustmentBox)
         self.primeButton.setObjectName("primeButton")
         self.verticalLayout_7.addWidget(self.primeButton)
-        self.horizontalLayout_8.addLayout(self.verticalLayout_7)
+        self.horizontalLayout_5.addLayout(self.verticalLayout_7)
         self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
-        self.emptyButton = QtWidgets.QPushButton(self.layoutWidget7)
+        self.emptyButton = QtWidgets.QPushButton(self.adjustmentBox)
         self.emptyButton.setObjectName("emptyButton")
         self.verticalLayout.addWidget(self.emptyButton)
-        self.emptyLinesButton = QtWidgets.QPushButton(self.layoutWidget7)
+        self.emptyLinesButton = QtWidgets.QPushButton(self.adjustmentBox)
         self.emptyLinesButton.setObjectName("emptyLinesButton")
         self.verticalLayout.addWidget(self.emptyLinesButton)
-        self.horizontalLayout_8.addLayout(self.verticalLayout)
+        self.horizontalLayout_5.addLayout(self.verticalLayout)
+        self.mainLayout.addWidget(self.adjustmentBox)
+        self.dispenseBox = QtWidgets.QGroupBox(self.centralwidget)
+        self.dispenseBox.setObjectName("dispenseBox")
+        self.columnSelectBox = QtWidgets.QGroupBox(self.dispenseBox)
+        font = QtGui.QFont()
+        font.setBold(False)
+        self.columnSelectBox.setFont(font)
+        self.columnSelectBox.setObjectName("columnSelectBox")
+        self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.columnSelectBox)
+        self.verticalLayout_4.setObjectName("verticalLayout_4")
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.allCheckBox = QtWidgets.QCheckBox(self.columnSelectBox)
+        self.allCheckBox.setEnabled(True)
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(False)
+        self.allCheckBox.setFont(font)
+        self.allCheckBox.setStyleSheet("QCheckBox::indicator {\n"
+"     width: 40px;\n"
+"     height: 40px;\n"
+" }\n"
+" QCheckBox::indicator:unchecked {\n"
+"   image: url(./CheckBoxIcons/BlankCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:unchecked:hover {\n"
+"     image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:unchecked:pressed {\n"
+"     image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked {\n"
+"      image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked:hover {\n"
+"     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked:pressed {\n"
+"      image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
+" }\n"
+" QCheckBox::indicator:checked:disabled\n"
+" {\n"
+"     image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);\n"
+" }\n"
+" QCheckBox::indicator:unchecked:disabled\n"
+" {\n"
+"     image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);\n"
+" }")
+        self.allCheckBox.setObjectName("allCheckBox")
+        self.horizontalLayout_3.addWidget(self.allCheckBox)
+        self.verticalLayout_3 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.column1CheckBox = QtWidgets.QCheckBox(self.columnSelectBox)
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(False)
+        self.column1CheckBox.setFont(font)
+        self.column1CheckBox.setStyleSheet("QCheckBox::indicator {\n"
+"     width: 40px;\n"
+"     height: 40px;\n"
+" }\n"
+" QCheckBox::indicator:unchecked {\n"
+"   image: url(./CheckBoxIcons/BlankCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:unchecked:hover {\n"
+"     image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:unchecked:pressed {\n"
+"     image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked {\n"
+"      image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked:hover {\n"
+"     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked:pressed {\n"
+"      image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
+" }\n"
+" QCheckBox::indicator:checked:disabled\n"
+" {\n"
+"     image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);\n"
+" }\n"
+" QCheckBox::indicator:unchecked:disabled\n"
+" {\n"
+"     image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);\n"
+" }")
+        self.column1CheckBox.setObjectName("column1CheckBox")
+        self.verticalLayout_3.addWidget(self.column1CheckBox)
+        self.column2CheckBox = QtWidgets.QCheckBox(self.columnSelectBox)
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(False)
+        self.column2CheckBox.setFont(font)
+        self.column2CheckBox.setStyleSheet("QCheckBox::indicator {\n"
+"     width: 40px;\n"
+"     height: 40px;\n"
+" }\n"
+" QCheckBox::indicator:unchecked {\n"
+"   image: url(./CheckBoxIcons/BlankCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:unchecked:hover {\n"
+"     image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:unchecked:pressed {\n"
+"     image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked {\n"
+"      image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked:hover {\n"
+"     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked:pressed {\n"
+"      image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
+" }\n"
+" QCheckBox::indicator:checked:disabled\n"
+" {\n"
+"     image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);\n"
+" }\n"
+" QCheckBox::indicator:unchecked:disabled\n"
+" {\n"
+"     image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);\n"
+" }")
+        self.column2CheckBox.setObjectName("column2CheckBox")
+        self.verticalLayout_3.addWidget(self.column2CheckBox)
+        self.column3CheckBox = QtWidgets.QCheckBox(self.columnSelectBox)
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(False)
+        self.column3CheckBox.setFont(font)
+        self.column3CheckBox.setStyleSheet("QCheckBox::indicator {\n"
+"     width: 40px;\n"
+"     height: 40px;\n"
+" }\n"
+" QCheckBox::indicator:unchecked {\n"
+"   image: url(./CheckBoxIcons/BlankCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:unchecked:hover {\n"
+"     image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:unchecked:pressed {\n"
+"     image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked {\n"
+"      image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked:hover {\n"
+"     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked:pressed {\n"
+"      image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
+" }\n"
+" QCheckBox::indicator:checked:disabled\n"
+" {\n"
+"     image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);\n"
+" }\n"
+" QCheckBox::indicator:unchecked:disabled\n"
+" {\n"
+"     image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);\n"
+" }")
+        self.column3CheckBox.setObjectName("column3CheckBox")
+        self.verticalLayout_3.addWidget(self.column3CheckBox)
+        self.column4CheckBox = QtWidgets.QCheckBox(self.columnSelectBox)
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(False)
+        self.column4CheckBox.setFont(font)
+        self.column4CheckBox.setStyleSheet("QCheckBox::indicator {\n"
+"     width: 40px;\n"
+"     height: 40px;\n"
+" }\n"
+" QCheckBox::indicator:unchecked {\n"
+"   image: url(./CheckBoxIcons/BlankCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:unchecked:hover {\n"
+"     image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:unchecked:pressed {\n"
+"     image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked {\n"
+"      image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked:hover {\n"
+"     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked:pressed {\n"
+"      image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
+" }\n"
+" QCheckBox::indicator:checked:disabled\n"
+" {\n"
+"     image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);\n"
+" }\n"
+" QCheckBox::indicator:unchecked:disabled\n"
+" {\n"
+"     image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);\n"
+" }")
+        self.column4CheckBox.setObjectName("column4CheckBox")
+        self.verticalLayout_3.addWidget(self.column4CheckBox)
+        self.horizontalLayout_3.addLayout(self.verticalLayout_3)
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.column5CheckBox = QtWidgets.QCheckBox(self.columnSelectBox)
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(False)
+        self.column5CheckBox.setFont(font)
+        self.column5CheckBox.setStyleSheet("QCheckBox::indicator {\n"
+"     width: 40px;\n"
+"     height: 40px;\n"
+" }\n"
+" QCheckBox::indicator:unchecked {\n"
+"   image: url(./CheckBoxIcons/BlankCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:unchecked:hover {\n"
+"     image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:unchecked:pressed {\n"
+"     image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked {\n"
+"      image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked:hover {\n"
+"     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked:pressed {\n"
+"      image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
+" }\n"
+" QCheckBox::indicator:checked:disabled\n"
+" {\n"
+"     image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);\n"
+" }\n"
+" QCheckBox::indicator:unchecked:disabled\n"
+" {\n"
+"     image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);\n"
+" }")
+        self.column5CheckBox.setObjectName("column5CheckBox")
+        self.verticalLayout_2.addWidget(self.column5CheckBox)
+        self.column6CheckBox = QtWidgets.QCheckBox(self.columnSelectBox)
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(False)
+        self.column6CheckBox.setFont(font)
+        self.column6CheckBox.setStyleSheet("QCheckBox::indicator {\n"
+"     width: 40px;\n"
+"     height: 40px;\n"
+" }\n"
+" QCheckBox::indicator:unchecked {\n"
+"   image: url(./CheckBoxIcons/BlankCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:unchecked:hover {\n"
+"     image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:unchecked:pressed {\n"
+"     image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked {\n"
+"      image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked:hover {\n"
+"     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked:pressed {\n"
+"      image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
+" }\n"
+" QCheckBox::indicator:checked:disabled\n"
+" {\n"
+"     image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);\n"
+" }\n"
+" QCheckBox::indicator:unchecked:disabled\n"
+" {\n"
+"     image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);\n"
+" }")
+        self.column6CheckBox.setObjectName("column6CheckBox")
+        self.verticalLayout_2.addWidget(self.column6CheckBox)
+        self.column7CheckBox = QtWidgets.QCheckBox(self.columnSelectBox)
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(False)
+        self.column7CheckBox.setFont(font)
+        self.column7CheckBox.setStyleSheet("QCheckBox::indicator {\n"
+"     width: 40px;\n"
+"     height: 40px;\n"
+" }\n"
+" QCheckBox::indicator:unchecked {\n"
+"   image: url(./CheckBoxIcons/BlankCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:unchecked:hover {\n"
+"     image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:unchecked:pressed {\n"
+"     image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked {\n"
+"      image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked:hover {\n"
+"     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked:pressed {\n"
+"      image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
+" }\n"
+" QCheckBox::indicator:checked:disabled\n"
+" {\n"
+"     image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);\n"
+" }\n"
+" QCheckBox::indicator:unchecked:disabled\n"
+" {\n"
+"     image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);\n"
+" }")
+        self.column7CheckBox.setObjectName("column7CheckBox")
+        self.verticalLayout_2.addWidget(self.column7CheckBox)
+        self.column8CheckBox = QtWidgets.QCheckBox(self.columnSelectBox)
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(False)
+        self.column8CheckBox.setFont(font)
+        self.column8CheckBox.setStyleSheet("QCheckBox::indicator {\n"
+"     width: 40px;\n"
+"     height: 40px;\n"
+" }\n"
+" QCheckBox::indicator:unchecked {\n"
+"   image: url(./CheckBoxIcons/BlankCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:unchecked:hover {\n"
+"     image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:unchecked:pressed {\n"
+"     image: url(./CheckBoxIcons/HoverCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked {\n"
+"      image: url(./CheckBoxIcons/CheckedCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked:hover {\n"
+"     image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
+" }\n"
+"\n"
+" QCheckBox::indicator:checked:pressed {\n"
+"      image: url(./CheckBoxIcons/HoverCheckedCheckBox400px.svg);\n"
+" }\n"
+" QCheckBox::indicator:checked:disabled\n"
+" {\n"
+"     image: url(./CheckBoxIcons/DisabledCheckedCheckBox400px.svg);\n"
+" }\n"
+" QCheckBox::indicator:unchecked:disabled\n"
+" {\n"
+"     image: url(./CheckBoxIcons/DisabledCheckBox400px.svg);\n"
+" }")
+        self.column8CheckBox.setIconSize(QtCore.QSize(16, 16))
+        self.column8CheckBox.setObjectName("column8CheckBox")
+        self.verticalLayout_2.addWidget(self.column8CheckBox)
+        self.horizontalLayout_3.addLayout(self.verticalLayout_2)
+        self.verticalLayout_4.addLayout(self.horizontalLayout_3)
+        self.dispenseVolumeButton = QtWidgets.QPushButton(self.columnSelectBox)
+        self.dispenseVolumeButton.setObjectName("dispenseVolumeButton")
+        self.verticalLayout_4.addWidget(self.dispenseVolumeButton)
+        self.dispenseVolumeBox = QtWidgets.QGroupBox(self.dispenseBox)
+        self.dispenseVolumeBox.setObjectName("dispenseVolumeBox")
+        self.horizontalLayout_4 = QtWidgets.QHBoxLayout(self.dispenseVolumeBox)
+        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
+        self.dispenseSpinBox = QtWidgets.QDoubleSpinBox(self.dispenseVolumeBox)
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        font.setBold(True)
+        self.dispenseSpinBox.setFont(font)
+        self.dispenseSpinBox.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.dispenseSpinBox.setDecimals(2)
+        self.dispenseSpinBox.setSingleStep(0.1)
+        self.dispenseSpinBox.setObjectName("dispenseSpinBox")
+        self.horizontalLayout_4.addWidget(self.dispenseSpinBox)
+        self.dispenseUnits = QtWidgets.QLabel(self.dispenseVolumeBox)
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        font.setBold(True)
+        self.dispenseUnits.setFont(font)
+        self.dispenseUnits.setObjectName("dispenseUnits")
+        self.horizontalLayout_4.addWidget(self.dispenseUnits)
+        self.volRangeLabel = QtWidgets.QLabel(self.dispenseVolumeBox)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.volRangeLabel.sizePolicy().hasHeightForWidth())
+        self.volRangeLabel.setSizePolicy(sizePolicy)
+        self.volRangeLabel.setObjectName("volRangeLabel")
+        self.horizontalLayout_4.addWidget(self.volRangeLabel)
+        self.mainLayout.addWidget(self.dispenseBox)
+        self.emergencyStopBox = QtWidgets.QGroupBox(self.centralwidget)
+        self.emergencyStopBox.setObjectName("emergencyStopBox")
+        self.stopButton = QtWidgets.QPushButton(self.emergencyStopBox)
+        self.stopButton.setObjectName("stopButton")
+        self.mainLayout.addWidget(self.emergencyStopBox)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 480, 19))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -687,9 +649,22 @@ class Ui_MainWindow(object):
         self.syringeButton.setText(_translate("MainWindow", "Set Syringe Size"))
         self.initializeButton.setToolTip(_translate("MainWindow", "Initialize pump before sending commands"))
         self.initializeButton.setText(_translate("MainWindow", "Initialize Pump"))
-        self.emergencyStopBox.setTitle(_translate("MainWindow", "Emergency Stop"))
-        self.stopButton.setToolTip(_translate("MainWindow", "Interrupt pump and stop all actions."))
-        self.stopButton.setText(_translate("MainWindow", "STOP PUMP"))
+        self.adjustmentBox.setTitle(_translate("MainWindow", "Adjustments"))
+        self.speedGroupBox.setTitle(_translate("MainWindow", "Draw Speed"))
+        self.drawSpeedUnits.setText(_translate("MainWindow", "mL/s"))
+        self.groupBox.setTitle(_translate("MainWindow", "Dispense Speed"))
+        self.dispenseSpeedUnits.setText(_translate("MainWindow", "mL/s"))
+        self.fillButton.setToolTip(_translate("MainWindow", "Fully draw syringe, from reservoir"))
+        self.fillButton.setText(_translate("MainWindow", "Fill Syringe Barrel"))
+        self.primeButton.setToolTip(_translate("MainWindow", "1. Draw partly from reservoir.\n"
+" 2. Dispense back to reservoir (remove any air).\n"
+" 3. Draw fully from reservoir.\n"
+" 4. Dispense to each column line equally."))
+        self.primeButton.setText(_translate("MainWindow", "Prime/Clean Lines"))
+        self.emptyButton.setToolTip(_translate("MainWindow", "Dispense syringe barrel to reservoir"))
+        self.emptyButton.setText(_translate("MainWindow", "Empty Syringe Barrel"))
+        self.emptyLinesButton.setToolTip(_translate("MainWindow", "Draw from each column line, dispense to reservoir."))
+        self.emptyLinesButton.setText(_translate("MainWindow", "Empty Lines"))
         self.dispenseBox.setTitle(_translate("MainWindow", "Dispense"))
         self.columnSelectBox.setTitle(_translate("MainWindow", "Column Selection"))
         self.allCheckBox.setText(_translate("MainWindow", "All"))
@@ -702,26 +677,13 @@ class Ui_MainWindow(object):
         self.column7CheckBox.setText(_translate("MainWindow", "Column 7"))
         self.column8CheckBox.setText(_translate("MainWindow", "Column 8"))
         self.dispenseVolumeButton.setToolTip(_translate("MainWindow", "Dispense specified volume from reservoir to column lines*\n"
-"* Either all columns, or specified columns"))
+" * Either all columns, or specified columns"))
         self.dispenseVolumeButton.setText(_translate("MainWindow", "Dispense to Columns"))
         self.dispenseVolumeBox.setTitle(_translate("MainWindow", "Dispense Volume"))
         self.dispenseUnits.setText(_translate("MainWindow", "mL"))
-        self.adjustmentBox.setTitle(_translate("MainWindow", "Adjustments"))
-        self.speedGroupBox.setTitle(_translate("MainWindow", "Draw Speed"))
-        self.drawSpeedUnits.setText(_translate("MainWindow", "mL/s"))
-        self.groupBox.setTitle(_translate("MainWindow", "Dispense Speed"))
-        self.dispenseSpeedUnits.setText(_translate("MainWindow", "mL/s"))
-        self.fillButton.setToolTip(_translate("MainWindow", "Fully draw syringe, from reservoir"))
-        self.fillButton.setText(_translate("MainWindow", "Fill Syringe Barrel"))
-        self.primeButton.setToolTip(_translate("MainWindow", "1. Draw partly from reservoir.\n"
-"2. Dispense back to reservoir (remove any air).\n"
-"3. Draw fully from reservoir.\n"
-"4. Dispense to each column line equally."))
-        self.primeButton.setText(_translate("MainWindow", "Prime/Clean Lines"))
-        self.emptyButton.setToolTip(_translate("MainWindow", "Dispense syringe barrel to reservoir"))
-        self.emptyButton.setText(_translate("MainWindow", "Empty Syringe Barrel"))
-        self.emptyLinesButton.setToolTip(_translate("MainWindow", "Draw from each column line, dispense to reservoir."))
-        self.emptyLinesButton.setText(_translate("MainWindow", "Empty Lines"))
+        self.emergencyStopBox.setTitle(_translate("MainWindow", "Emergency Stop"))
+        self.stopButton.setToolTip(_translate("MainWindow", "Interrupt pump and stop all actions."))
+        self.stopButton.setText(_translate("MainWindow", "STOP PUMP"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.menuActions.setTitle(_translate("MainWindow", "Action"))
         self.actionQuit.setText(_translate("MainWindow", "Quit"))
