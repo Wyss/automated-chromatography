@@ -69,6 +69,11 @@ class MainWindow(QMainWindow):
         self.ui.primeButton.clicked.connect(self.primeLines)
         # Remove all fluid from lines back to reservoir:
         self.ui.emptyLinesButton.clicked.connect(self.emptyPumpLines)
+        # Calculate dispense totals when any of the dispense fields change
+        self.ui.dispVolSpinBox.valueChanged.connect(self.calcDispense)
+        self.ui.dispTimeSpinBox.valueChanged.connect(self.calcDispense)
+        self.ui.dispTimeUnitComboBox.currentTextChanged.connect(self.calcDispense)
+        self.ui.dispRepsSpinBox.valueChanged.connect(self.calcDispense)
         # dispense specified volumes to specified columns:
         self.ui.dispenseVolumeButton.clicked.connect(self.dispense)
         # toggle column checkbox states:
@@ -126,6 +131,9 @@ class MainWindow(QMainWindow):
         for vFrame in vFrames:
             vFrame.setFrameShape(QFrame.Box)
 
+        self.ui.everyLabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.ui.forLabel.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+
         # column check boxes - if "all" is selected, then individual selection
         # is greyed out
         self.ui.allCheckBox.setChecked(True)
@@ -141,7 +149,7 @@ class MainWindow(QMainWindow):
             box.setEnabled(False)
 
         # set dispense volume precision (set in mainwindow.*)
-        # self.ui.dispenseSpinBox.setSingleStep(0.1)
+        # self.ui.dispVolSpinBox.setSingleStep(0.1)
 
         # maximum and minimum values for pump speeds
         max_speed = self.speedStepToMLPerSec(ONE_SECOND_STROKE_SPEED/4)
@@ -354,18 +362,14 @@ class MainWindow(QMainWindow):
         # check if milliliters or microliters?
         if(syringe_size_ml < 1): # microliters
             units = "\u03bcL"
-            self.ui.dispenseSpinBox.setMaximum(syringe_size_ml*1000)
-            self.ui.dispenseSpinBox.setSingleStep(0.100)
-            self.ui.dispenseSpinBox.setValue(syringe_size_ml*1000)
-            self.ui.volRangeLabel.setText(
-                    "(0-{}{})".format(syringe_size_ml*1000, units))
+            self.ui.dispVolSpinBox.setMaximum(syringe_size_ml*1000)
+            self.ui.dispVolSpinBox.setSingleStep(0.100)
+            self.ui.dispVolSpinBox.setValue(syringe_size_ml*1000)
         else: # milliliters
             units = "mL"
-            self.ui.dispenseSpinBox.setMaximum((10))
-            # self.ui.dispenseSpinBox.setSingleStep(0.100)
-            self.ui.dispenseSpinBox.setValue(2.5)
-            self.ui.volRangeLabel.setText(
-                    "(0-{}{})".format(syringe_size_ml, units))
+            self.ui.dispVolSpinBox.setMaximum((10))
+            # self.ui.dispVolSpinBox.setSingleStep(0.100)
+            self.ui.dispVolSpinBox.setValue(2.5)
         self.ui.dispenseUnits.setText(units)
         # display pop-up confirmation that the syringe size has been set
         size = self.ui.syringeComboBox.currentText()
@@ -538,6 +542,19 @@ class MainWindow(QMainWindow):
             self.ui.col5CheckBox.setEnabled(True)
             self.ui.col6CheckBox.setEnabled(True)
 
+    def calcDispense(self):
+        """Calculate the total dispense vol & time based on the 4 dispense
+        parameter fields
+        """
+        vol = self.ui.dispVolSpinBox.value()
+        time = self.ui.dispTimeSpinBox.value()
+        t_unit = self.ui.dispTimeUnitComboBox.currentText()
+        reps = self.ui.dispRepsSpinBox.value()
+
+        if self.debug:
+            self.dbprint("vol {}, time: {} {}, reps: {}".format(vol, time, t_unit, reps))
+        return
+
     def dispense(self):
         """dispenses to the columns (all or selected columns [wellplate columns])"""
         cmd_dict = {}
@@ -566,9 +583,9 @@ class MainWindow(QMainWindow):
         # get the number of steps needed based on value of dispense volume
         syringe_size_ml = self.getSyringeSize_ml()
         if syringe_size_ml < 1:
-            ml_per_column = self.ui.dispenseSpinBox.value()/1000
+            ml_per_column = self.ui.dispVolSpinBox.value()/1000
         else:
-            ml_per_column = self.ui.dispenseSpinBox.value()
+            ml_per_column = self.ui.dispVolSpinBox.value()
         ml_to_dispense = ml_per_column * 2  # syringes divided to 2 cols, so vol/syringe = 2*col_vol
         total_steps = self.volumeToSteps(ml_to_dispense)
         num_of_strokes = total_steps / STEPS_PER_STROKE

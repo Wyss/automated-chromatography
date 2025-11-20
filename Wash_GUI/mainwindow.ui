@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>577</width>
+    <height>757</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>SEC</string>
   </property>
@@ -368,67 +376,195 @@
          <property name="title">
           <string>Dispense Volume</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <layout class="QVBoxLayout" name="verticalLayout_14">
           <item>
-           <widget class="QDoubleSpinBox" name="dispenseSpinBox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>80</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>14</pointsize>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="decimals">
-             <number>1</number>
-            </property>
-            <property name="minimum">
-             <double>0.100000000000000</double>
-            </property>
-            <property name="singleStep">
-             <double>0.500000000000000</double>
-            </property>
-            <property name="value">
-             <double>2.500000000000000</double>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QDoubleSpinBox" name="dispVolSpinBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>80</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>14</pointsize>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="decimals">
+               <number>1</number>
+              </property>
+              <property name="minimum">
+               <double>0.100000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.500000000000000</double>
+              </property>
+              <property name="value">
+               <double>2.500000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="dispenseUnits">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>11</pointsize>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>mL</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="everyLabel">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>11</pointsize>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>every</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="dispTimeSpinBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>80</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>14</pointsize>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="decimals">
+               <number>1</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="dispTimeUnitComboBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>80</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+                <bold>true</bold>
+               </font>
+              </property>
+              <item>
+               <property name="text">
+                <string>min</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>sec</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="forLabel">
+              <property name="font">
+               <font>
+                <pointsize>11</pointsize>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>for</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="dispRepsSpinBox">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>80</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>14</pointsize>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="repsLabel">
+              <property name="font">
+               <font>
+                <pointsize>11</pointsize>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>rep</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item>
-           <widget class="QLabel" name="dispenseUnits">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>11</pointsize>
-              <bold>true</bold>
-             </font>
-            </property>
+           <widget class="QLabel" name="totalDispenseLabel">
             <property name="text">
-             <string>mL</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="volRangeLabel">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+             <string>TextLabel</string>
             </property>
            </widget>
           </item>
@@ -486,7 +622,7 @@
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_3">
                  <item>
-                  <widget class="QLabel" name="label_3">
+                  <widget class="QLabel" name="label_rowA">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                      <horstretch>0</horstretch>
@@ -496,13 +632,10 @@
                    <property name="text">
                     <string>A</string>
                    </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLabel" name="label_2">
+                  <widget class="QLabel" name="label_rowB">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                      <horstretch>0</horstretch>
@@ -512,13 +645,10 @@
                    <property name="text">
                     <string>B</string>
                    </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLabel" name="label_4">
+                  <widget class="QLabel" name="label_rowC">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                      <horstretch>0</horstretch>
@@ -528,13 +658,10 @@
                    <property name="text">
                     <string>C</string>
                    </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLabel" name="label_5">
+                  <widget class="QLabel" name="label_rowD">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                      <horstretch>0</horstretch>
@@ -543,9 +670,6 @@
                    </property>
                    <property name="text">
                     <string>D</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
                   </widget>
                  </item>
@@ -561,8 +685,8 @@
               </item>
               <item row="2" column="7">
                <widget class="QFrame" name="col6vFrame">
-                <layout class="QVBoxLayout" name="verticalLayout_13">
-                 <item alignment="Qt::AlignHCenter">
+                <layout class="QHBoxLayout" name="horizontalLayout_4">
+                 <item>
                   <widget class="QCheckBox" name="col6CheckBox">
                    <property name="font">
                     <font>
@@ -589,8 +713,8 @@
               </item>
               <item row="2" column="5">
                <widget class="QFrame" name="col4vFrame">
-                <layout class="QVBoxLayout" name="verticalLayout_11">
-                 <item alignment="Qt::AlignHCenter">
+                <layout class="QHBoxLayout" name="horizontalLayout_10">
+                 <item>
                   <widget class="QCheckBox" name="col4CheckBox">
                    <property name="font">
                     <font>
@@ -624,8 +748,8 @@
               </item>
               <item row="2" column="2">
                <widget class="QFrame" name="col1vFrame">
-                <layout class="QVBoxLayout" name="verticalLayout_2">
-                 <item alignment="Qt::AlignHCenter">
+                <layout class="QHBoxLayout" name="horizontalLayout_13">
+                 <item>
                   <widget class="QCheckBox" name="col1CheckBox">
                    <property name="font">
                     <font>
@@ -652,8 +776,8 @@
               </item>
               <item row="2" column="3">
                <widget class="QFrame" name="col2vFrame">
-                <layout class="QVBoxLayout" name="verticalLayout_9">
-                 <item alignment="Qt::AlignHCenter">
+                <layout class="QHBoxLayout" name="horizontalLayout_12">
+                 <item>
                   <widget class="QCheckBox" name="col2CheckBox">
                    <property name="font">
                     <font>
@@ -694,8 +818,8 @@
               </item>
               <item row="2" column="4">
                <widget class="QFrame" name="col3vFrame">
-                <layout class="QVBoxLayout" name="verticalLayout_10">
-                 <item alignment="Qt::AlignHCenter">
+                <layout class="QHBoxLayout" name="horizontalLayout_11">
+                 <item>
                   <widget class="QCheckBox" name="col3CheckBox">
                    <property name="font">
                     <font>
@@ -729,8 +853,8 @@
               </item>
               <item row="2" column="6">
                <widget class="QFrame" name="col5vFrame">
-                <layout class="QVBoxLayout" name="verticalLayout_12">
-                 <item alignment="Qt::AlignHCenter">
+                <layout class="QHBoxLayout" name="horizontalLayout_9">
+                 <item>
                   <widget class="QCheckBox" name="col5CheckBox">
                    <property name="font">
                     <font>
@@ -823,6 +947,14 @@
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>577</width>
+     <height>21</height>
+    </rect>
+   </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
@@ -912,7 +1044,6 @@
   <tabstop>emptyButton</tabstop>
   <tabstop>primeButton</tabstop>
   <tabstop>emptyLinesButton</tabstop>
-  <tabstop>dispenseSpinBox</tabstop>
   <tabstop>allCheckBox</tabstop>
   <tabstop>col1CheckBox</tabstop>
   <tabstop>col2CheckBox</tabstop>
