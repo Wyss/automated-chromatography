@@ -5,6 +5,7 @@ import signal
 import argparse
 import atexit
 import ast
+import json
 from PyQt5 import QtTest, QtSerialPort
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QDialog, QMessageBox,
                              QPushButton, qApp, QWidget)
@@ -322,16 +323,12 @@ class MainWindow(QMainWindow):
             self.ui.dispenseSpinBox.setSingleStep(0.100)
             self.ui.dispenseSpinBox.setValue(syringe_size_ml*1000)
             self.ui.dispenseUnits.setText(units)
-            self.ui.volRangeLabel.setText(
-                    "(0-{}{})".format(syringe_size_ml*1000, units))
         else: # milliliters
             units = "mL"
             self.ui.dispenseSpinBox.setMaximum((syringe_size_ml))
             self.ui.dispenseSpinBox.setSingleStep(0.100)
             self.ui.dispenseSpinBox.setValue(2)
             self.ui.dispenseUnits.setText(units)
-            self.ui.volRangeLabel.setText(
-                    "(0-{}{})".format(syringe_size_ml, units))
         # display pop-up confirmation that the syringe size has been set
         size = self.ui.syringeComboBox.currentText()
         print("Syringe size set to " + size)
@@ -517,20 +514,21 @@ class MainWindow(QMainWindow):
         steps_per_column = self.volumeToSteps(ml_per_column)
         total_steps = self.volumeToSteps(ml_per_column*num_cols)
         num_of_strokes = total_ml/syringe_size_ml
-        # builds command string.
-        self.dbprint(
-            "\n\tDISPENSE:\n"
-            "\t\t# of columns: {num_cols}\n"
-            "\t\tml/column:    {ml_per_column}\n"
-            "\t\ttotal ml:     {total_ml}\n"
-            "\t\tsteps/column: {steps_per_column}\n"
-            "\t\ttotal steps:  {total_steps}\n"
-            "\t\t# of strokes: {num_of_strokes}"
-            "".format(num_cols=num_cols, ml_per_column=ml_per_column,
-                      total_ml=total_ml, steps_per_column=steps_per_column,
-                      total_steps=total_steps, num_of_strokes=num_of_strokes
-                      ).expandtabs(4))
 
+        # debug prints parameters.
+        print_dict = {
+            "DISPENSE": {
+                "# of columns": num_cols,
+                "ml/column":    ml_per_column,
+                "total ml":     total_ml,
+                "steps/column": steps_per_column,
+                "total steps":  total_steps,
+                "# of strokes": num_of_strokes,
+            }
+        }
+        self.dbprint(print_dict)
+
+        # builds command string.
         steps_remaining = total_steps
         cmd_str = self.CmdStr.pumpID(1)
 
@@ -688,7 +686,11 @@ class MainWindow(QMainWindow):
         and only displays if app running in debug mode
         """
         if self.debug:
-            print("DEBUG MODE: {}".format(msg))
+            if type(msg) is dict:
+                print("DEBUG MODE:")
+                print(json.dumps(msg, indent=2))
+            else:
+                print("DEBUG MODE: {}".format(msg))
         return
 
     def openConsole(self):

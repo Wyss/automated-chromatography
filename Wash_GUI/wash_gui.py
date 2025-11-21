@@ -5,6 +5,7 @@ import signal
 import argparse
 import atexit
 import ast
+import json
 from datetime import timedelta
 from PyQt5 import QtTest, QtSerialPort
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QDialog, QMessageBox,
@@ -550,29 +551,34 @@ class MainWindow(QMainWindow):
         """Calculate the total dispense vol & time based on the 4 dispense
         parameter fields
         """
+        params = {}
         vol = self.ui.dispVolSpinBox.value()
         time = self.ui.dispTimeSpinBox.value()
         t_unit = self.ui.dispTimeUnitComboBox.currentText()
-        reps = self.ui.dispRepsSpinBox.value()
+        params["reps"] = self.ui.dispRepsSpinBox.value()
 
-        total_vol = vol * reps
-        t_sec = time if t_unit == "sec" else time * 60
-        total_time_s = (t_sec * reps) - t_sec     # omit trailing time
-        total_time_readable = str(timedelta(seconds=total_time_s))
-        dispense_display = ["total vol (per well): {} {}".format(total_vol, self.ui.dispenseUnits.text()),
-                            "total time: {}".format(total_time_readable)]
+        params["total_vol"] = vol * params["reps"]
+        params["rep_sec"] = time if t_unit == "sec" else time * 60
+        params["total_sec"] = (params["rep_sec"] * params["reps"]) - params["rep_sec"]     # omit trailing time
+        total_time_readable = str(timedelta(seconds=params["total_sec"]))
+        dispense_display = [
+            "total vol (per well): {} {}".format(params["total_vol"],
+                                                 self.ui.dispenseUnits.text()),
+            "total time: {}".format(total_time_readable)]
 
         if self.debug:
-            self.dbprint("vol {}, time: {} {}, reps: {}".format(vol, time, t_unit, reps))
-
+            self.dbprint("vol {}, time: {} {}, reps: {}"
+                         "".format(vol, time, t_unit, params["reps"]))
+            self.dbprint(params)
 
         self.ui.totalDispVolLabel.setText(dispense_display[0])
         self.ui.totalDispTimeLabel.setText(dispense_display[1])
-        return
+        return params
 
     def dispense(self):
         """dispenses to the columns (all or selected columns [wellplate columns])"""
         cmd_dict = {}
+        timer_params = self.calcDispense()
         # TODO: make sure this deals with all reasonable cases.. may want to query pump status before commands are written
         # check if pump is busy
         if self.checkBusy():
@@ -606,19 +612,12 @@ class MainWindow(QMainWindow):
         num_of_strokes = total_steps / STEPS_PER_STROKE
         total_ml = ml_per_column * num_cols
 
-        # builds command string.
-        self.dbprint(
-            "\n\tDISPENSE:\n"
-            "\t\t# of columns: {num_cols}\n"
-            "\t\tall columns?  {all_columns}\n"
-            "\t\tml/column:    {ml_per_column}\n"
-            "\t\ttotal ml:     {total_ml}\n"
-            "\t\ttotal steps:  {total_steps}\n"
-            "\t\t# of strokes: {num_of_strokes}"
-            "".format(num_cols=num_cols, all_columns=all_columns,
-                      ml_per_column=ml_per_column, total_ml=total_ml,
-                      total_steps=total_steps, num_of_strokes=num_of_strokes
-                      ).expandtabs(4))
+        # debug prints parameters.
+        print_dict = {
+            "DISPENSE": {
+                "PER REP": {
+                    "# of columns": num_cols,
+                    "all columns":  all_columns,
 
         steps_remaining = total_steps
         for pump_id in DUAL_ID:
@@ -651,29 +650,6 @@ class MainWindow(QMainWindow):
         # # separate the valves for the two pumps
         # columns_split = [columns[0:6], columns[6:12]]
         # for i, pump_id in enumerate(range(1,3)):
-        #     valve_list = columns_split[i]
-        #     cmd_str = self.CmdStr.pumpID(pump_id)
-        #     # do the dispense in a loop
-        #     for stroke in range(math.ceil(num_of_strokes)):
-        #         # if more than 1 stroke req'd, full stroke
-        #         if num_of_strokes > 1:
-        #             steps = STEPS_PER_STROKE
-        #         # if less than 1 stroke req'd, just do that many steps
-        #         else:
-        #             steps = int(num_of_strokes * STEPS_PER_STROKE)
-        #         # draw from reservoir and prepare dispense speed
-        #         cmd_str = (cmd_str +
-        #                    self.CmdStr.setValvesIn() +
-        #                    self.CmdStr.setTopSpeed(draw_speed_count) +
-        #                    self.CmdStr.absolutePosition(steps) +
-        #                    self.CmdStr.setValves(valve_list) +
-        #                    self.CmdStr.setTopSpeed(dispense_speed_count) +
-        #                    self.CmdStr.fullDispense())
-        #         self.dbprint(cmd_str)
-        #         num_of_strokes -= 1
-        #     cmd_str += self.CmdStr.setValvesIn()
-        #     cmd_list.append(cmd_str)
-        # self.write(cmd_dict)
 
     def getColumnCheckBoxes(self):
         """method to check which column boxes are selected; for use by the
@@ -787,7 +763,11 @@ class MainWindow(QMainWindow):
         and only displays if app running in debug mode
         """
         if self.debug:
-            print("DEBUG MODE: {}".format(msg))
+            if type(msg) is dict:
+                print("DEBUG MODE:")
+                print(json.dumps(msg, indent=2))
+            else:
+                print("DEBUG MODE: {}".format(msg))
         return
 
     def openConsole(self):
