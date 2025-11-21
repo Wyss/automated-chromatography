@@ -5,6 +5,7 @@ import signal
 import argparse
 import atexit
 import ast
+from datetime import timedelta
 from PyQt5 import QtTest, QtSerialPort
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QDialog, QMessageBox,
                              QPushButton, qApp, QFrame, QWidget)
@@ -294,6 +295,8 @@ class MainWindow(QMainWindow):
         self.ui.syringeButton.setEnabled(True)
         self.ui.syringeButton.setText("Set Syringe Size")
         self.ui.syringeComboBox.setEnabled(True)
+        self.ui.totalDispVolLabel.clear()
+        self.ui.totalDispTimeLabel.clear()
         self.setConnectTooltip()
         self.ui.connectButton.clicked.disconnect()
         self.ui.connectButton.clicked.connect(self.serialConnect)
@@ -379,6 +382,7 @@ class MainWindow(QMainWindow):
         self.ui.syringeButton.setEnabled(False)
         self.ui.syringeComboBox.setEnabled(False)
         self.ui.initializeButton.setEnabled(True)
+        self.calcDispense()
 
     def getSyringeSize_ml(self):
         """returns numerical value of selected syringe size in ml, since the
@@ -551,8 +555,19 @@ class MainWindow(QMainWindow):
         t_unit = self.ui.dispTimeUnitComboBox.currentText()
         reps = self.ui.dispRepsSpinBox.value()
 
+        total_vol = vol * reps
+        t_sec = time if t_unit == "sec" else time * 60
+        total_time_s = (t_sec * reps) - t_sec     # omit trailing time
+        total_time_readable = str(timedelta(seconds=total_time_s))
+        dispense_display = ["total vol (per well): {} {}".format(total_vol, self.ui.dispenseUnits.text()),
+                            "total time: {}".format(total_time_readable)]
+
         if self.debug:
             self.dbprint("vol {}, time: {} {}, reps: {}".format(vol, time, t_unit, reps))
+
+
+        self.ui.totalDispVolLabel.setText(dispense_display[0])
+        self.ui.totalDispTimeLabel.setText(dispense_display[1])
         return
 
     def dispense(self):

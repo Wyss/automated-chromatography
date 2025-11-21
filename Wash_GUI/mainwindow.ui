@@ -399,6 +399,9 @@
                 <bold>true</bold>
                </font>
               </property>
+              <property name="toolTip">
+               <string>Volume to dispense each rep</string>
+              </property>
               <property name="decimals">
                <number>1</number>
               </property>
@@ -471,8 +474,17 @@
                 <bold>true</bold>
                </font>
               </property>
+              <property name="toolTip">
+               <string>Time to wait between dispense reps</string>
+              </property>
               <property name="decimals">
                <number>1</number>
+              </property>
+              <property name="maximum">
+               <double>1000.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>1.000000000000000</double>
               </property>
              </widget>
             </item>
@@ -495,6 +507,9 @@
                 <pointsize>12</pointsize>
                 <bold>true</bold>
                </font>
+              </property>
+              <property name="toolTip">
+               <string>Time units</string>
               </property>
               <item>
                <property name="text">
@@ -541,8 +556,14 @@
                 <bold>true</bold>
                </font>
               </property>
+              <property name="toolTip">
+               <string>Number of reps to dispense</string>
+              </property>
               <property name="minimum">
                <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>1000</number>
               </property>
              </widget>
             </item>
@@ -555,18 +576,38 @@
                </font>
               </property>
               <property name="text">
-               <string>rep</string>
+               <string>reps</string>
               </property>
              </widget>
             </item>
            </layout>
           </item>
           <item>
-           <widget class="QLabel" name="totalDispenseLabel">
-            <property name="text">
-             <string>TextLabel</string>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout_14">
+            <item>
+             <widget class="QLabel" name="totalDispVolLabel">
+              <property name="font">
+               <font>
+                <pointsize>11</pointsize>
+                <bold>true</bold>
+               </font>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="totalDispTimeLabel">
+              <property name="font">
+               <font>
+                <pointsize>11</pointsize>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="toolTip">
+               <string>D, HH:MM:SS</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
