@@ -86,9 +86,10 @@ class MainWindow(QMainWindow):
 
         # Set tooltips
         self.setConnectTooltip()
-        # for all pushbuttons, set statustip to its tooltip
-        for button in self.ui.centralwidget.findChildren(QPushButton):
-            button.setStatusTip(button.toolTip())
+        # for all widgets, set statustip to its tooltip if not already defined
+        for widget in self.ui.centralwidget.findChildren(QWidget):
+            if widget.toolTip() and not widget.statusTip():
+                widget.setStatusTip(widget.toolTip())
 
         # default GUI state (everything greyed out except for comms until
         # serial comms are connected):
