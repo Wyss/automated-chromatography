@@ -324,7 +324,6 @@ class MainWindow(QMainWindow):
         for i in cmd_dict:
             cmd_dict[i] += self.CmdStr.execute()
             cmd += cmd_dict[i]
-        print(cmd_dict)
         print(cmd.encode())
         if self.file_name:
             self.file.write("> {}".format(cmd))
@@ -559,7 +558,8 @@ class MainWindow(QMainWindow):
 
         params["total_vol"] = vol * params["reps"]
         params["rep_sec"] = time if t_unit == "sec" else time * 60
-        params["total_sec"] = (params["rep_sec"] * params["reps"]) - params["rep_sec"]     # omit trailing time
+        params["total_sec"] = ((params["rep_sec"] * params["reps"]) -
+                               params["rep_sec"])     # omit trailing time
         total_time_readable = str(timedelta(seconds=params["total_sec"]))
         dispense_display = [
             "total vol (per well): {} {}".format(params["total_vol"],
@@ -578,15 +578,24 @@ class MainWindow(QMainWindow):
     def dispense(self):
         """dispenses to the columns (all or selected columns [wellplate columns])"""
         cmd_dict = {}
+        param_dict = {"per-rep": {}, "overall": {}}
         timer_params = self.calcDispense()
+        param_dict["overall"] = {
+                "num_reps":    timer_params["reps"],
+                "rep_sleep":   timer_params["rep_sec"],
+                "total_vol":   timer_params["total_vol"],
+                "total_time":  timer_params["total_sec"]
+        }
         # TODO: make sure this deals with all reasonable cases.. may want to query pump status before commands are written
         # check if pump is busy
         if self.checkBusy():
             return
         draw_speed_ml = self.ui.drawSpeedSpinBox.value()    # get speed from GUI
         dispense_speed_ml = self.ui.dispenseSpeedSpinBox.value()    # get speed from GUI
-        draw_speed_count = self.speedMLToStepPerSec(draw_speed_ml)
-        dispense_speed_count = self.speedMLToStepPerSec(dispense_speed_ml)
+        param_dict["per-rep"]["draw_spd_ct"] = \
+                self.speedMLToStepPerSec(draw_speed_ml)
+        param_dict["per-rep"]["disp_spd_ct"] = \
+                self.speedMLToStepPerSec(dispense_speed_ml)
         # if the "all" check box is selected, dispense to all columns
         all_columns = False
         if self.ui.allCheckBox.checkState():
@@ -600,56 +609,60 @@ class MainWindow(QMainWindow):
         num_cols = columns.count(True)
         if num_cols == 6:
             all_columns = True
+        param_dict["per-rep"]["all_cols"] = all_columns
+        param_dict["per-rep"]["cols"] = columns
+        param_dict["per-rep"]["num_cols"] = num_cols
 
         # get the number of steps needed based on value of dispense volume
         syringe_size_ml = self.getSyringeSize_ml()
         if syringe_size_ml < 1:
-            ml_per_column = self.ui.dispVolSpinBox.value()/1000
+            param_dict["per-rep"]["ml_per_col"] = \
+                    self.ui.dispVolSpinBox.value()/1000
         else:
-            ml_per_column = self.ui.dispVolSpinBox.value()
-        ml_to_dispense = ml_per_column * 2  # syringes divided to 2 cols, so vol/syringe = 2*col_vol
-        total_steps = self.volumeToSteps(ml_to_dispense)
-        num_of_strokes = total_steps / STEPS_PER_STROKE
-        total_ml = ml_per_column * num_cols
+            param_dict["per-rep"]["ml_per_col"] = \
+                    self.ui.dispVolSpinBox.value()
+        ml_to_dispense = param_dict["per-rep"]["ml_per_col"] * 2  # syringes divided to 2 cols, so vol/syringe = 2*col_vol
+        param_dict["per-rep"]["total_steps"] = \
+                self.volumeToSteps(ml_to_dispense)
+        param_dict["per-rep"]["num_strokes"] = \
+                param_dict["per-rep"]["total_steps"] / STEPS_PER_STROKE
+        param_dict["per-rep"]["total_ml"] = \
+                (param_dict["per-rep"]["ml_per_col"] *
+                 param_dict["per-rep"]["num_cols"])
 
         # debug prints parameters.
-        print_dict = {
-            "DISPENSE": {
-                "PER REP": {
-                    "# of columns": num_cols,
-                    "all columns":  all_columns,
+        self.dbprint(param_dict)
 
-        steps_remaining = total_steps
+        # builds command string.
+        steps_remaining = param_dict["per-rep"]["total_steps"]
         for pump_id in DUAL_ID:
             cmd_dict[pump_id] = self.CmdStr.pumpID(pump_id)
         # do the dispense in a loop
-        for stroke in range(math.ceil(num_of_strokes)):
+        for stroke in range(math.ceil(param_dict["per-rep"]["num_strokes"])):
             # if more than 1 stroke req'd, full stroke
-            if num_of_strokes > 1:
+            if param_dict["per-rep"]["num_strokes"] > 1:
                 steps = STEPS_PER_STROKE
             # if less than 1 stroke req'd, just do that many steps
             else:
-                steps = int(num_of_strokes * STEPS_PER_STROKE)
+                steps = int(param_dict["per-rep"]["num_strokes"]
+                            * STEPS_PER_STROKE)
             # draw from reservoir and prepare dispense speed
             for pump_id in DUAL_ID:
-                print("columns (sent to setValves): {}".format(columns))
                 cmd_dict[pump_id] += (
                         self.CmdStr.setValvesIn() +
-                        self.CmdStr.setTopSpeed(draw_speed_count) +
+                        self.CmdStr.setTopSpeed(
+                                param_dict["per-rep"]["draw_spd_ct"]) +
                         self.CmdStr.absolutePosition(steps) +
-                        self.CmdStr.setValves(columns) +
-                        self.CmdStr.setTopSpeed(dispense_speed_count) +
+                        self.CmdStr.setValves(param_dict["per-rep"]["cols"]) +
+                        self.CmdStr.setTopSpeed(
+                                param_dict["per-rep"]["disp_spd_ct"]) +
                         self.CmdStr.fullDispense()
                 )
             self.dbprint(cmd_dict)
-            num_of_strokes -= 1
+            param_dict["per-rep"]["num_strokes"] -= 1
         for pump_id in DUAL_ID:
             cmd_dict[pump_id] += self.CmdStr.setValvesIn()
         self.write(cmd_dict)
-
-        # # separate the valves for the two pumps
-        # columns_split = [columns[0:6], columns[6:12]]
-        # for i, pump_id in enumerate(range(1,3)):
 
     def getColumnCheckBoxes(self):
         """method to check which column boxes are selected; for use by the
@@ -857,7 +870,6 @@ class CommandStringBuilder(object):
         if len(valve_list) < 8:
             ext_by = 8 - len(valve_list)
             valve_list.extend([False] * ext_by)
-        print("valve_list = {}".format(valve_list))
 
         # final 2 valves should always be False, so
         # False count = 8 & True count = 6

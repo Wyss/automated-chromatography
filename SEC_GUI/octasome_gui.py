@@ -490,71 +490,70 @@ class MainWindow(QMainWindow):
         """dispenses to the columns (all or individually selected)"""
         # TODO: make sure this deals with all reasonable cases.. may want to query pump status before commands are written
         # check if pump is busy
+        param_dict = {}
         if self.checkBusy():
             return
         draw_speed_ml = self.ui.drawSpeedSpinBox.value()    # get speed from GUI
         dispense_speed_ml = self.ui.dispenseSpeedSpinBox.value()    # get speed from GUI
-        draw_speed_count = self.speedMLToStepPerSec(draw_speed_ml)
-        dispense_speed_count = self.speedMLToStepPerSec(dispense_speed_ml)
+        param_dict["draw_spd_ct"] = self.speedMLToStepPerSec(draw_speed_ml)
+        param_dict["dispense_spd_ct"] = \
+                self.speedMLToStepPerSec(dispense_speed_ml)
         # if the "all" check box is selected, dispense to all columns
         if(self.ui.allCheckBox.checkState()):
             print("all columns")
-            columns = [True]*8   # [True, True, True, ...]
+            param_dict["cols"] = [True]*8   # [True, True, True, ...]
         # else just the selected columns
         else:
-            columns = self.getColumnCheckBoxes()    # [True, False, True, ...]
-        num_cols = columns.count(True)
+            param_dict["cols"] = self.getColumnCheckBoxes()    # [True, False, True, ...]
+        param_dict["num_cols"] = param_dict["cols"].count(True)
         # get the number of steps needed based on value of dispense volume
         syringe_size_ml = self.getSyringeSize_ml()
         if syringe_size_ml < 1:
-            ml_per_column = self.ui.dispenseSpinBox.value()/1000
+            param_dict["ml_per_col"] = self.ui.dispenseSpinBox.value()/1000
         else:
-            ml_per_column = self.ui.dispenseSpinBox.value()
-        total_ml = ml_per_column*num_cols
-        steps_per_column = self.volumeToSteps(ml_per_column)
-        total_steps = self.volumeToSteps(ml_per_column*num_cols)
-        num_of_strokes = total_ml/syringe_size_ml
+            param_dict["ml_per_col"] = self.ui.dispenseSpinBox.value()
+        param_dict["total_ml"] = (param_dict["ml_per_col"] *
+                                  param_dict["num_cols"])
+        param_dict["steps_per_col"] = \
+                self.volumeToSteps(param_dict["ml_per_col"])
+        param_dict["total_steps"] = \
+                self.volumeToSteps(param_dict["ml_per_col"] *
+                                   param_dict["num_cols"])
+        param_dict["num_strokes"] = param_dict["total_ml"] / syringe_size_ml
 
         # debug prints parameters.
-        print_dict = {
-            "DISPENSE": {
-                "# of columns": num_cols,
-                "ml/column":    ml_per_column,
-                "total ml":     total_ml,
-                "steps/column": steps_per_column,
-                "total steps":  total_steps,
-                "# of strokes": num_of_strokes,
-            }
-        }
-        self.dbprint(print_dict)
+        self.dbprint(param_dict)
 
         # builds command string.
-        steps_remaining = total_steps
+        steps_remaining = param_dict["total_steps"]
         cmd_str = self.CmdStr.pumpID(1)
 
         # do the dispense in a loop
-        for stroke in range(math.ceil(num_of_strokes)):
-            if num_of_strokes > 1:
+        for stroke in range(math.ceil(param_dict["num_strokes"])):
+            if param_dict["num_strokes"] > 1:
                 steps = STEPS_PER_STROKE
-                sub_steps_per_col = int(STEPS_PER_STROKE/num_cols)
+                sub_steps_per_col = int(STEPS_PER_STROKE
+                                        / param_dict["num_cols"])
                 self.dbprint("sub_steps_per_col: {}".format(sub_steps_per_col))
             else:
-                steps = int(num_of_strokes * STEPS_PER_STROKE)
-                sub_steps_per_col = int((num_of_strokes * STEPS_PER_STROKE)/num_cols)
+                steps = int(param_dict["num_strokes"] * STEPS_PER_STROKE)
+                sub_steps_per_col = int(
+                        (param_dict["num_strokes"] * STEPS_PER_STROKE)
+                        / param_dict["num_cols"])
                 self.dbprint("sub_steps_per_col: {}".format(sub_steps_per_col))
             # draw from reservoir and prepare dispense speed
             cmd_str += (self.CmdStr.setValve(1) +
-                        self.CmdStr.setTopSpeed(draw_speed_count) +
+                        self.CmdStr.setTopSpeed(param_dict["draw_spd_ct"]) +
                         self.CmdStr.absolutePosition(steps) +
-                        self.CmdStr.setTopSpeed(dispense_speed_count))
+                        self.CmdStr.setTopSpeed(param_dict["dispense_spd_ct"]))
             # dispense to each selected column
-            for idx, col in enumerate(columns):
+            for idx, col in enumerate(param_dict["cols"]):
                 if col:
                     port = idx + 2  # port starts at 2
                     cmd_str += (self.CmdStr.setValve(port) +
-                                self.CmdStr.relativeDispense(sub_steps_per_col))
+                            self.CmdStr.relativeDispense(sub_steps_per_col))
                     self.dbprint(cmd_str)
-            num_of_strokes -= 1
+            param_dict["num_strokes"] -= 1
         cmd_str += (self.CmdStr.setValve(1) +
                     self.CmdStr.fullDispense())
         self.write(cmd_str)
