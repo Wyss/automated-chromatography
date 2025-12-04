@@ -95,9 +95,11 @@ class MainWindow(QMainWindow):
 
         # Set tooltips
         self.setConnectTooltip()
-        # for all pushbuttons, set statustip to its tooltip
-        for button in self.ui.centralwidget.findChildren(QPushButton):
-            button.setStatusTip(button.toolTip())
+        # for all widgets, set statustip to its tooltip
+        for widget in self.ui.centralwidget.findChildren(QWidget):
+            if widget.statusTip(): pass
+            elif widget.toolTip():
+                widget.setStatusTip(widget.toolTip())
 
         # default GUI state (everything greyed out except for comms until
         # serial comms are connected):
@@ -578,7 +580,7 @@ class MainWindow(QMainWindow):
     def dispense(self):
         """dispenses to the columns (all or selected columns [wellplate columns])"""
         cmd_dict = {}
-        param_dict = {"per-rep": {}, "overall": {}}
+        param_dict = {"per_rep": {}, "overall": {}}
         timer_params = self.calcDispense()
         param_dict["overall"] = {
                 "num_reps":    timer_params["reps"],
@@ -592,9 +594,9 @@ class MainWindow(QMainWindow):
             return
         draw_speed_ml = self.ui.drawSpeedSpinBox.value()    # get speed from GUI
         dispense_speed_ml = self.ui.dispenseSpeedSpinBox.value()    # get speed from GUI
-        param_dict["per-rep"]["draw_spd_ct"] = \
+        param_dict["per_rep"]["draw_spd_ct"] = \
                 self.speedMLToStepPerSec(draw_speed_ml)
-        param_dict["per-rep"]["disp_spd_ct"] = \
+        param_dict["per_rep"]["disp_spd_ct"] = \
                 self.speedMLToStepPerSec(dispense_speed_ml)
         # if the "all" check box is selected, dispense to all columns
         all_columns = False
@@ -609,60 +611,90 @@ class MainWindow(QMainWindow):
         num_cols = columns.count(True)
         if num_cols == 6:
             all_columns = True
-        param_dict["per-rep"]["all_cols"] = all_columns
-        param_dict["per-rep"]["cols"] = columns
-        param_dict["per-rep"]["num_cols"] = num_cols
+        param_dict["per_rep"]["all_cols"] = all_columns
+        param_dict["per_rep"]["cols"] = columns
+        param_dict["per_rep"]["num_cols"] = num_cols
 
         # get the number of steps needed based on value of dispense volume
         syringe_size_ml = self.getSyringeSize_ml()
         if syringe_size_ml < 1:
-            param_dict["per-rep"]["ml_per_col"] = \
+            param_dict["per_rep"]["ml_per_col"] = \
                     self.ui.dispVolSpinBox.value()/1000
         else:
-            param_dict["per-rep"]["ml_per_col"] = \
+            param_dict["per_rep"]["ml_per_col"] = \
                     self.ui.dispVolSpinBox.value()
-        ml_to_dispense = param_dict["per-rep"]["ml_per_col"] * 2  # syringes divided to 2 cols, so vol/syringe = 2*col_vol
-        param_dict["per-rep"]["total_steps"] = \
+        ml_to_dispense = param_dict["per_rep"]["ml_per_col"] * 2  # syringes divided to 2 cols, so vol/syringe = 2*col_vol
+        param_dict["per_rep"]["total_steps"] = \
                 self.volumeToSteps(ml_to_dispense)
-        param_dict["per-rep"]["num_strokes"] = \
-                param_dict["per-rep"]["total_steps"] / STEPS_PER_STROKE
-        param_dict["per-rep"]["total_ml"] = \
-                (param_dict["per-rep"]["ml_per_col"] *
-                 param_dict["per-rep"]["num_cols"])
+        param_dict["per_rep"]["num_strokes"] = \
+                param_dict["per_rep"]["total_steps"] / STEPS_PER_STROKE
+        param_dict["per_rep"]["total_ml"] = \
+                (param_dict["per_rep"]["ml_per_col"] *
+                 param_dict["per_rep"]["num_cols"])
 
         # debug prints parameters.
         self.dbprint(param_dict)
 
         # builds command string.
-        steps_remaining = param_dict["per-rep"]["total_steps"]
+        steps_remaining = param_dict["per_rep"]["total_steps"]
         for pump_id in DUAL_ID:
             cmd_dict[pump_id] = self.CmdStr.pumpID(pump_id)
         # do the dispense in a loop
-        for stroke in range(math.ceil(param_dict["per-rep"]["num_strokes"])):
+        for stroke in range(math.ceil(param_dict["per_rep"]["num_strokes"])):
             # if more than 1 stroke req'd, full stroke
-            if param_dict["per-rep"]["num_strokes"] > 1:
+            if param_dict["per_rep"]["num_strokes"] > 1:
                 steps = STEPS_PER_STROKE
             # if less than 1 stroke req'd, just do that many steps
             else:
-                steps = int(param_dict["per-rep"]["num_strokes"]
+                steps = int(param_dict["per_rep"]["num_strokes"]
                             * STEPS_PER_STROKE)
             # draw from reservoir and prepare dispense speed
             for pump_id in DUAL_ID:
                 cmd_dict[pump_id] += (
                         self.CmdStr.setValvesIn() +
                         self.CmdStr.setTopSpeed(
-                                param_dict["per-rep"]["draw_spd_ct"]) +
+                                param_dict["per_rep"]["draw_spd_ct"]) +
                         self.CmdStr.absolutePosition(steps) +
-                        self.CmdStr.setValves(param_dict["per-rep"]["cols"]) +
+                        self.CmdStr.setValves(param_dict["per_rep"]["cols"]) +
                         self.CmdStr.setTopSpeed(
-                                param_dict["per-rep"]["disp_spd_ct"]) +
+                                param_dict["per_rep"]["disp_spd_ct"]) +
                         self.CmdStr.fullDispense()
                 )
             self.dbprint(cmd_dict)
-            param_dict["per-rep"]["num_strokes"] -= 1
+            param_dict["per_rep"]["num_strokes"] -= 1
         for pump_id in DUAL_ID:
             cmd_dict[pump_id] += self.CmdStr.setValvesIn()
+
+        # Disable buttons while pump is in action
+        activeWidgets = []
+        for widget in self.ui.centralwidget.findChildren(QWidget):
+            if widget.isEnabled():
+                if widget.objectName() in ["stopButton", "emergencyStopBox"]:
+                    pass
+                else:
+                    activeWidgets.append(widget)
+                    widget.setEnabled(False)
+                    self.dbprint(widget.objectName())
+
+        # Repeat based on timer options. Write and sleep one less rep than
+        # stated, and then a final write. To avoid a needless sleep at end.
+        for rep in range(param_dict["overall"]["num_reps"] - 1):
+            # do the command
+            self.write(cmd_dict)
+            # sleep
+            self.dbprint("sleep: {}"
+                         "".format(param_dict["overall"]["rep_sleep"]))
+            # TODO: https://stackoverflow.com/questions/23860665/using-qtimer-singleshot-correctly
+            self.timer.singleShot(int(1000*param_dict["overall"]["rep_sleep"]), self.skip)
+            self.timer.start()
+        # do the final command
         self.write(cmd_dict)
+        for widget in activeWidgets:
+            widget.setEnabled(True)
+
+    def skip(self):
+        print("timeout")
+        return True
 
     def getColumnCheckBoxes(self):
         """method to check which column boxes are selected; for use by the
@@ -778,7 +810,7 @@ class MainWindow(QMainWindow):
         if self.debug:
             if type(msg) is dict:
                 print("DEBUG MODE:")
-                print(json.dumps(msg, indent=2))
+                print(json.dumps(msg, indent=4))
             else:
                 print("DEBUG MODE: {}".format(msg))
         return
