@@ -36,7 +36,7 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
         self.disp_timer = QTimer(self)
-        self.disp_timer.setSingleShot(True)
+        # self.disp_timer.setSingleShot(True)
         self.ui.setupUi(self)
         self.show()
         self.CmdStr = CommandStringBuilder()
@@ -48,6 +48,7 @@ class MainWindow(QMainWindow):
 
         # set constants/configs
         self.stop_flag = False  # Flag to detect if Stop has been pressed
+        self.disp_rep_counter = 0 # Var to count repetitions in dispense()
         self.active_widgets = []    # Widgets to disable during dispense()
         self.debug = debug
         self.busy_debug = busy_debug
@@ -588,6 +589,7 @@ class MainWindow(QMainWindow):
     def dispense(self):
         """dispenses to the columns (all or selected columns [wellplate columns])"""
         self.stop_flag = False
+        self.disp_timer.stop()
         cmd_dict = {}
         param_dict = {"per_rep": {}, "timer_param": {}}
         timer_params = self.calcDispense()
@@ -686,52 +688,95 @@ class MainWindow(QMainWindow):
 
         # Repeat based on timer options. Write and sleep one less rep than
         # stated, and then a final write. To avoid a needless sleep at end.
+        self.disp_rep_counter = param_dict["timer_param"]["num_reps"]
         # do the command
         self.write(cmd_dict)
         # reduce number of reps by 1 because it just did one
-        param_dict["timer_param"]["num_reps"] -= 1
+        self.disp_rep_counter -= 1
         # only repeat if there are multiple reps to repeat
-        if param_dict["timer_param"]["num_reps"] >= 1:
-            self.disp_timer.singleShot(
-                    int(1000*param_dict["timer_param"]["rep_sleep"]),
-                    lambda: self.dispRepsRecursive(cmd_dict,
-                                                   param_dict["timer_param"]))
+        if self.disp_rep_counter > 0:
+            self.disp_timer.setInterval(
+                    int(1000*param_dict["timer_param"]["rep_sleep"]))
+            self.disp_timer.timeout.connect(
+                    lambda: self.dispReps(cmd_dict))
+            self.disp_timer.start()
+            # self.disp_timer.singleShot(
+            #         int(1000*param_dict["timer_param"]["rep_sleep"]),
+            #         lambda: self.dispRepsRecursive(cmd_dict,
+            #                                        param_dict["timer_param"]))
         # Re-enable widgets if there were no reps
         else:
             self.enableDispenseWidgets(self.active_widgets)
 
-    def dispRepsRecursive(self, cmd_dict, rep_params):
-        """Do the next dispense and then wait the proper time.  Use recursion
-        so that it actually waits instead of starting multiple timers
-        sequentially. This way, when one timer ends, the timeout signal slot is
-        to perform the next step.
+    def dispReps(self, cmd_dict):
+        """Do the next dispense and then wait the proper time.  Count down the
+        number of times it has been performed and stop when it's done them.
         """
         # Check for a stop flag if the STOP button is pressed
         if self.stop_flag:
-            print("Timer/Recursion stopped")
+            print("Timer stopped")
             # Change cmd to Terminate in case it sends another cmd to the pump
             for pump_id in DUAL_ID:
                 cmd_dict = {pump_id: self.CmdStr.terminate(pump_id)}
             rep_params["num_reps"] = 0
             self.disp_timer.stop()
+            try:
+                self.disp_timer.disconnect()
+                self.dbprint("Timer disconnected in dispReps")
+            except TypeError as e:
+                self.dbprint(f"{e}.\n\tdispReps: timer already disconnected.")
             # re-enable the widgets
             self.enableDispenseWidgets(self.active_widgets)
             return
-        self.disp_timer.stop()
-        self.dbprint("recursion cmd_dict: {}".format(cmd_dict))
-        self.dbprint("recursion rep_params: {}".format(rep_params))
         # send the cmd to pump
         self.write(cmd_dict)
         # Reduce num of reps by 1 and recurse.
-        if rep_params["num_reps"] > 1:
-            rep_params["num_reps"] -= 1
-            self.disp_timer.singleShot(int(1000*rep_params["rep_sleep"]),
-                                  lambda: self.dispRepsRecursive(cmd_dict,
-                                                                 rep_params))
+        if self.disp_rep_counter > 1:
+            self.disp_rep_counter -= 1
         # Do not wait after the final cmd, just end it.
         else:
             self.disp_timer.stop()
+            self.disp_timer.disconnect()
+            self.dbprint("Timer finished & disconnected")
             self.enableDispenseWidgets(self.active_widgets)
+
+    # def dispRepsRecursive(self, cmd_dict, rep_params):
+    #     """Do the next dispense and then wait the proper time.  Use recursion
+    #     so that it actually waits instead of starting multiple timers
+    #     sequentially. This way, when one timer ends, the timeout signal slot is
+    #     to perform the next step.
+    #     """
+    #     # Check for a stop flag if the STOP button is pressed
+    #     if self.stop_flag:
+    #         print("Timer/Recursion stopped")
+    #         # Change cmd to Terminate in case it sends another cmd to the pump
+    #         for pump_id in DUAL_ID:
+    #             cmd_dict = {pump_id: self.CmdStr.terminate(pump_id)}
+    #         rep_params["num_reps"] = 0
+    #         self.disp_timer.stop()
+    #         # re-enable the widgets
+    #         self.enableDispenseWidgets(self.active_widgets)
+    #         return
+    #     self.disp_timer.stop()
+    #     self.dbprint("recursion cmd_dict: {}".format(cmd_dict))
+    #     self.dbprint("recursion rep_params: {}".format(rep_params))
+    #     # send the cmd to pump
+    #     self.write(cmd_dict)
+    #     # Reduce num of reps by 1 and recurse.
+    #     if rep_params["num_reps"] > 1:
+    #         rep_params["num_reps"] -= 1
+    #         self.disp_timer.stop()
+    #         self.disp_timer.setInterval(int(1000*rep_params["rep_sleep"]))
+    #         self.disp_timer.timeout.connect(
+    #                 lambda: self.dispReps(cmd_dict, rep_params))
+    #         self.disp_timer.start()
+    #         # self.disp_timer.singleShot(int(1000*rep_params["rep_sleep"]),
+    #         #                       lambda: self.dispRepsRecursive(cmd_dict,
+    #         #                                                      rep_params))
+    #     # Do not wait after the final cmd, just end it.
+    #     else:
+    #         self.disp_timer.stop()
+    #         self.enableDispenseWidgets(self.active_widgets)
 
 
     def getColumnCheckBoxes(self):
@@ -752,10 +797,17 @@ class MainWindow(QMainWindow):
         cmd_dict = {}
         cmd = ""
         print("STOP PUMP!!!!")
+        # handle special things from dispense()
         self.disp_timer.stop()
+        self.disp_rep_counter = 0
+        try:
+            self.disp_timer.disconnect()
+            self.dbprint("Timer disconnected in stopPump")
+        except TypeError as e:
+            self.dbprint(f"{e}.\n\tStopPump: timer already disconnected.")
         self.stop_flag = True
-        # if the stopped func is dispense() there will be widgets to re-enable
         self.enableDispenseWidgets(self.active_widgets)
+        # /end dispense cleanup
         # create the terminate cmds
         for pump_id in DUAL_ID:
             cmd_dict[pump_id] = self.CmdStr.terminate(pump_id)
