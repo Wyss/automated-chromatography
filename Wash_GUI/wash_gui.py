@@ -10,7 +10,7 @@ from datetime import timedelta
 from PyQt5 import QtTest, QtSerialPort
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QDialog, QMessageBox,
                              QPushButton, qApp, QFrame, QWidget)
-from PyQt5.QtCore import QFile, QTimer, QIODevice, pyqtSignal, Qt
+from PyQt5.QtCore import QFile, QTimer, QTime, QIODevice, pyqtSignal, Qt
 from mainwindow import Ui_MainWindow
 
 # to import consolewindow from parent dir
@@ -35,8 +35,12 @@ class MainWindow(QMainWindow):
     def __init__(self, debug=False, busy_debug=False, file_name=None):
         super(MainWindow, self).__init__()
         self.ui = Ui_MainWindow()
-        self.disp_timer = QTimer(self)
-        # self.disp_timer.setSingleShot(True)
+        self.dispense_timer = QTimer(self)
+        self.main_elapsed_time = QTime()
+        self.sub_elapsed_time = QTime()
+        self.update_timer = QTimer(self)
+        self.update_timer.timeout.connect(self.updateTimeDisplay)
+        self.update_timer.setInterval(1000)
         self.ui.setupUi(self)
         self.show()
         self.CmdStr = CommandStringBuilder()
@@ -47,9 +51,10 @@ class MainWindow(QMainWindow):
         self.closeEvent = self.quitExit
 
         # set constants/configs
-        self.stop_flag = False  # Flag to detect if Stop has been pressed
+        self.stop_flag = False   # Flag to detect if Stop has been pressed
+        self.step_ctr = 0        # Var to carry step ctr thru funcs in dispense
         self.disp_rep_counter = 0 # Var to count repetitions in dispense()
-        self.active_widgets = []    # Widgets to disable during dispense()
+        self.active_widgets = []  # Widgets to disable during dispense()
         self.debug = debug
         self.busy_debug = busy_debug
         self.file_name = file_name
@@ -112,6 +117,13 @@ class MainWindow(QMainWindow):
         self.ui.dispenseBox.setEnabled(False)
         self.ui.adjustmentBox.setEnabled(False)
         self.ui.emergencyStopBox.setEnabled(False)
+        self.ui.totalDispVolLabel.setFrameShape(QFrame.Panel)
+        self.ui.totalDispVolLabel.setFrameShadow(QFrame.Sunken)
+        self.ui.totalDispTimeLabel.setFrameShape(QFrame.Panel)
+        self.ui.totalDispTimeLabel.setFrameShadow(QFrame.Sunken)
+        self.ui.countdownLabel.setFrameShape(QFrame.Panel)
+        self.ui.countdownLabel.setFrameShadow(QFrame.Sunken)
+        self.updateTimeDisplay()
 
         # default syringe size
         self.ui.syringeComboBox.setCurrentText("5 mL")
@@ -319,16 +331,17 @@ class MainWindow(QMainWindow):
         if self.ui.comPortComboBox.count() == 0:
             self.ui.comPortComboBox.addItem("<no COM found>")
 
-    def write(self, cmd_dict):
+    def write(self, cmd_dict, add_exe=True):
         """sends a command through the serial port (appends the R to indicate
-        execution), returns pump response
+        execution, if `add_exe` is true), returns pump response.
         """
         if type(cmd_dict) is not dict:
             self.dbprint("CMD IS NOT DICT!!!!")
             return
         cmd = ""
         for i in cmd_dict:
-            cmd_dict[i] += self.CmdStr.execute()
+            if add_exe is True:
+                cmd_dict[i] += self.CmdStr.execute()
             cmd += cmd_dict[i]
         print(cmd.encode())
         if self.file_name:
@@ -434,6 +447,22 @@ class MainWindow(QMainWindow):
         """For each widget in `widget_list` set setEnabled to `enable`"""
         for widget in widget_list:
             widget.setEnabled(enable)
+        self.updateTimeDisplay()
+        if enable is True:
+            # end  elapsed timers
+            self.update_timer.stop()
+
+    def updateTimeDisplay(self):
+        """Update the elapsed time display during timer-stepped dispense()"""
+        main_timer_form = self.formatMSecTime(self.main_elapsed_time.elapsed())
+        sub_timer_form = self.formatMSecTime(self.sub_elapsed_time.elapsed())
+        step = self.step_ctr
+        # <step>: hh:mm:ss (elapsed: hh:mm:ss)
+        self.ui.countdownLabel.setText(f"{step}: {sub_timer_form} (elapsed: {main_timer_form})")
+
+    def formatMSecTime(self, msec):
+        """Format milliseconds to hh:mm:ss"""
+        return str(timedelta(seconds=round(msec/1000))).split(".")[0]
 
     def queryPump(self):
         """sends query command.. 0 = pump busy executing another command"""
@@ -573,8 +602,8 @@ class MainWindow(QMainWindow):
                                params["rep_sec"])     # omit trailing time
         total_time_readable = str(timedelta(seconds=params["total_sec"]))
         dispense_display = [
-            "total vol (per well): {} {}".format(params["total_vol"],
-                                                 self.ui.dispenseUnits.text()),
+            "total vol/well: {} {}".format(params["total_vol"],
+                                           self.ui.dispenseUnits.text()),
             "total time: {}".format(total_time_readable)]
 
         if self.debug:
@@ -589,7 +618,8 @@ class MainWindow(QMainWindow):
     def dispense(self):
         """dispenses to the columns (all or selected columns [wellplate columns])"""
         self.stop_flag = False
-        self.disp_timer.stop()
+        self.dispense_timer.stop()
+        self.step_ctr = 1
         cmd_dict = {}
         param_dict = {"per_rep": {}, "timer_param": {}}
         timer_params = self.calcDispense()
@@ -599,7 +629,6 @@ class MainWindow(QMainWindow):
                 "total_vol":   timer_params["total_vol"],
                 "total_time":  timer_params["total_sec"]
         }
-        # TODO: make sure this deals with all reasonable cases.. may want to query pump status before commands are written
         # check if pump is busy
         if self.checkBusy():
             return
@@ -684,7 +713,10 @@ class MainWindow(QMainWindow):
                     pass
                 else:
                     self.active_widgets.append(widget)
-                    widget.setEnabled(False)
+        # elapsed time display
+        self.main_elapsed_time.restart()
+        self.sub_elapsed_time.restart()
+        self.enableDispenseWidgets(self.active_widgets, False)
 
         # Repeat based on timer options. Write and sleep one less rep than
         # stated, and then a final write. To avoid a needless sleep at end.
@@ -695,15 +727,13 @@ class MainWindow(QMainWindow):
         self.disp_rep_counter -= 1
         # only repeat if there are multiple reps to repeat
         if self.disp_rep_counter > 0:
-            self.disp_timer.setInterval(
+            self.update_timer.start()
+            # actual functional dispense timer
+            self.dispense_timer.setInterval(
                     int(1000*param_dict["timer_param"]["rep_sleep"]))
-            self.disp_timer.timeout.connect(
+            self.dispense_timer.timeout.connect(
                     lambda: self.dispReps(cmd_dict))
-            self.disp_timer.start()
-            # self.disp_timer.singleShot(
-            #         int(1000*param_dict["timer_param"]["rep_sleep"]),
-            #         lambda: self.dispRepsRecursive(cmd_dict,
-            #                                        param_dict["timer_param"]))
+            self.dispense_timer.start()
         # Re-enable widgets if there were no reps
         else:
             self.enableDispenseWidgets(self.active_widgets)
@@ -719,64 +749,31 @@ class MainWindow(QMainWindow):
             for pump_id in DUAL_ID:
                 cmd_dict = {pump_id: self.CmdStr.terminate(pump_id)}
             rep_params["num_reps"] = 0
-            self.disp_timer.stop()
+            self.dispense_timer.stop()
+            # end main timer
             try:
-                self.disp_timer.disconnect()
+                self.dispense_timer.disconnect()
                 self.dbprint("Timer disconnected in dispReps")
             except TypeError as e:
                 self.dbprint(f"{e}.\n\tdispReps: timer already disconnected.")
             # re-enable the widgets
             self.enableDispenseWidgets(self.active_widgets)
             return
+
         # send the cmd to pump
-        self.write(cmd_dict)
-        # Reduce num of reps by 1 and recurse.
+        self.step_ctr += 1
+        self.write(cmd_dict, add_exe=False)
+        # Reduce num of reps by 1 and repeat.
         if self.disp_rep_counter > 1:
             self.disp_rep_counter -= 1
         # Do not wait after the final cmd, just end it.
         else:
-            self.disp_timer.stop()
-            self.disp_timer.disconnect()
+            self.dispense_timer.stop()
+            self.dispense_timer.disconnect()
             self.dbprint("Timer finished & disconnected")
             self.enableDispenseWidgets(self.active_widgets)
-
-    # def dispRepsRecursive(self, cmd_dict, rep_params):
-    #     """Do the next dispense and then wait the proper time.  Use recursion
-    #     so that it actually waits instead of starting multiple timers
-    #     sequentially. This way, when one timer ends, the timeout signal slot is
-    #     to perform the next step.
-    #     """
-    #     # Check for a stop flag if the STOP button is pressed
-    #     if self.stop_flag:
-    #         print("Timer/Recursion stopped")
-    #         # Change cmd to Terminate in case it sends another cmd to the pump
-    #         for pump_id in DUAL_ID:
-    #             cmd_dict = {pump_id: self.CmdStr.terminate(pump_id)}
-    #         rep_params["num_reps"] = 0
-    #         self.disp_timer.stop()
-    #         # re-enable the widgets
-    #         self.enableDispenseWidgets(self.active_widgets)
-    #         return
-    #     self.disp_timer.stop()
-    #     self.dbprint("recursion cmd_dict: {}".format(cmd_dict))
-    #     self.dbprint("recursion rep_params: {}".format(rep_params))
-    #     # send the cmd to pump
-    #     self.write(cmd_dict)
-    #     # Reduce num of reps by 1 and recurse.
-    #     if rep_params["num_reps"] > 1:
-    #         rep_params["num_reps"] -= 1
-    #         self.disp_timer.stop()
-    #         self.disp_timer.setInterval(int(1000*rep_params["rep_sleep"]))
-    #         self.disp_timer.timeout.connect(
-    #                 lambda: self.dispReps(cmd_dict, rep_params))
-    #         self.disp_timer.start()
-    #         # self.disp_timer.singleShot(int(1000*rep_params["rep_sleep"]),
-    #         #                       lambda: self.dispRepsRecursive(cmd_dict,
-    #         #                                                      rep_params))
-    #     # Do not wait after the final cmd, just end it.
-    #     else:
-    #         self.disp_timer.stop()
-    #         self.enableDispenseWidgets(self.active_widgets)
+        # start the sub-elapsed-timer
+        self.sub_elapsed_time.restart()
 
 
     def getColumnCheckBoxes(self):
@@ -798,14 +795,15 @@ class MainWindow(QMainWindow):
         cmd = ""
         print("STOP PUMP!!!!")
         # handle special things from dispense()
-        self.disp_timer.stop()
+        self.dispense_timer.stop()
         self.disp_rep_counter = 0
         try:
-            self.disp_timer.disconnect()
+            self.dispense_timer.disconnect()
             self.dbprint("Timer disconnected in stopPump")
         except TypeError as e:
             self.dbprint(f"{e}.\n\tStopPump: timer already disconnected.")
         self.stop_flag = True
+        # reactivate widgets
         self.enableDispenseWidgets(self.active_widgets)
         # /end dispense cleanup
         # create the terminate cmds

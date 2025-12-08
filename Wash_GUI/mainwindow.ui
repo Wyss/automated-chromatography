@@ -589,7 +589,6 @@
               <property name="font">
                <font>
                 <pointsize>11</pointsize>
-                <bold>true</bold>
                </font>
               </property>
              </widget>
@@ -599,11 +598,19 @@
               <property name="font">
                <font>
                 <pointsize>11</pointsize>
-                <bold>true</bold>
                </font>
               </property>
               <property name="toolTip">
                <string>D, HH:MM:SS</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="countdownLabel">
+              <property name="font">
+               <font>
+                <pointsize>11</pointsize>
+               </font>
               </property>
              </widget>
             </item>
