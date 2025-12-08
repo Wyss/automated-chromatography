@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>577</width>
-    <height>757</height>
+    <height>787</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -395,7 +395,7 @@
               </property>
               <property name="font">
                <font>
-                <pointsize>14</pointsize>
+                <pointsize>11</pointsize>
                 <bold>true</bold>
                </font>
               </property>
@@ -446,7 +446,6 @@
               <property name="font">
                <font>
                 <pointsize>11</pointsize>
-                <bold>true</bold>
                </font>
               </property>
               <property name="text">
@@ -470,12 +469,14 @@
               </property>
               <property name="font">
                <font>
-                <pointsize>14</pointsize>
+                <pointsize>11</pointsize>
                 <bold>true</bold>
                </font>
               </property>
               <property name="toolTip">
-               <string>Time to wait between dispense reps</string>
+               <string>WARNING: Too short and the pump may receive next command before completing first.
+
+Time to wait between dispense reps</string>
               </property>
               <property name="decimals">
                <number>1</number>
@@ -504,7 +505,7 @@
               </property>
               <property name="font">
                <font>
-                <pointsize>12</pointsize>
+                <pointsize>11</pointsize>
                 <bold>true</bold>
                </font>
               </property>
@@ -528,7 +529,6 @@
               <property name="font">
                <font>
                 <pointsize>11</pointsize>
-                <bold>true</bold>
                </font>
               </property>
               <property name="text">
@@ -552,7 +552,7 @@
               </property>
               <property name="font">
                <font>
-                <pointsize>14</pointsize>
+                <pointsize>11</pointsize>
                 <bold>true</bold>
                </font>
               </property>
@@ -585,21 +585,10 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_14">
             <item>
-             <widget class="QLabel" name="totalDispVolLabel">
-              <property name="font">
-               <font>
-                <pointsize>11</pointsize>
-               </font>
-              </property>
-             </widget>
+             <widget class="QLabel" name="totalDispVolLabel"/>
             </item>
             <item>
              <widget class="QLabel" name="totalDispTimeLabel">
-              <property name="font">
-               <font>
-                <pointsize>11</pointsize>
-               </font>
-              </property>
               <property name="toolTip">
                <string>D, HH:MM:SS</string>
               </property>
@@ -611,6 +600,9 @@
                <font>
                 <pointsize>11</pointsize>
                </font>
+              </property>
+              <property name="toolTip">
+               <string>&lt;step&gt;: hh:mm:ss (elapsed: hh:mm:ss)</string>
               </property>
              </widget>
             </item>
@@ -1092,6 +1084,10 @@
   <tabstop>emptyButton</tabstop>
   <tabstop>primeButton</tabstop>
   <tabstop>emptyLinesButton</tabstop>
+  <tabstop>dispVolSpinBox</tabstop>
+  <tabstop>dispTimeSpinBox</tabstop>
+  <tabstop>dispTimeUnitComboBox</tabstop>
+  <tabstop>dispRepsSpinBox</tabstop>
   <tabstop>allCheckBox</tabstop>
   <tabstop>col1CheckBox</tabstop>
   <tabstop>col2CheckBox</tabstop>

@@ -464,6 +464,10 @@ class MainWindow(QMainWindow):
         """Format milliseconds to hh:mm:ss"""
         return str(timedelta(seconds=round(msec/1000))).split(".")[0]
 
+    def formatSecTime(self, sec):
+        """Format seconds to hh:mm:ss"""
+        return str(timedelta(seconds=sec)).split(".")[0]
+
     def queryPump(self):
         """sends query command.. 0 = pump busy executing another command"""
         pump_status = []
@@ -600,7 +604,7 @@ class MainWindow(QMainWindow):
         params["rep_sec"] = wait_time if t_unit == "sec" else wait_time * 60
         params["total_sec"] = ((params["rep_sec"] * params["reps"]) -
                                params["rep_sec"])     # omit trailing time
-        total_time_readable = str(timedelta(seconds=params["total_sec"]))
+        total_time_readable = self.formatSecTime(params["total_sec"])
         dispense_display = [
             "total vol/well: {} {}".format(params["total_vol"],
                                            self.ui.dispenseUnits.text()),
