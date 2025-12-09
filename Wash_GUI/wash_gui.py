@@ -54,7 +54,6 @@ class MainWindow(QMainWindow):
         self.stop_flag = False   # Flag to detect if Stop has been pressed
         self.step_ctr = 0        # Var to carry step ctr thru funcs in dispense
         self.disp_rep_counter = 0 # Var to count repetitions in dispense()
-        self.active_widgets = []  # Widgets to disable during dispense()
         self.debug = debug
         self.busy_debug = busy_debug
         self.file_name = file_name
@@ -62,6 +61,13 @@ class MainWindow(QMainWindow):
             self.file = open(self.file_name, "w")
             print("File opened: {}".format(self.file.name))
             # self.openFile(self.write)
+        self.active_widgets = [
+            self.ui.commsBox,
+            self.ui.setUpBox,
+            self.ui.adjustmentBox,
+            self.ui.dispenseVolumeBox,
+            self.ui.columnSelectBox,
+        ]  # Widgets to disable during dispense()
 
         # BUTTONS
         # connect/disconnect from serial port:
@@ -709,18 +715,11 @@ class MainWindow(QMainWindow):
         for pump_id in DUAL_ID:
             cmd_dict[pump_id] += self.CmdStr.setValvesIn()
 
-        # Disable buttons while pump is in action
-        self.active_widgets = []    # Reset the active_widgets list
-        for widget in self.ui.centralwidget.findChildren(QWidget):
-            if widget.isEnabled():
-                if widget.objectName() in ["stopButton", "emergencyStopBox"]:
-                    pass
-                else:
-                    self.active_widgets.append(widget)
         # elapsed time display
         self.main_elapsed_time.restart()
         self.sub_elapsed_time.restart()
-        self.enableDispenseWidgets(self.active_widgets, False)
+        # Disable buttons while pump is in action
+        self.enableDispenseWidgets(self.active_widgets, enable=False)
 
         # Repeat based on timer options. Write and sleep one less rep than
         # stated, and then a final write. To avoid a needless sleep at end.
@@ -808,8 +807,7 @@ class MainWindow(QMainWindow):
             self.dbprint(f"{e}.\n\tStopPump: timer already disconnected.")
         self.stop_flag = True
         # reactivate widgets
-        self.enableDispenseWidgets(self.active_widgets)
-        # /end dispense cleanup
+        self.enableDispenseWidgets(self.active_widgets) # /end dispense cleanup
         # create the terminate cmds
         for pump_id in DUAL_ID:
             cmd_dict[pump_id] = self.CmdStr.terminate(pump_id)
