@@ -606,7 +606,7 @@ class MainWindow(QMainWindow):
                                params["rep_sec"])     # omit trailing time
         total_time_readable = self.formatSecTime(params["total_sec"])
         dispense_display = [
-            "total vol/well: {} {}".format(params["total_vol"],
+            "total vol/well: {} {}".format(round(params["total_vol"], 1),
                                            self.ui.dispenseUnits.text()),
             "total time: {}".format(total_time_readable)]
 
