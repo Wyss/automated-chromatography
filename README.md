@@ -8,13 +8,13 @@ Development of the automated chromatography rack.  Diagnostics Accelerator / Syn
 
 ## Folders
 
-The folder `./dev/` is for development and testing.  
+The folder `./dev/` is for development and testing.
 The folder `./SEC_GUI/` is what must be on the Raspberry Pi.  Run `python Octasome_GUI.py`. To autorun GUI from boot, see below.
 
 ## Auto-run at RaspPi boot
 To auto-run the GUI and disable the screensaver, edit the file `/etc/xdg/lxsession/LXDE-pi/autostart`
 
-And add these lines to the end: 
+And add these lines to the end:
 
 ```sh
 @python3 /home/pi/Desktop/SEC_GUI/Octasome_GUI.py
