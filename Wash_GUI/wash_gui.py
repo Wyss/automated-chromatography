@@ -494,7 +494,7 @@ class MainWindow(QMainWindow):
     def queryPump(self):
         """sends query command.. 0 = pump busy executing another command"""
         pump_status = []
-        for pump_id in PUMP_IDS:
+        for pump_id in PUMP_IDS[0:2]:
             response = self.write(self.CmdStr.queryPump(pump_id))
             time.sleep(0.02)
             try:
