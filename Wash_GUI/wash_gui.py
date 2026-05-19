@@ -190,9 +190,6 @@ class MainWindow(QMainWindow):
         for box in checkboxes:
             box.setEnabled(False)
 
-        # set dispense volume precision (set in mainwindow.*)
-        # self.ui.dispVolSpinBox.setSingleStep(0.1)
-
         # maximum and minimum values for pump speeds
         max_speed = self.speedStepToMLPerSec(ONE_SECOND_STROKE_SPEED/4)
         self.ui.drawSpeedSpinBox.setMaximum(max_speed)
@@ -414,7 +411,7 @@ class MainWindow(QMainWindow):
             units = "mL"
             self.ui.dispVolSpinBox.setMaximum((10))
             # self.ui.dispVolSpinBox.setSingleStep(0.100)
-            self.ui.dispVolSpinBox.setValue(1.5)
+            self.ui.dispVolSpinBox.setValue(1.66)
         self.ui.dispenseUnits.setText(units)
         # display pop-up confirmation that the syringe size has been set
         size = self.ui.syringeComboBox.currentText()
@@ -633,7 +630,7 @@ class MainWindow(QMainWindow):
                                params["rep_sec"])     # omit trailing time
         total_time_readable = self.formatSecTime(params["total_sec"])
         dispense_display = [
-            "total vol/well: {} {}".format(round(params["total_vol"], 1),
+            "total vol/well: {} {}".format(round(params["total_vol"], 2),
                                            self.ui.dispenseUnits.text()),
             "total time: {}".format(total_time_readable)]
 
